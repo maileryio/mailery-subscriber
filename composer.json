@@ -1,35 +1,46 @@
 {
-    "name": "maileryio/_____",
+    "name": "maileryio/mailery-subscriber",
     "type": "library",
-    "description": "_____",
+    "description": "Subscriber module for Mailery Platform",
     "keywords": [
-        "_____"
+        "mail",
+        "mailer",
+        "subscriber"
     ],
-    "homepage": "https://github.com/maileryio/_____",
+    "homepage": "https://github.com/maileryio/mailery-subscriber",
     "license": "BSD-3-Clause",
     "support": {
-        "source": "https://github.com/maileryio/_____",
-        "issues": "https://github.com/maileryio/_____/issues",
-        "wiki": "https://github.com/maileryio/_____/wiki"
+        "source": "https://github.com/maileryio/mailery-subscriber",
+        "issues": "https://github.com/maileryio/mailery-subscriber/issues",
+        "wiki": "https://github.com/maileryio/mailery-subscriber/wiki"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4"
+        "php": "^7.4",
+        "cycle/orm": "^1.2",
+        "foxy/foxy": "^1.0",
+        "form-manager/form-manager": "^6.0",
+        "maileryio/mailery-web": "dev-master",
+        "maileryio/widget-dataview": "dev-master",
+        "maileryio/widget-link": "dev-master",
+        "maileryio/widget-form": "dev-master",
+        "yiisoft/router": "^3.0@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.0",
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "hiqdev/composer-config-plugin": "^1.0",
         "phan/phan": "^2.4",
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "phpunit/phpunit": "^9.0"
     },
     "autoload": {
         "psr-4": {
-            "Mailery\\_____\\": "src"
+            "Mailery\\Subscriber\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mailery\\_____\\Tests\\": "tests"
+            "Mailery\\Subscriber\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -40,9 +51,17 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
+        },
+        "config-plugin": {
+            "params": "config/params.php",
+            "web": "config/web.php"
         }
     },
     "config": {
+        "foxy": {
+            "enabled": true,
+            "manager": "yarn"
+        },
         "sort-packages": true
     }
 }
