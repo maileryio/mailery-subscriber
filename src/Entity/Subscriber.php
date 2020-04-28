@@ -2,14 +2,22 @@
 
 declare(strict_types=1);
 
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Entity;
 
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
-use Cycle\Annotated\Annotation\Table;
-use Cycle\Annotated\Annotation\Table\Index;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
 use Cycle\Annotated\Annotation\Relation\ManyToMany;
+use Cycle\Annotated\Annotation\Table;
+use Cycle\Annotated\Annotation\Table\Index;
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
 use Mailery\Brand\Entity\Brand;
@@ -102,6 +110,7 @@ class Subscriber
     public function setId(int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -120,6 +129,7 @@ class Subscriber
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -138,6 +148,7 @@ class Subscriber
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -156,6 +167,7 @@ class Subscriber
     public function setBrand(Brand $brand): self
     {
         $this->brand = $brand;
+
         return $this;
     }
 
@@ -174,6 +186,7 @@ class Subscriber
     public function setGroups(PivotedCollectionInterface $groups): self
     {
         $this->groups = $groups;
+
         return $this;
     }
 
@@ -192,6 +205,7 @@ class Subscriber
     public function setConfirmed(bool $confirmed): self
     {
         $this->confirmed = $confirmed;
+
         return $this;
     }
 
@@ -210,6 +224,7 @@ class Subscriber
     public function setUnsubscribed(bool $unsubscribed): self
     {
         $this->unsubscribed = $unsubscribed;
+
         return $this;
     }
 
@@ -228,6 +243,7 @@ class Subscriber
     public function setBounced(bool $bounced): self
     {
         $this->bounced = $bounced;
+
         return $this;
     }
 
@@ -246,6 +262,7 @@ class Subscriber
     public function setComplaint(bool $complaint): self
     {
         $this->complaint = $complaint;
+
         return $this;
     }
 }

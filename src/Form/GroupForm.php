@@ -1,22 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Form;
 
-use Mailery\Subscriber\Entity\Group;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use FormManager\Form;
-use FormManager\Factory as F;
 use Cycle\ORM\ORMInterface;
-use Mailery\Subscriber\Repository\GroupRepository;
+use FormManager\Factory as F;
+use FormManager\Form;
 use Mailery\Brand\Service\BrandInterface;
 use Mailery\Brand\Service\BrandLocator;
+use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Service\GroupService;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
+use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class GroupForm extends Form
 {
-
     /**
      * @var BrandInterface
      */
@@ -94,7 +103,7 @@ class GroupForm extends Form
         $groupRepo = $this->orm->getRepository(Group::class);
 
         $nameConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) use($groupRepo) {
+            'callback' => function ($value, ExecutionContextInterface $context) use ($groupRepo) {
                 if (empty($value)) {
                     return;
                 }
@@ -105,7 +114,7 @@ class GroupForm extends Form
                         ->atPath('name')
                         ->addViolation();
                 }
-            }
+            },
         ]);
 
         return [
@@ -119,5 +128,4 @@ class GroupForm extends Form
             '' => F::submit($this->group === null ? 'Create' : 'Update'),
         ];
     }
-
 }

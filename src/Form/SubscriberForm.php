@@ -1,27 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Form;
 
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\Subscriber;
-use Mailery\Subscriber\Service\SubscriberService;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use FormManager\Form;
-use FormManager\Factory as F;
 use Cycle\ORM\ORMInterface;
-use Spiral\Database\Injection\Parameter;
-use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Repository\SubscriberRepository;
+use FormManager\Factory as F;
+use FormManager\Form;
 use Mailery\Brand\Service\BrandInterface;
 use Mailery\Brand\Service\BrandLocator;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Mailery\Widget\Form\Groups\RadioGroup;
+use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Entity\Subscriber;
+use Mailery\Subscriber\Repository\GroupRepository;
+use Mailery\Subscriber\Repository\SubscriberRepository;
+use Mailery\Subscriber\Service\SubscriberService;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
+use Mailery\Widget\Form\Groups\RadioGroup;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Spiral\Database\Injection\Parameter;
+use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class SubscriberForm extends Form
 {
-
     /**
      * @var BrandInterface
      */
@@ -109,7 +118,7 @@ class SubscriberForm extends Form
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function loadFromServerRequest(Request $request): self
     {
@@ -130,7 +139,7 @@ class SubscriberForm extends Form
         $subscriberRepo = $this->orm->getRepository(Subscriber::class);
 
         $uniqueEmailConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) use($subscriberRepo) {
+            'callback' => function ($value, ExecutionContextInterface $context) use ($subscriberRepo) {
                 if (empty($value)) {
                     return;
                 }
@@ -141,7 +150,7 @@ class SubscriberForm extends Form
                         ->atPath('email')
                         ->addViolation();
                 }
-            }
+            },
         ]);
 
         $groupOptions = $this->getGroupOptions();
@@ -186,5 +195,4 @@ class SubscriberForm extends Form
 
         return $options;
     }
-
 }

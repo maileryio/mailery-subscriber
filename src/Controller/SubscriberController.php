@@ -2,21 +2,28 @@
 
 declare(strict_types=1);
 
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Controller;
 
+use Cycle\ORM\ORMInterface;
 use Mailery\Subscriber\Controller;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Repository\SubscriberRepository;
+use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Cycle\ORM\ORMInterface;
 use Yiisoft\Data\Reader\Sort;
-use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
-use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 use Yiisoft\Http\Method;
-use Cycle\ORM\Transaction;
-use Mailery\Subscriber\Service\SubscriberService;
+use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 
 class SubscriberController extends Controller
 {
@@ -45,6 +52,7 @@ class SubscriberController extends Controller
 
     /**
      * @param Request $request
+     * @param ORMInterface $orm
      * @return Response
      */
     public function view(Request $request, ORMInterface $orm): Response

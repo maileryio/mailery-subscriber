@@ -1,10 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Brand\Service\BrandInterface;
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Form\SubscriberForm;
 
 class SubscriberValueObject
 {
@@ -138,6 +148,7 @@ class SubscriberValueObject
     {
         $new = clone $this;
         $new->brand = $brand;
+
         return $new;
     }
 
@@ -149,6 +160,7 @@ class SubscriberValueObject
     {
         $new = clone $this;
         $new->groups = $groups;
+
         return $new;
     }
 }

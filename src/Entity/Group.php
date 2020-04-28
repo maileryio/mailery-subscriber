@@ -2,13 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Entity;
 
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Relation\BelongsTo;
 use Cycle\Annotated\Annotation\Table;
 use Cycle\Annotated\Annotation\Table\Index;
-use Cycle\Annotated\Annotation\Relation\BelongsTo;
 use Mailery\Brand\Entity\Brand;
 
 /**
@@ -88,6 +96,7 @@ class Group
     public function setId(int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -106,6 +115,7 @@ class Group
     public function setBrand(Brand $brand): self
     {
         $this->brand = $brand;
+
         return $this;
     }
 
@@ -124,6 +134,7 @@ class Group
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -142,6 +153,7 @@ class Group
     public function setTotalCount(int $totalCount): self
     {
         $this->totalCount = $totalCount;
+
         return $this;
     }
 
@@ -160,6 +172,7 @@ class Group
     public function setBouncedCount(int $bouncedCount): self
     {
         $this->bouncedCount = $bouncedCount;
+
         return $this;
     }
 
@@ -178,6 +191,7 @@ class Group
     public function setComplaintCount(int $complaintCount): self
     {
         $this->complaintCount = $complaintCount;
+
         return $this;
     }
 
@@ -196,6 +210,7 @@ class Group
     public function setUnconfirmedCount(int $unconfirmedCount): self
     {
         $this->unconfirmedCount = $unconfirmedCount;
+
         return $this;
     }
 
@@ -214,6 +229,7 @@ class Group
     public function setUnsubscribedCount(int $unsubscribedCount): self
     {
         $this->unsubscribedCount = $unsubscribedCount;
+
         return $this;
     }
 
@@ -237,6 +253,7 @@ class Group
     public function incrTotalCount(): self
     {
         $this->totalCount++;
+
         return $this;
     }
 
@@ -246,6 +263,7 @@ class Group
     public function decrTotalCount(): self
     {
         $this->totalCount--;
+
         return $this;
     }
 }

@@ -1,13 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
-use Mailery\Widget\Dataview\GridView;
+use Mailery\Icon\Icon;
+use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
 use Mailery\Widget\Dataview\Columns\DataColumn;
+use Mailery\Widget\Dataview\GridView;
 use Mailery\Widget\Dataview\GridView\LinkPager;
-use Mailery\Icon\Icon;
 use Mailery\Widget\Link\Link;
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\Subscriber;
 use Yiisoft\Html\Html;
 use Yiisoft\Yii\Bootstrap4\Nav;
 
@@ -15,13 +14,12 @@ use Yiisoft\Yii\Bootstrap4\Nav;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
 /** @var bool $submitted */
-
 $this->setTitle($group->getName());
 
 ?><div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><?= $group->getName() ?></h1>
+            <h1 class="h2"><?= $group->getName(); ?></h1>
             <div class="btn-toolbar float-right">
                 <form class="form-inline float-left">
                     <div class="input-group mx-sm-1 mb-2">
@@ -33,7 +31,7 @@ $this->setTitle($group->getName());
                         </div>
                     </div>
                 </form>
-                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]) ?>">
+                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add subscribers
                 </a>
@@ -41,7 +39,7 @@ $this->setTitle($group->getName());
                     <template v-slot:button-content>
                         <?= Icon::widget()->name('settings'); ?>
                     </template>
-                    <b-dropdown-item href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]) ?>">Edit</b-dropdown-item>
+                    <b-dropdown-item href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">Edit</b-dropdown-item>
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-text variant="danger" class="dropdown-item-custom-link"><?= Link::widget()
                         ->label('Delete group')
@@ -54,7 +52,7 @@ $this->setTitle($group->getName());
                     ?></b-dropdown-text>
                 </b-dropdown>
                 <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/index') ?>">
+                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/index'); ?>">
                         Back
                     </a>
                 </div>
@@ -65,8 +63,8 @@ $this->setTitle($group->getName());
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12 grid-margin">
-        <?php $dataRenderer = function ($paginator) use($group, $urlGenerator) {
-            return GridView::widget()
+        <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
+                        return GridView::widget()
                 ->paginator($paginator)
                 ->options([
                     'class' => 'table-responsive',
@@ -81,7 +79,7 @@ $this->setTitle($group->getName());
                 ->columns([
                     (new DataColumn())
                         ->header('Email')
-                        ->content(function (Subscriber $data, int $index) use($urlGenerator) {
+                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
                             return Html::a(
                                 $data->getEmail(),
                                 $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
@@ -93,7 +91,7 @@ $this->setTitle($group->getName());
                         ])
                         ->header('Edit')
                         ->view('')
-                        ->update(function (Subscriber $data, int $index) use($urlGenerator) {
+                        ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
                             return Html::a(
                                 Icon::widget()->name('pencil'),
                                 $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
@@ -110,7 +108,7 @@ $this->setTitle($group->getName());
                         ->header('Delete')
                         ->view('')
                         ->update('')
-                        ->delete(function (Subscriber $data, int $index) use($group, $urlGenerator) {
+                        ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
                             return Link::widget()
                                 ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1']))
                                 ->method('delete')
@@ -121,7 +119,7 @@ $this->setTitle($group->getName());
                                 ]);
                         }),
                 ]);
-            }
+                    }
         ?>
 
         <?= Nav::widget()
@@ -164,13 +162,13 @@ $this->setTitle($group->getName());
                 ],
             ])
             ->options([
-                'class' => 'nav nav-tabs'
+                'class' => 'nav nav-tabs',
             ]);
         ?>
 
         <div class="tab-content">
             <div class="tab-pane fade show active" role="tabpanel">
-                <?= $dataRenderer($paginator) ?>
+                <?= $dataRenderer($paginator); ?>
 
                 <?php
                     if ($paginator->getTotalCount() > 0) {
@@ -178,18 +176,17 @@ $this->setTitle($group->getName());
                         <div class="row">
                             <div class="col-6">
                                 <?= GridView\OffsetSummary::widget()
-                                    ->paginator($paginator);
-                                ?>
+                                    ->paginator($paginator); ?>
                             </div>
                             <div class="col-6">
                                 <?= LinkPager::widget()
                                     ->paginator($paginator)
                                     ->options([
-                                        'class' => 'float-right'
+                                        'class' => 'float-right',
                                     ])
                                     ->prevPageLabel('Previous')
                                     ->nextPageLabel('Next')
-                                    ->urlGenerator(function (int $page) use($urlGenerator, $tab) {
+                                    ->urlGenerator(function (int $page) use ($urlGenerator, $tab) {
                                         $url = $urlGenerator->generate('/subscriber/group/index');
                                         $params = array_filter([
                                             'tab' => $tab,
@@ -201,8 +198,7 @@ $this->setTitle($group->getName());
                                         }
 
                                         return $url;
-                                    });
-                                ?>
+                                    }); ?>
                             </div>
                         </div><?php
                     }
