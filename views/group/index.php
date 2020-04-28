@@ -35,7 +35,7 @@ $this->setTitle('Subscriber groups');
                 <button class="btn btn-sm btn-secondary dropdown-toggle mb-2">
                     <?= Icon::widget()->name('settings'); ?>
                 </button>
-                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/create', ['brandId' => $brandLocator->getBrand()->getId()]) ?>">
+                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/create') ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add new group
                 </a>
@@ -68,9 +68,24 @@ $this->setTitle('Subscriber groups');
                         );
                     }),
                 (new DataColumn())
-                    ->header('Total Count')
+                    ->header('Active')
                     ->content(function (Group $data, int $index) {
-                        return $data->getTotalCount();
+                        return $data->getActiveCount();
+                    }),
+                (new DataColumn())
+                    ->header('Unsubscribed')
+                    ->content(function (Group $data, int $index) {
+                        return $data->getUnsubscribedCount();
+                    }),
+                (new DataColumn())
+                    ->header('Bounced')
+                    ->content(function (Group $data, int $index) {
+                        return $data->getBouncedCount();
+                    }),
+                (new DataColumn())
+                    ->header('Complaint')
+                    ->content(function (Group $data, int $index) {
+                        return $data->getComplaintCount();
                     }),
                 (new ActionColumn())
                     ->contentOptions([

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use Mailery\Menu\MenuItem;
 use Mailery\Subscriber\Controller\GroupController;
 use Mailery\Subscriber\Controller\ImportController;
 use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
-use Mailery\Menu\MenuItem;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -23,6 +23,14 @@ return [
             // Subscribers:
             '/subscriber/subscriber/index' => Route::get('/brand/{brandId:\d+}/subscribers', [SubscriberController::class, 'index'])
                 ->name('/subscriber/subscriber/index'),
+            '/subscriber/subscriber/view' => Route::get('/brand/{brandId:\d+}/subscriber/subscriber/view/{id:\d+}', [SubscriberController::class, 'view'])
+                ->name('/subscriber/subscriber/view'),
+            '/subscriber/subscriber/create' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/create', [SubscriberController::class, 'create'])
+                ->name('/subscriber/subscriber/create'),
+            '/subscriber/subscriber/edit' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/edit/{id:\d+}', [SubscriberController::class, 'edit'])
+                ->name('/subscriber/subscriber/edit'),
+            '/subscriber/subscriber/delete' => Route::delete('/brand/{brandId:\d+}/subscriber/subscriber/delete/{id:\d+}', [SubscriberController::class, 'delete'])
+                ->name('/subscriber/subscriber/delete'),
 
             // Imports:
             '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [ImportController::class, 'index'])
@@ -39,6 +47,8 @@ return [
                 ->name('/subscriber/group/edit'),
             '/subscriber/group/delete' => Route::delete('/brand/{brandId:\d+}/subscriber/group/delete/{id:\d+}', [GroupController::class, 'delete'])
                 ->name('/subscriber/group/delete'),
+            '/subscriber/group/delete-subscriber' => Route::delete('/brand/{brandId:\d+}/subscriber/group/delete-subscriber/{id:\d+}/{subscriberId:\d+}', [GroupController::class, 'deleteSubscriber'])
+                ->name('/subscriber/group/delete-subscriber'),
 
             // Reports:
             '/subscriber/report/index' => Route::get('/brand/{brandId:\d+}/reports', [ReportController::class, 'index'])
@@ -58,24 +68,44 @@ return [
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
                                 return $urlGenerator->generate('/subscriber/subscriber/index');
                             }))
+                            ->withActiveRouteNames([
+                                '/subscriber/subscriber/index',
+                                '/subscriber/subscriber/view',
+                                '/subscriber/subscriber/create',
+                                '/subscriber/subscriber/edit',
+                                '/subscriber/subscriber/delete',
+                            ])
                             ->withOrder(10),
                         'groups' => (new MenuItem())
                             ->withLabel('Groups & Segments')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
                                 return $urlGenerator->generate('/subscriber/group/index');
                             }))
+                            ->withActiveRouteNames([
+                                '/subscriber/group/index',
+                                '/subscriber/group/view',
+                                '/subscriber/group/create',
+                                '/subscriber/group/edit',
+                                '/subscriber/group/delete',
+                            ])
                             ->withOrder(20),
                         'imports' => (new MenuItem())
                             ->withLabel('Import Lists')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
                                 return $urlGenerator->generate('/subscriber/import/index');
                             }))
+                            ->withActiveRouteNames([
+                                '/subscriber/import/index',
+                            ])
                             ->withOrder(30),
                         'reports' => (new MenuItem())
                             ->withLabel('Reports')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
                                 return $urlGenerator->generate('/subscriber/report/index');
                             }))
+                            ->withActiveRouteNames([
+                                '/subscriber/report/index',
+                            ])
                             ->withOrder(40),
                     ]),
             ],

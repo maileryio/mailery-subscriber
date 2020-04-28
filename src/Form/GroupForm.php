@@ -7,13 +7,20 @@ use Symfony\Component\Validator\Constraints;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use FormManager\Form;
 use FormManager\Factory as F;
-use Cycle\ORM\Transaction;
 use Cycle\ORM\ORMInterface;
-use Yiisoft\Security\PasswordHasher;
 use Mailery\Subscriber\Repository\GroupRepository;
+use Mailery\Brand\Service\BrandInterface;
+use Mailery\Brand\Service\BrandLocator;
+use Mailery\Subscriber\Service\GroupService;
+use Mailery\Subscriber\ValueObject\GroupValueObject;
 
 class GroupForm extends Form
 {
+
+    /**
+     * @var BrandInterface
+     */
+    private BrandInterface $brand;
 
     /**
      * @var ORMInterface
@@ -26,11 +33,20 @@ class GroupForm extends Form
     private ?Group $group;
 
     /**
-     * @inheritdoc
+     * @var GroupService
      */
-    public function __construct(ORMInterface $orm)
+    private $groupService;
+
+    /**
+     * @param BrandLocator $brandLocator
+     * @param GroupService $groupService
+     * @param ORMInterface $orm
+     */
+    public function __construct(BrandLocator $brandLocator, GroupService $groupService, ORMInterface $orm)
     {
         $this->orm = $orm;
+        $this->brand = $brandLocator->getBrand();
+        $this->groupService = $groupService;
         parent::__construct($this->inputs());
     }
 
@@ -53,19 +69,18 @@ class GroupForm extends Form
      */
     public function save(): Group
     {
-        $name = $this['name']->getValue();
-
-        if (($group = $this->group) === null) {
-            $group = new Group();
+        if (!$this->isValid()) {
+            return null;
         }
 
-        $group
-            ->setName($name)
-        ;
+        $valueObject = GroupValueObject::fromForm($this)
+            ->withBrand($this->brand);
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($group);
-        $tr->run();
+        if (($group = $this->group) === null) {
+            $group = $this->groupService->create($valueObject);
+        } else {
+            $this->groupService->update($group, $valueObject);
+        }
 
         return $group;
     }
@@ -98,9 +113,6 @@ class GroupForm extends Form
                 ->addConstraint(new Constraints\NotBlank())
                 ->addConstraint(new Constraints\Length([
                     'min' => 4,
-                ]))
-                ->addConstraint(new Constraints\Regex([
-                    'pattern' => '/^[a-zA-Z0-9]+$/i',
                 ]))
                 ->addConstraint($nameConstraint),
 

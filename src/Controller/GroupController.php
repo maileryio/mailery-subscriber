@@ -8,18 +8,22 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Cycle\ORM\ORMInterface;
 use Mailery\Subscriber\Repository\GroupRepository;
+use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\GroupForm;
 use Yiisoft\Data\Reader\Sort;
 use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 use Yiisoft\Http\Method;
 use Cycle\ORM\Transaction;
+use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\Service\GroupService;
 
 class GroupController extends Controller
 {
 
-    private const PAGINATION_INDEX = 5;
+    private const PAGINATION_INDEX = 10;
 
     /**
      * @param Request $request
@@ -28,7 +32,9 @@ class GroupController extends Controller
      */
     public function index(Request $request, ORMInterface $orm): Response
     {
-        $pageNum = (int) $request->getAttribute('page', 1);
+        $queryParams = $request->getQueryParams();
+        $pageNum = (int) ($queryParams['page'] ?? 1);
+
         /** @var GroupRepository $groupRepo */
         $groupRepo = $orm->getRepository(Group::class);
 
@@ -48,13 +54,43 @@ class GroupController extends Controller
     {
         /** @var GroupRepository $groupRepo */
         $groupRepo = $orm->getRepository(Group::class);
+        /** @var SubscriberRepository $subscriberRepo */
+        $subscriberRepo = $orm->getRepository(Subscriber::class);
 
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
-        return $this->render('view', compact('group'));
+        $tab = $request->getQueryParams()['tab'] ?? null;
+        $pageNum = (int) ($request->getQueryParams()['page'] ?? 1);
+
+        switch ($tab) {
+            case 'active':
+                $dataReader = $subscriberRepo->findActiveByGroup($group);
+                break;
+            case 'unconfirmed':
+                $dataReader = $subscriberRepo->findUnconfirmedByGroup($group);
+                break;
+            case 'unsubscribed':
+                $dataReader = $subscriberRepo->findUnsubscribedByGroup($group);
+                break;
+            case 'bounced':
+                $dataReader = $subscriberRepo->findBouncedByGroup($group);
+                break;
+            case 'complaint':
+                $dataReader = $subscriberRepo->findComplaintByGroup($group);
+                break;
+            default:
+                $dataReader = $subscriberRepo->findAllByGroup($group);
+                break;
+        }
+
+        $paginator = (new OffsetPaginator($dataReader->withSort((new Sort([]))->withOrderString('email'))))
+            ->withPageSize(self::PAGINATION_INDEX)
+            ->withCurrentPage($pageNum);
+
+        return $this->render('view', compact('tab', 'group', 'paginator'));
     }
 
     /**
@@ -126,10 +162,11 @@ class GroupController extends Controller
     /**
      * @param Request $request
      * @param ORMInterface $orm
+     * @param GroupService $groupService
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function delete(Request $request, ORMInterface $orm, UrlGenerator $urlGenerator): Response
+    public function delete(Request $request, ORMInterface $orm, GroupService $groupService, UrlGenerator $urlGenerator): Response
     {
         /** @var GroupRepository $groupRepo */
         $groupRepo = $orm->getRepository(Group::class);
@@ -139,11 +176,39 @@ class GroupController extends Controller
             return $this->getResponseFactory()->createResponse(404);
         }
 
-        $tr = new Transaction($orm);
-        $tr->delete($group);
-        $tr->run();
+        $groupService->delete($group);
 
         return $this->redirect($urlGenerator->generate('/subscriber/group/index'));
+    }
+
+    /**
+     * @param Request $request
+     * @param ORMInterface $orm
+     * @param SubscriberService $subscriberService
+     * @param UrlGenerator $urlGenerator
+     * @return Response
+     */
+    public function deleteSubscriber(Request $request, ORMInterface $orm, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
+    {
+        /** @var GroupRepository $groupRepo */
+        $groupRepo = $orm->getRepository(Group::class);
+
+        /** @var SubscriberRepository $subscriberRepo */
+        $subscriberRepo = $orm->getRepository(Subscriber::class);
+
+        $groupId = $request->getAttribute('id');
+        if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
+            return $this->getResponseFactory()->createResponse(404);
+        }
+
+        $subscriberId = $request->getAttribute('subscriberId');
+        if (empty($subscriberId) || ($subscriber = $subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->getResponseFactory()->createResponse(404);
+        }
+
+        $subscriberService->delete($subscriber, $group);
+
+        return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
     }
 
 }
