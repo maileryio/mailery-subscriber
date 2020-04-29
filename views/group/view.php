@@ -93,7 +93,7 @@ $this->setTitle($group->getName());
                         ->view('')
                         ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
                             return Html::a(
-                                Icon::widget()->name('pencil'),
+                                (string) Icon::widget()->name('pencil'),
                                 $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
                                 [
                                     'class' => 'text-decoration-none mr-3',
@@ -110,7 +110,7 @@ $this->setTitle($group->getName());
                         ->update('')
                         ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
                             return Link::widget()
-                                ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1']))
+                                ->label((string) Icon::widget()->name('delete')->options(['class' => 'mr-1']))
                                 ->method('delete')
                                 ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
                                 ->confirm('Are you sure?')
