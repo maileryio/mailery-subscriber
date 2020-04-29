@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Brand\Service\BrandInterface;
+use Mailery\Brand\Contract\BrandInterface as Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\SubscriberForm;
 
@@ -49,9 +49,9 @@ class SubscriberValueObject
     private bool $complaint;
 
     /**
-     * @var BrandInterface
+     * @var Brand
      */
-    private BrandInterface $brand;
+    private Brand $brand;
 
     /**
      * @var Group[]
@@ -125,9 +125,9 @@ class SubscriberValueObject
     }
 
     /**
-     * @return BrandInterface
+     * @return Brand
      */
-    public function getBrand(): BrandInterface
+    public function getBrand(): Brand
     {
         return $this->brand;
     }
@@ -141,10 +141,10 @@ class SubscriberValueObject
     }
 
     /**
-     * @param BrandInterface $brand
+     * @param Brand $brand
      * @return self
      */
-    public function withBrand(BrandInterface $brand): self
+    public function withBrand(Brand $brand): self
     {
         $new = clone $this;
         $new->brand = $brand;

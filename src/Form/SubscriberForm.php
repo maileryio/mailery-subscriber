@@ -15,8 +15,8 @@ namespace Mailery\Subscriber\Form;
 use Cycle\ORM\ORMInterface;
 use FormManager\Factory as F;
 use FormManager\Form;
-use Mailery\Brand\Service\BrandInterface;
-use Mailery\Brand\Service\BrandLocator;
+use Mailery\Brand\Contract\BrandInterface as Brand;
+use Mailery\Brand\Contract\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\GroupRepository;
@@ -32,9 +32,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class SubscriberForm extends Form
 {
     /**
-     * @var BrandInterface
+     * @var Brand
      */
-    private BrandInterface $brand;
+    private Brand $brand;
 
     /**
      * @var ORMInterface
