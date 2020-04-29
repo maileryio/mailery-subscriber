@@ -1,8 +1,3 @@
 {
-    "license": "BSD-3-Clause",
-    "dependencies": {
-        "@composer-asset/maileryio--mailery-web": "file:./vendor/foxy/composer-asset/maileryio/mailery-web",
-        "@composer-asset/maileryio--widget-link": "file:./vendor/foxy/composer-asset/maileryio/widget-link",
-        "@composer-asset/yiisoft--yii-bootstrap4": "file:./vendor/foxy/composer-asset/yiisoft/yii-bootstrap4"
-    }
+    "license": "BSD-3-Clause"
 }
