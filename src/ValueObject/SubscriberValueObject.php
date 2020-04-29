@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Brand\Contract\BrandInterface as Brand;
+use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\SubscriberForm;
 

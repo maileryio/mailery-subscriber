@@ -15,8 +15,8 @@ namespace Mailery\Subscriber\Form;
 use Cycle\ORM\ORMInterface;
 use FormManager\Factory as F;
 use FormManager\Form;
-use Mailery\Brand\Contract\BrandInterface as Brand;
-use Mailery\Brand\Contract\BrandLocatorInterface as BrandLocator;
+use Mailery\Brand\Entity\Brand;
+use Mailery\Brand\Service\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\GroupRepository;
@@ -104,7 +104,7 @@ class SubscriberForm extends Form
 
         $valueObject = SubscriberValueObject::fromForm($this)
             ->withBrand($this->brand)
-            ->withGroups(iterator_to_array($groups));
+            ->withGroups((array) $groups);
 
         if (($subscriber = $this->subscriber) === null) {
             $subscriber = $this->subscriberService->create($valueObject);
