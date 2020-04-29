@@ -20,15 +20,15 @@
         "php": "^7.4",
         "cycle/orm": "^1.2",
         "form-manager/form-manager": "^6.0",
-        "foxy/foxy": "^1.0",
-        "maileryio/mailery-brand": "^1.0@dev",
-        "maileryio/mailery-menu": "^1.0",
+        "maileryio/mailery-brand": "dev-master",
+        "maileryio/mailery-menu": "dev-master",
         "maileryio/mailery-web": "dev-master",
         "maileryio/widget-dataview": "dev-master",
         "maileryio/widget-form": "dev-master",
         "maileryio/widget-link": "dev-master",
         "yiisoft/router": "^3.0@dev",
-        "yiisoft/yii-bootstrap4": "^3.0@dev"
+        "yiisoft/yii-bootstrap4": "^3.0@dev",
+        "yiisoft/yii-cycle": "^3.0@dev"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
@@ -61,10 +61,6 @@
         }
     },
     "config": {
-        "foxy": {
-            "enabled": true,
-            "manager": "yarn"
-        },
         "sort-packages": true
     }
 }

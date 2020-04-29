@@ -29,7 +29,7 @@ class GroupValueObject
 
     /**
      * @param GroupForm $form
-     * @return \self
+     * @return self
      */
     public static function fromForm(GroupForm $form): self
     {
@@ -49,7 +49,7 @@ class GroupValueObject
     }
 
     /**
-     * @return string
+     * @return BrandInterface
      */
     public function getBrand(): BrandInterface
     {

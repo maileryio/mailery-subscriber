@@ -12,72 +12,67 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
-use Cycle\Annotated\Annotation\Column;
-use Cycle\Annotated\Annotation\Entity;
-use Cycle\Annotated\Annotation\Relation\BelongsTo;
-use Cycle\Annotated\Annotation\Table;
-use Cycle\Annotated\Annotation\Table\Index;
 use Mailery\Brand\Entity\Brand;
 
 /**
- * @Entity(
+ * @Cycle\Annotated\Annotation\Entity(
  *      table = "groups",
  *      repository = "Mailery\Subscriber\Repository\GroupRepository",
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
- * @Table(
+ * @Cycle\Annotated\Annotation\Table(
  *      indexes = {
- *          @Index(columns = {"name"}, unique = true)
+ *          @Cycle\Annotated\Annotation\Table\Index(columns = {"name"}, unique = true)
  *      }
  * )
  */
 class Group
 {
     /**
-     * @Column(type = "primary")
+     * @Cycle\Annotated\Annotation\Column(type = "primary")
      * @var int|null
      */
     private $id;
 
     /**
-     * @BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = false)
      * @var Brand
      */
     private $brand;
 
     /**
-     * @Column(type = "string(32)")
+     * @Cycle\Annotated\Annotation\Column(type = "string(32)")
      * @var string
      */
     private $name;
 
     /**
-     * @Column(type = "integer", name = "total_count", default = 0)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "integer", name = "total_count", default = 0)
+     * @var int
      */
     private $totalCount = 0;
 
     /**
-     * @Column(type = "integer", name = "bounced_count", default = 0)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "integer", name = "bounced_count", default = 0)
+     * @var int
      */
     private $bouncedCount = 0;
 
     /**
-     * @Column(type = "integer", name = "complaint_count", default = 0)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "integer", name = "complaint_count", default = 0)
+     * @var int
      */
     private $complaintCount = 0;
 
     /**
-     * @Column(type = "integer", name = "unconfirmed_count", default = 0)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "integer", name = "unconfirmed_count", default = 0)
+     * @var int
      */
     private $unconfirmedCount = 0;
 
     /**
-     * @Column(type = "integer", name = "unsubscribed_count", default = 0)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "integer", name = "unsubscribed_count", default = 0)
+     * @var int
      */
     private $unsubscribedCount = 0;
 

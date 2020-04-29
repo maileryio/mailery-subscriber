@@ -12,81 +12,75 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
-use Cycle\Annotated\Annotation\Column;
-use Cycle\Annotated\Annotation\Entity;
-use Cycle\Annotated\Annotation\Relation\BelongsTo;
-use Cycle\Annotated\Annotation\Relation\ManyToMany;
-use Cycle\Annotated\Annotation\Table;
-use Cycle\Annotated\Annotation\Table\Index;
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
 use Mailery\Brand\Entity\Brand;
 
 /**
- * @Entity(
+ * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscribers",
  *      repository = "Mailery\Subscriber\Repository\SubscriberRepository",
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
- * @Table(
+ * @Cycle\Annotated\Annotation\Table(
  *      indexes = {
- *          @Index(columns = {"email"}, unique = true)
+ *          @Cycle\Annotated\Annotation\Table\Index(columns = {"email"}, unique = true)
  *      }
  * )
  */
 class Subscriber
 {
     /**
-     * @Column(type = "primary")
+     * @Cycle\Annotated\Annotation\Column(type = "primary")
      * @var int|null
      */
     private $id;
 
     /**
-     * @Column(type = "string(255)")
+     * @Cycle\Annotated\Annotation\Column(type = "string(255)")
      * @var string
      */
     private $name;
 
     /**
-     * @Column(type = "string(255)")
+     * @Cycle\Annotated\Annotation\Column(type = "string(255)")
      * @var string
      */
     private $email;
 
     /**
-     * @BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = false)
      * @var Brand
      */
     private $brand;
 
     /**
-     * @ManyToMany(target = "Group", though = "SubscriberGroup", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "SubscriberGroup", nullable = false)
      * @var PivotedCollectionInterface
      */
     private $groups;
 
     /**
-     * @Column(type = "boolean", default = false)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "boolean", default = false)
+     * @var bool
      */
     private $confirmed = false;
 
     /**
-     * @Column(type = "boolean", default = false)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "boolean", default = false)
+     * @var bool
      */
     private $unsubscribed = false;
 
     /**
-     * @Column(type = "boolean", default = false)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "boolean", default = false)
+     * @var bool
      */
     private $bounced = false;
 
     /**
-     * @Column(type = "boolean", default = false)
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "boolean", default = false)
+     * @var bool
      */
     private $complaint = false;
 

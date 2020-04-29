@@ -42,10 +42,7 @@ class GroupController extends Controller
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $orm->getRepository(Group::class);
-
-        $dataReader = $groupRepo->findAll()->withSort((new Sort([]))->withOrderString('name'));
+        $dataReader = $this->getGroupRepository($orm)->getDataReader()->withSort((new Sort([]))->withOrderString('name'));
         $paginator = (new OffsetPaginator($dataReader))
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
@@ -60,18 +57,15 @@ class GroupController extends Controller
      */
     public function view(Request $request, ORMInterface $orm): Response
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $orm->getRepository(Group::class);
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
+        if (empty($groupId) || ($group = $this->getGroupRepository($orm)->findByPK($groupId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
         $tab = $request->getQueryParams()['tab'] ?? null;
         $pageNum = (int) ($request->getQueryParams()['page'] ?? 1);
+
+        $subscriberRepo = $this->getSubscriberRepository($orm);
 
         switch ($tab) {
             case 'active':
@@ -120,14 +114,15 @@ class GroupController extends Controller
                 'action' => $request->getUri()->getPath(),
                 'method' => 'post',
                 'enctype' => 'multipart/form-data',
-            ]);
+            ])
+        ;
 
         $submitted = $request->getMethod() === Method::POST;
 
         if ($submitted) {
             $groupForm->loadFromServerRequest($request);
 
-            if ($groupForm->isValid() && ($group = $groupForm->save()) !== null) {
+            if (($group = $groupForm->save()) !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
             }
         }
@@ -144,28 +139,26 @@ class GroupController extends Controller
      */
     public function edit(Request $request, ORMInterface $orm, GroupForm $groupForm, UrlGenerator $urlGenerator): Response
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $orm->getRepository(Group::class);
-
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
+        if (empty($groupId) || ($group = $this->getGroupRepository($orm)->findByPK($groupId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
         $groupForm
+            ->withGroup($group)
             ->setAttributes([
                 'action' => $request->getUri()->getPath(),
                 'method' => 'post',
                 'enctype' => 'multipart/form-data',
             ])
-            ->withGroup($group);
+        ;
 
         $submitted = $request->getMethod() === Method::POST;
 
         if ($submitted) {
             $groupForm->loadFromServerRequest($request);
 
-            if ($groupForm->isValid() && ($group = $groupForm->save()) !== null) {
+            if (($group = $groupForm->save()) !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
             }
         }
@@ -182,11 +175,8 @@ class GroupController extends Controller
      */
     public function delete(Request $request, ORMInterface $orm, GroupService $groupService, UrlGenerator $urlGenerator): Response
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $orm->getRepository(Group::class);
-
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
+        if (empty($groupId) || ($group = $this->getGroupRepository($orm)->findByPK($groupId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -204,24 +194,36 @@ class GroupController extends Controller
      */
     public function deleteSubscriber(Request $request, ORMInterface $orm, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $orm->getRepository(Group::class);
-
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $groupRepo->findByPK($groupId)) === null) {
+        if (empty($groupId) || ($group = $this->getGroupRepository($orm)->findByPK($groupId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
         $subscriberId = $request->getAttribute('subscriberId');
-        if (empty($subscriberId) || ($subscriber = $subscriberRepo->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
         $subscriberService->delete($subscriber, $group);
 
         return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
+    }
+
+    /**
+     * @param ORMInterface $orm
+     * @return GroupRepository
+     */
+    private function getGroupRepository(ORMInterface $orm): GroupRepository
+    {
+        return $orm->getRepository(Group::class);
+    }
+
+    /**
+     * @param ORMInterface $orm
+     * @return SubscriberRepository
+     */
+    private function getSubscriberRepository(ORMInterface $orm): SubscriberRepository
+    {
+        return $orm->getRepository(Subscriber::class);
     }
 }

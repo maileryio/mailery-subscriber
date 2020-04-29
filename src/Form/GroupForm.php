@@ -37,7 +37,7 @@ class GroupForm extends Form
     private ORMInterface $orm;
 
     /**
-     * @var Group
+     * @var Group|null
      */
     private ?Group $group;
 
@@ -74,9 +74,9 @@ class GroupForm extends Form
     }
 
     /**
-     * @return Group
+     * @return Group|null
      */
-    public function save(): Group
+    public function save(): ?Group
     {
         if (!$this->isValid()) {
             return null;

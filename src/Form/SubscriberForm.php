@@ -42,7 +42,7 @@ class SubscriberForm extends Form
     private ORMInterface $orm;
 
     /**
-     * @var Subscriber
+     * @var Subscriber|null
      */
     private ?Subscriber $subscriber;
 
@@ -87,9 +87,9 @@ class SubscriberForm extends Form
     }
 
     /**
-     * @return Subscriber
+     * @return Subscriber|null
      */
-    public function save(): Subscriber
+    public function save(): ?Subscriber
     {
         if (!$this->isValid()) {
             return null;
@@ -97,9 +97,7 @@ class SubscriberForm extends Form
 
         $groupIds = $this['groups[]']->getValue();
 
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $this->orm->getRepository(Group::class);
-        $groups = $groupRepo->findAll([
+        $groups = $this->getGroupRepository($this->orm)->findAll([
             'id' => ['in' => new Parameter($groupIds)],
             'brand_id' => $this->brand->getId(),
         ]);
@@ -120,7 +118,7 @@ class SubscriberForm extends Form
     /**
      * {@inheritdoc}
      */
-    public function loadFromServerRequest(Request $request): self
+    public function loadFromServerRequest(Request $request): Form
     {
         parent::loadFromServerRequest($request);
 
@@ -185,14 +183,22 @@ class SubscriberForm extends Form
      */
     private function getGroupOptions(): array
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $this->orm->getRepository(Group::class);
-        $groups = $groupRepo->findAll(['brand_id' => $this->brand->getId()]);
+        $options = [];
+        $groups = $this->getGroupRepository($this->orm)->findAll(['brand_id' => $this->brand->getId()]);
 
         foreach ($groups as $group) {
             $options[$group->getId()] = $group->getName();
         }
 
         return $options;
+    }
+
+    /**
+     * @param ORMInterface $orm
+     * @return GroupRepository
+     */
+    private function getGroupRepository(ORMInterface $orm): GroupRepository
+    {
+        return $orm->getRepository(Group::class);
     }
 }

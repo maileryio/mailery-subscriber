@@ -24,7 +24,7 @@ class GroupRepository extends Repository
      * @param array $orderBy
      * @return SelectDataReader
      */
-    public function findAll(array $scope = [], array $orderBy = []): SelectDataReader
+    public function getDataReader(array $scope = [], array $orderBy = []): SelectDataReader
     {
         return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
     }

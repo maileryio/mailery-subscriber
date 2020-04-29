@@ -12,11 +12,8 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
-use Cycle\Annotated\Annotation\Column;
-use Cycle\Annotated\Annotation\Entity;
-
 /**
- * @Entity(
+ * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscribers_groups",
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
@@ -24,7 +21,7 @@ use Cycle\Annotated\Annotation\Entity;
 class SubscriberGroup
 {
     /**
-     * @Column(type = "primary")
+     * @Cycle\Annotated\Annotation\Column(type = "primary")
      * @var int|null
      */
     private $id;

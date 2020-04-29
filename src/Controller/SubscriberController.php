@@ -39,10 +39,7 @@ class SubscriberController extends Controller
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
-        $dataReader = $subscriberRepo->findAll()->withSort((new Sort([]))->withOrderString('email'));
+        $dataReader = $this->getSubscriberRepository($orm)->getDataReader()->withSort((new Sort([]))->withOrderString('email'));
         $paginator = (new OffsetPaginator($dataReader))
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
@@ -57,11 +54,8 @@ class SubscriberController extends Controller
      */
     public function view(Request $request, ORMInterface $orm): Response
     {
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $subscriberRepo->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -81,14 +75,15 @@ class SubscriberController extends Controller
                 'action' => $request->getUri()->getPath(),
                 'method' => 'post',
                 'enctype' => 'multipart/form-data',
-            ]);
+            ])
+        ;
 
         $submitted = $request->getMethod() === Method::POST;
 
         if ($submitted) {
             $subscriberForm->loadFromServerRequest($request);
 
-            if ($subscriberForm->isValid() && ($group = $subscriberForm->save()) !== null) {
+            if (($group = $subscriberForm->save()) !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $group->getId()]));
             }
         }
@@ -105,11 +100,8 @@ class SubscriberController extends Controller
      */
     public function edit(Request $request, ORMInterface $orm, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
     {
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $subscriberRepo->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -119,14 +111,15 @@ class SubscriberController extends Controller
                 'action' => $request->getUri()->getPath(),
                 'method' => 'post',
                 'enctype' => 'multipart/form-data',
-            ]);
+            ])
+        ;
 
         $submitted = $request->getMethod() === Method::POST;
 
         if ($submitted) {
             $subscriberForm->loadFromServerRequest($request);
 
-            if ($subscriberForm->isValid() && ($subscriber = $subscriberForm->save()) !== null) {
+            if (($subscriber = $subscriberForm->save()) !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
             }
         }
@@ -143,16 +136,22 @@ class SubscriberController extends Controller
      */
     public function delete(Request $request, ORMInterface $orm, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
     {
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $orm->getRepository(Subscriber::class);
-
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $subscriberRepo->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
         $subscriberService->delete($subscriber);
 
         return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
+    }
+
+    /**
+     * @param ORMInterface $orm
+     * @return SubscriberRepository
+     */
+    private function getSubscriberRepository(ORMInterface $orm): SubscriberRepository
+    {
+        return $orm->getRepository(Subscriber::class);
     }
 }

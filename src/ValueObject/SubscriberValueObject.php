@@ -60,7 +60,7 @@ class SubscriberValueObject
 
     /**
      * @param SubscriberForm $form
-     * @return \self
+     * @return self
      */
     public static function fromForm(SubscriberForm $form): self
     {
