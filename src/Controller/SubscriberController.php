@@ -119,7 +119,7 @@ class SubscriberController extends Controller
         if ($submitted) {
             $subscriberForm->loadFromServerRequest($request);
 
-            if (($subscriber = $subscriberForm->save()) !== null) {
+            if ($subscriberForm->save() !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
             }
         }

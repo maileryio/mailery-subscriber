@@ -83,7 +83,7 @@ return [
                                 '/subscriber/subscriber/edit',
                                 '/subscriber/subscriber/delete',
                             ])
-                            ->withOrder(10),
+                            ->withOrder(100),
                         'groups' => (new MenuItem())
                             ->withLabel('Groups & Segments')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
@@ -96,7 +96,7 @@ return [
                                 '/subscriber/group/edit',
                                 '/subscriber/group/delete',
                             ])
-                            ->withOrder(20),
+                            ->withOrder(200),
                         'imports' => (new MenuItem())
                             ->withLabel('Import Lists')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
@@ -105,7 +105,7 @@ return [
                             ->withActiveRouteNames([
                                 '/subscriber/import/index',
                             ])
-                            ->withOrder(30),
+                            ->withOrder(300),
                         'reports' => (new MenuItem())
                             ->withLabel('Reports')
                             ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
@@ -114,8 +114,9 @@ return [
                             ->withActiveRouteNames([
                                 '/subscriber/report/index',
                             ])
-                            ->withOrder(40),
-                    ]),
+                            ->withOrder(400),
+                    ])
+                    ->withOrder(200),
             ],
         ],
     ],

@@ -158,7 +158,7 @@ class GroupController extends Controller
         if ($submitted) {
             $groupForm->loadFromServerRequest($request);
 
-            if (($group = $groupForm->save()) !== null) {
+            if ($groupForm->save() !== null) {
                 return $this->redirect($urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
             }
         }

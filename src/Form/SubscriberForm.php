@@ -79,7 +79,7 @@ class SubscriberForm extends Form
             function (Group $group) {
                 return $group->getId();
             },
-            iterator_to_array($subscriber->getGroups())
+            $subscriber->getGroups()->toArray()
         ));
         $this['confirmed']->setValue($subscriber->getConfirmed() ? 'yes' : 'no');
 
