@@ -17,8 +17,12 @@ use Mailery\Subscriber\Controller;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Repository\SubscriberRepository;
+use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Mailery\Subscriber\Service\SubscriberService;
 use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
+use Mailery\Widget\Search\Data\Reader\Search;
+use Mailery\Widget\Search\Form\SearchForm;
+use Mailery\Widget\Search\Model\SearchByList;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
@@ -32,19 +36,28 @@ class SubscriberController extends Controller
     /**
      * @param Request $request
      * @param ORMInterface $orm
+     * @param SearchForm $searchForm
      * @return Response
      */
-    public function index(Request $request, ORMInterface $orm): Response
+    public function index(Request $request, ORMInterface $orm, SearchForm $searchForm): Response
     {
+        $searchForm = $searchForm->withSearchByList(new SearchByList([
+            new SubscriberSearchBy(),
+        ]));
+
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        $dataReader = $this->getSubscriberRepository($orm)->getDataReader()->withSort((new Sort([]))->withOrderString('email'));
+        $dataReader = $this->getSubscriberRepository($orm)
+            ->getDataReader()
+            ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
+            ->withSort((new Sort([]))->withOrderString('email'));
+
         $paginator = (new OffsetPaginator($dataReader))
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 
-        return $this->render('index', compact('paginator'));
+        return $this->render('index', compact('searchForm', 'paginator'));
     }
 
     /**

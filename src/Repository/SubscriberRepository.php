@@ -16,7 +16,7 @@ use Cycle\ORM\Select\QueryBuilder;
 use Cycle\ORM\Select\Repository;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
-use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 
 class SubscriberRepository extends Repository
 {

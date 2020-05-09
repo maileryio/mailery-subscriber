@@ -7,10 +7,12 @@ use Mailery\Widget\Dataview\Columns\DataColumn;
 use Mailery\Widget\Dataview\GridView;
 use Mailery\Widget\Dataview\GridView\LinkPager;
 use Mailery\Widget\Link\Link;
+use Mailery\Widget\Search\Widget\SearchWidget;
 use Yiisoft\Html\Html;
 use Yiisoft\Yii\Bootstrap4\Nav;
 
 /** @var Mailery\Web\View\WebView $this */
+/** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
 /** @var bool $submitted */
@@ -21,16 +23,7 @@ $this->setTitle($group->getName());
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2"><?= $group->getName(); ?></h1>
             <div class="btn-toolbar float-right">
-                <form class="form-inline float-left">
-                    <div class="input-group mx-sm-1 mb-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sm btn-outline-secondary" type="button">
-                                <?= Icon::widget()->name('search'); ?>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                <?= SearchWidget::widget()->form($searchForm); ?>
                 <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add subscribers
