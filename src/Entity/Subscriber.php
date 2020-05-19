@@ -15,12 +15,13 @@ namespace Mailery\Subscriber\Entity;
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
 use Mailery\Brand\Entity\Brand;
+use Mailery\Common\Entity\RoutableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscribers",
  *      repository = "Mailery\Subscriber\Repository\SubscriberRepository",
- *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
+ *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  * @Cycle\Annotated\Annotation\Table(
  *      indexes = {
@@ -28,7 +29,7 @@ use Mailery\Brand\Entity\Brand;
  *      }
  * )
  */
-class Subscriber
+class Subscriber implements RoutableEntityInterface
 {
     /**
      * @Cycle\Annotated\Annotation\Column(type = "primary")
@@ -87,6 +88,14 @@ class Subscriber
     public function __construct()
     {
         $this->groups = new PivotedCollection();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
     }
 
     /**
@@ -258,5 +267,37 @@ class Subscriber
         $this->complaint = $complaint;
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteName(): ?string
+    {
+        return '/subscriber/subscriber/edit';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteName(): ?string
+    {
+        return '/subscriber/subscriber/view';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteParams(): array
+    {
+        return ['id' => $this->getId()];
     }
 }

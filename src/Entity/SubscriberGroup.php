@@ -15,7 +15,7 @@ namespace Mailery\Subscriber\Entity;
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscribers_groups",
- *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
+ *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
 class SubscriberGroup
@@ -25,4 +25,12 @@ class SubscriberGroup
      * @var int|null
      */
     private $id;
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return 'SubscriberGroup';
+    }
 }

@@ -13,12 +13,13 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Entity;
 
 use Mailery\Brand\Entity\Brand;
+use Mailery\Common\Entity\RoutableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "groups",
  *      repository = "Mailery\Subscriber\Repository\GroupRepository",
- *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
+ *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  * @Cycle\Annotated\Annotation\Table(
  *      indexes = {
@@ -26,7 +27,7 @@ use Mailery\Brand\Entity\Brand;
  *      }
  * )
  */
-class Group
+class Group implements RoutableEntityInterface
 {
     /**
      * @Cycle\Annotated\Annotation\Column(type = "primary")
@@ -75,6 +76,14 @@ class Group
      * @var int
      */
     private $unsubscribedCount = 0;
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
+    }
 
     /**
      * @return string|null
@@ -226,6 +235,38 @@ class Group
         $this->unsubscribedCount = $unsubscribedCount;
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteName(): ?string
+    {
+        return '/subscriber/group/edit';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteName(): ?string
+    {
+        return '/subscriber/group/view';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteParams(): array
+    {
+        return ['id' => $this->getId()];
     }
 
     /**
