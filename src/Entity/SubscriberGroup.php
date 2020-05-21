@@ -12,14 +12,19 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
+use Mailery\Activity\Log\Entity\LoggableEntityTrait;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
+
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscribers_groups",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
-class SubscriberGroup
+class SubscriberGroup implements LoggableEntityInterface
 {
+    use LoggableEntityTrait;
+
     /**
      * @Cycle\Annotated\Annotation\Column(type = "primary")
      * @var int|null
@@ -32,5 +37,24 @@ class SubscriberGroup
     public function __toString(): string
     {
         return 'SubscriberGroup';
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getId(): ?string
+    {
+        return $this->id ? (string) $this->id : null;
+    }
+
+    /**
+     * @param int $id
+     * @return self
+     */
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 }

@@ -16,6 +16,8 @@ use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
+use Mailery\Activity\Log\Entity\LoggableEntityTrait;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
@@ -29,8 +31,10 @@ use Mailery\Common\Entity\RoutableEntityInterface;
  *      }
  * )
  */
-class Subscriber implements RoutableEntityInterface
+class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
 {
+    use LoggableEntityTrait;
+
     /**
      * @Cycle\Annotated\Annotation\Column(type = "primary")
      * @var int|null
@@ -215,6 +219,14 @@ class Subscriber implements RoutableEntityInterface
     /**
      * @return bool
      */
+    public function isConfirmed(): bool
+    {
+        return $this->getConfirmed();
+    }
+
+    /**
+     * @return bool
+     */
     public function getUnsubscribed(): bool
     {
         return $this->unsubscribed;
@@ -229,6 +241,14 @@ class Subscriber implements RoutableEntityInterface
         $this->unsubscribed = $unsubscribed;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnsubscribed(): bool
+    {
+        return $this->getUnsubscribed();
     }
 
     /**
@@ -253,6 +273,14 @@ class Subscriber implements RoutableEntityInterface
     /**
      * @return bool
      */
+    public function isBounced(): bool
+    {
+        return $this->getBounced();
+    }
+
+    /**
+     * @return bool
+     */
     public function getComplaint(): bool
     {
         return $this->complaint;
@@ -267,6 +295,14 @@ class Subscriber implements RoutableEntityInterface
         $this->complaint = $complaint;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComplaint(): bool
+    {
+        return $this->getComplaint();
     }
 
     /**

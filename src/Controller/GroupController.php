@@ -32,6 +32,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
+use Mailery\Subscriber\Counter\SubscriberCounter;
 
 class GroupController extends Controller
 {
@@ -41,9 +42,10 @@ class GroupController extends Controller
      * @param Request $request
      * @param ORMInterface $orm
      * @param SearchForm $searchForm
+     * @param SubscriberCounter $subscriberCounter
      * @return Response
      */
-    public function index(Request $request, ORMInterface $orm, SearchForm $searchForm): Response
+    public function index(Request $request, ORMInterface $orm, SearchForm $searchForm, SubscriberCounter $subscriberCounter): Response
     {
         $searchForm = $searchForm->withSearchByList(new SearchByList([
             new GroupSearchBy(),
@@ -61,16 +63,17 @@ class GroupController extends Controller
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 
-        return $this->render('index', compact('searchForm', 'paginator'));
+        return $this->render('index', compact('searchForm', 'paginator', 'subscriberCounter'));
     }
 
     /**
      * @param Request $request
      * @param ORMInterface $orm
      * @param SearchForm $searchForm
+     * @param SubscriberCounter $subscriberCounter
      * @return Response
      */
-    public function view(Request $request, ORMInterface $orm, SearchForm $searchForm): Response
+    public function view(Request $request, ORMInterface $orm, SearchForm $searchForm, SubscriberCounter $subscriberCounter): Response
     {
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $this->getGroupRepository($orm)->findByPK($groupId)) === null) {
@@ -121,7 +124,7 @@ class GroupController extends Controller
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 
-        return $this->render('view', compact('searchForm', 'tab', 'group', 'paginator'));
+        return $this->render('view', compact('searchForm', 'tab', 'group', 'paginator', 'subscriberCounter'));
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 use Mailery\Icon\Icon;
+use Mailery\Activity\Log\Widget\ActivityLogLink;
+use Mailery\Subscriber\Module;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
 use Mailery\Widget\Dataview\Columns\DataColumn;
@@ -12,6 +14,7 @@ use Yiisoft\Html\Html;
 
 /** @var Mailery\Web\View\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
+/** @var Mailery\Subscriber\Counter\SubscriberCounter $subscriberCounter */
 /** @var Yiisoft\Aliases\Aliases $aliases */
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 /** @var Yiisoft\Data\Reader\DataReaderInterface $dataReader*/
@@ -24,9 +27,15 @@ $this->setTitle('Subscriber groups');
             <h1 class="h2">Subscriber groups</h1>
             <div class="btn-toolbar float-right">
                 <?= SearchWidget::widget()->form($searchForm); ?>
-                <button class="btn btn-sm btn-secondary dropdown-toggle mb-2">
-                    <?= Icon::widget()->name('settings'); ?>
-                </button>
+                <b-dropdown right size="sm" variant="secondary" class="mb-2">
+                    <template v-slot:button-content>
+                        <?= Icon::widget()->name('settings'); ?>
+                    </template>
+                    <?= ActivityLogLink::widget()
+                        ->tag('b-dropdown-item')
+                        ->label('Activity log')
+                        ->module(Module::NAME); ?>
+                </b-dropdown>
                 <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/create'); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add new group
@@ -61,23 +70,28 @@ $this->setTitle('Subscriber groups');
                     }),
                 (new DataColumn())
                     ->header('Active')
-                    ->content(function (Group $data, int $index) {
-                        return $data->getActiveCount();
+                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                        return $subscriberCounter->withGroup($data)->getActiveCount();
+                    }),
+                (new DataColumn())
+                    ->header('Unconfirmed')
+                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                        return $subscriberCounter->withGroup($data)->getUnconfirmedCount();
                     }),
                 (new DataColumn())
                     ->header('Unsubscribed')
-                    ->content(function (Group $data, int $index) {
-                        return $data->getUnsubscribedCount();
+                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                        return $subscriberCounter->withGroup($data)->getUnsubscribedCount();
                     }),
                 (new DataColumn())
                     ->header('Bounced')
-                    ->content(function (Group $data, int $index) {
-                        return $data->getBouncedCount();
+                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                        return $subscriberCounter->withGroup($data)->getBouncedCount();
                     }),
                 (new DataColumn())
-                    ->header('Complaint')
-                    ->content(function (Group $data, int $index) {
-                        return $data->getComplaintCount();
+                    ->header('Marked as spam')
+                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                        return $subscriberCounter->withGroup($data)->getComplaintCount();
                     }),
                 (new ActionColumn())
                     ->contentOptions([

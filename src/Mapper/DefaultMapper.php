@@ -3,6 +3,7 @@
 namespace Mailery\Subscriber\Mapper;
 
 use Mailery\Activity\Log\Mapper\LoggableMapper;
+use Mailery\Subscriber\Module;
 
 /**
  * @Cycle\Annotated\Annotation\Table(
@@ -19,6 +20,6 @@ class DefaultMapper extends LoggableMapper
      */
     protected function getModule(): string
     {
-        return 'Subscriber';
+        return Module::NAME;
     }
 }

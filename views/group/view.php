@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Mailery\Activity\Log\Widget\ActivityLogLink;
 use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
@@ -13,6 +14,7 @@ use Yiisoft\Yii\Bootstrap4\Nav;
 
 /** @var Mailery\Web\View\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
+/** @var Mailery\Subscriber\Counter\SubscriberCounter $subscriberCounter */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
 /** @var bool $submitted */
@@ -24,7 +26,7 @@ $this->setTitle($group->getName());
             <h1 class="h2"><?= $group->getName(); ?></h1>
             <div class="btn-toolbar float-right">
                 <?= SearchWidget::widget()->form($searchForm); ?>
-                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">
+                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add subscribers
                 </a>
@@ -33,6 +35,10 @@ $this->setTitle($group->getName());
                         <?= Icon::widget()->name('settings'); ?>
                     </template>
                     <b-dropdown-item href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">Edit</b-dropdown-item>
+                    <?= ActivityLogLink::widget()
+                        ->tag('b-dropdown-item')
+                        ->label('Activity log')
+                        ->entity($group); ?>
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-text variant="danger" class="dropdown-item-custom-link"><?= Link::widget()
                         ->label('Delete group')
@@ -118,37 +124,37 @@ $this->setTitle($group->getName());
         <?= Nav::widget()
             ->items([
                 [
-                    'label' => 'All <b-badge pill variant="info">' . $group->getTotalCount() . '</b-badge>',
+                    'label' => 'All <b-badge pill variant="info">' . $subscriberCounter->withGroup($group)->getTotalCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]),
                     'encode' => false,
                     'active' => empty($tab),
                 ],
                 [
-                    'label' => 'Active <b-badge pill variant="success">' . $group->getActiveCount() . '</b-badge>',
+                    'label' => 'Active <b-badge pill variant="success">' . $subscriberCounter->withGroup($group)->getActiveCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'active']),
                     'encode' => false,
                     'active' => $tab === 'active',
                 ],
                 [
-                    'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $group->getUnconfirmedCount() . '</b-badge>',
+                    'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $subscriberCounter->withGroup($group)->getUnconfirmedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'unconfirmed']),
                     'encode' => false,
                     'active' => $tab === 'unconfirmed',
                 ],
                 [
-                    'label' => 'Unsubscribed <b-badge pill variant="warning">' . $group->getUnsubscribedCount() . '</b-badge>',
+                    'label' => 'Unsubscribed <b-badge pill variant="warning">' . $subscriberCounter->withGroup($group)->getUnsubscribedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'unsubscribed']),
                     'encode' => false,
                     'active' => $tab === 'unsubscribed',
                 ],
                 [
-                    'label' => 'Bounced <b-badge pill variant="dark">' . $group->getBouncedCount() . '</b-badge>',
+                    'label' => 'Bounced <b-badge pill variant="dark">' . $subscriberCounter->withGroup($group)->getBouncedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'bounced']),
                     'encode' => false,
                     'active' => $tab === 'bounced',
                 ],
                 [
-                    'label' => 'Marked as spam <b-badge pill variant="danger">' . $group->getComplaintCount() . '</b-badge>',
+                    'label' => 'Marked as spam <b-badge pill variant="danger">' . $subscriberCounter->withGroup($group)->getComplaintCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'complaint']),
                     'encode' => false,
                     'active' => $tab === 'complaint',
