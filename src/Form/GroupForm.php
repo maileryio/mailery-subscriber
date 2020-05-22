@@ -99,16 +99,13 @@ class GroupForm extends Form
      */
     private function inputs(): array
     {
-        /** @var GroupRepository $groupRepo */
-        $groupRepo = $this->orm->getRepository(Group::class);
-
         $nameConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) use ($groupRepo) {
+            'callback' => function ($value, ExecutionContextInterface $context) {
                 if (empty($value)) {
                     return;
                 }
 
-                $group = $groupRepo->findByName($value, $this->group);
+                $group = $this->getGroupRepository()->findByName($value, $this->group);
                 if ($group !== null) {
                     $context->buildViolation('Group with this name already exists.')
                         ->atPath('name')
@@ -127,5 +124,14 @@ class GroupForm extends Form
 
             '' => F::submit($this->group === null ? 'Create' : 'Update'),
         ];
+    }
+
+    /**
+     * @return GroupRepository
+     */
+    private function getGroupRepository(): GroupRepository
+    {
+        return $this->orm->getRepository(Group::class)
+            ->withBrand($this->brand);
     }
 }

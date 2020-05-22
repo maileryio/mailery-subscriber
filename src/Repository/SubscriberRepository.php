@@ -17,6 +17,7 @@ use Cycle\ORM\Select\Repository;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Widget\Search\Data\Reader\SelectDataReader;
+use Mailery\Brand\Entity\Brand;
 
 class SubscriberRepository extends Repository
 {
@@ -31,105 +32,104 @@ class SubscriberRepository extends Repository
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findAllByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withBrand(Brand $brand): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'brand_id' => $brand->getId(),
+            ]);
+
+        return $repo;
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findActiveByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withGroup(Group $group): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'groups.id' => $group->getId(),
+            ]);
+
+        return $repo;
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findUnconfirmedByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withActive(): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'confirmed' => true,
+                'unsubscribed' => false,
+                'bounced' => false,
+                'complaint' => false,
+            ]);
+
+        return $repo;
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findUnsubscribedByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withUnconfirmed(): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'confirmed' => false,
+            ]);
+
+        return $repo;
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findBouncedByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withUnsubscribed(): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'unsubscribed' => true,
+            ]);
+
+        return $repo;
     }
 
     /**
-     * @param Group $group
-     * @param array $scope
-     * @param array $orderBy
-     * @return SelectDataReader
+     * @return self
      */
-    public function findComplaintByGroup(Group $group, array $scope = [], array $orderBy = []): SelectDataReader
+    public function withBounced(): self
     {
-        return new SelectDataReader(
-            $this
-                ->select()
-                ->where($scope)
-                ->andWhere('groups.id', $group->getId())
-                ->orderBy($orderBy)
-        );
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'bounced' => true,
+            ]);
+
+        return $repo;
+    }
+
+    /**
+     * @return self
+     */
+    public function withComplaint(): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'complaint' => true,
+            ]);
+
+        return $repo;
     }
 
     /**

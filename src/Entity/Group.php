@@ -23,11 +23,6 @@ use Mailery\Activity\Log\Entity\LoggableEntityInterface;
  *      repository = "Mailery\Subscriber\Repository\GroupRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
- * @Cycle\Annotated\Annotation\Table(
- *      indexes = {
- *          @Cycle\Annotated\Annotation\Table\Index(columns = {"name"}, unique = true)
- *      }
- * )
  */
 class Group implements RoutableEntityInterface, LoggableEntityInterface
 {

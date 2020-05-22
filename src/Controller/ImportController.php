@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Mailery\Subscriber\Controller;
+use Mailery\Common\Web\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class ImportController extends Controller

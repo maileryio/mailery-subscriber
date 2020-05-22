@@ -25,11 +25,6 @@ use Mailery\Activity\Log\Entity\LoggableEntityInterface;
  *      repository = "Mailery\Subscriber\Repository\SubscriberRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
- * @Cycle\Annotated\Annotation\Table(
- *      indexes = {
- *          @Cycle\Annotated\Annotation\Table\Index(columns = {"email"}, unique = true)
- *      }
- * )
  */
 class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
 {

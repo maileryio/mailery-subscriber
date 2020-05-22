@@ -15,6 +15,7 @@ namespace Mailery\Subscriber\Repository;
 use Cycle\ORM\Select\QueryBuilder;
 use Cycle\ORM\Select\Repository;
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Brand\Entity\Brand;
 use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 
 class GroupRepository extends Repository
@@ -27,6 +28,20 @@ class GroupRepository extends Repository
     public function getDataReader(array $scope = [], array $orderBy = []): SelectDataReader
     {
         return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
+    }
+
+    /**
+     * @return self
+     */
+    public function withBrand(Brand $brand): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'brand_id' => $brand->getId(),
+            ]);
+
+        return $repo;
     }
 
     /**

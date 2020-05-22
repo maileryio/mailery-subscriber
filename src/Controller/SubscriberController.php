@@ -12,8 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Cycle\ORM\ORMInterface;
-use Mailery\Subscriber\Controller;
+use Mailery\Common\Web\Controller;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Repository\SubscriberRepository;
@@ -35,11 +34,10 @@ class SubscriberController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @param SearchForm $searchForm
      * @return Response
      */
-    public function index(Request $request, ORMInterface $orm, SearchForm $searchForm): Response
+    public function index(Request $request, SearchForm $searchForm): Response
     {
         $searchForm = $searchForm->withSearchByList(new SearchByList([
             new SubscriberSearchBy(),
@@ -48,7 +46,7 @@ class SubscriberController extends Controller
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        $dataReader = $this->getSubscriberRepository($orm)
+        $dataReader = $this->getSubscriberRepository()
             ->getDataReader()
             ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
             ->withSort((new Sort([]))->withOrderString('email'));
@@ -62,13 +60,12 @@ class SubscriberController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @return Response
      */
-    public function view(Request $request, ORMInterface $orm): Response
+    public function view(Request $request): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -106,15 +103,14 @@ class SubscriberController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @param SubscriberForm $subscriberForm
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function edit(Request $request, ORMInterface $orm, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
+    public function edit(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -142,15 +138,14 @@ class SubscriberController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @param SubscriberService $subscriberService
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function delete(Request $request, ORMInterface $orm, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
+    public function delete(Request $request, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository($orm)->findByPK($subscriberId)) === null) {
+        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -160,11 +155,12 @@ class SubscriberController extends Controller
     }
 
     /**
-     * @param ORMInterface $orm
      * @return SubscriberRepository
      */
-    private function getSubscriberRepository(ORMInterface $orm): SubscriberRepository
+    private function getSubscriberRepository(): SubscriberRepository
     {
-        return $orm->getRepository(Subscriber::class);
+        return $this->getOrm()
+            ->getRepository(Subscriber::class)
+            ->withBrand($this->getBrandLocator()->getBrand());
     }
 }

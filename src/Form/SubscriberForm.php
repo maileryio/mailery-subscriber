@@ -97,9 +97,8 @@ class SubscriberForm extends Form
 
         $groupIds = $this['groups[]']->getValue();
 
-        $groups = $this->getGroupRepository($this->orm)->findAll([
+        $groups = $this->getGroupRepository()->findAll([
             'id' => ['in' => new Parameter($groupIds)],
-            'brand_id' => $this->brand->getId(),
         ]);
 
         $valueObject = SubscriberValueObject::fromForm($this)
@@ -133,16 +132,13 @@ class SubscriberForm extends Form
      */
     private function inputs(): array
     {
-        /** @var SubscriberRepository $subscriberRepo */
-        $subscriberRepo = $this->orm->getRepository(Subscriber::class);
-
         $uniqueEmailConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) use ($subscriberRepo) {
+            'callback' => function ($value, ExecutionContextInterface $context) {
                 if (empty($value)) {
                     return;
                 }
 
-                $subscriber = $subscriberRepo->findByEmail($value, $this->subscriber);
+                $subscriber = $this->getSubscriberRepository()->findByEmail($value, $this->subscriber);
                 if ($subscriber !== null) {
                     $context->buildViolation('Subscriber with this email already exists.')
                         ->atPath('email')
@@ -184,7 +180,7 @@ class SubscriberForm extends Form
     private function getGroupOptions(): array
     {
         $options = [];
-        $groups = $this->getGroupRepository($this->orm)->findAll(['brand_id' => $this->brand->getId()]);
+        $groups = $this->getGroupRepository()->findAll();
 
         foreach ($groups as $group) {
             $options[$group->getId()] = $group->getName();
@@ -194,11 +190,20 @@ class SubscriberForm extends Form
     }
 
     /**
-     * @param ORMInterface $orm
      * @return GroupRepository
      */
-    private function getGroupRepository(ORMInterface $orm): GroupRepository
+    private function getGroupRepository(): GroupRepository
     {
-        return $orm->getRepository(Group::class);
+        return $this->orm->getRepository(Group::class)
+            ->withBrand($this->brand);
+    }
+
+    /**
+     * @return SubscriberRepository
+     */
+    private function getSubscriberRepository(): SubscriberRepository
+    {
+        return $this->orm->getRepository(Subscriber::class)
+            ->withBrand($this->brand);
     }
 }
