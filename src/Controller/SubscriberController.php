@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Controller;
 
 use Mailery\Common\Web\Controller;
+use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
+use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Mailery\Subscriber\Service\SubscriberService;
@@ -80,6 +82,15 @@ class SubscriberController extends Controller
      */
     public function create(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
     {
+        $tab = $request->getQueryParams()['tab'] ?? null;
+        $groupId = $request->getQueryParams()['groupId'] ?? null;
+        $submitted = $request->getMethod() === Method::POST;
+
+        $group = null;
+        if (!empty($groupId)) {
+            $group = $this->getGroupRepository()->findByPK($groupId);
+        }
+
         $subscriberForm
             ->setAttributes([
                 'action' => $request->getUri()->getPath(),
@@ -88,17 +99,50 @@ class SubscriberController extends Controller
             ])
         ;
 
+        if ($submitted) {
+            $subscriberForm->loadFromServerRequest($request);
+
+            if (($subscriber = $subscriberForm->save()) !== null) {
+                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
+            }
+        }
+
+        return $this->render('create', compact('subscriberForm', 'submitted', 'group', 'tab'));
+    }
+
+    /**
+     * @param Request $request
+     * @param SubscriberForm $subscriberForm
+     * @param UrlGenerator $urlGenerator
+     * @return Response
+     */
+    public function import(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
+    {
+        $groupId = $request->getQueryParams()['groupId'] ?? null;
         $submitted = $request->getMethod() === Method::POST;
+
+        $group = null;
+        if (!empty($groupId)) {
+            $group = $this->getGroupRepository()->findByPK($groupId);
+        }
+
+        $subscriberForm
+            ->setAttributes([
+                'action' => $request->getUri()->getPath(),
+                'method' => 'post',
+                'enctype' => 'multipart/form-data',
+            ])
+        ;
 
         if ($submitted) {
             $subscriberForm->loadFromServerRequest($request);
 
-            if (($group = $subscriberForm->save()) !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $group->getId()]));
+            if (($subscriber = $subscriberForm->save()) !== null) {
+                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
             }
         }
 
-        return $this->render('create', compact('subscriberForm', 'submitted'));
+        return $this->render('create', compact('subscriberForm', 'submitted', 'group'));
     }
 
     /**
@@ -152,6 +196,16 @@ class SubscriberController extends Controller
         $subscriberService->delete($subscriber);
 
         return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
+    }
+
+    /**
+     * @return GroupRepository
+     */
+    private function getGroupRepository(): GroupRepository
+    {
+        return $this->getOrm()
+            ->getRepository(Group::class)
+            ->withBrand($this->getBrandLocator()->getBrand());
     }
 
     /**

@@ -63,62 +63,62 @@ $this->setTitle($group->getName());
 <div class="row">
     <div class="col-12 grid-margin">
         <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
-                        return GridView::widget()
-                ->paginator($paginator)
-                ->options([
-                    'class' => 'table-responsive',
-                ])
-                ->tableOptions([
-                    'class' => 'table table-hover',
-                ])
-                ->emptyText('No data')
-                ->emptyTextOptions([
-                    'class' => 'text-center text-muted mt-4 mb-4',
-                ])
-                ->columns([
-                    (new DataColumn())
-                        ->header('Email')
-                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
-                            return Html::a(
-                                $data->getEmail(),
-                                $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
-                            );
-                        }),
-                    (new ActionColumn())
-                        ->contentOptions([
-                            'style' => 'width: 80px;',
-                        ])
-                        ->header('Edit')
-                        ->view('')
-                        ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
-                            return Html::a(
-                                (string) Icon::widget()->name('pencil'),
-                                $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
-                                [
-                                    'class' => 'text-decoration-none mr-3',
-                                ]
-                            );
-                        })
-                        ->delete(''),
-                    (new ActionColumn())
-                        ->contentOptions([
-                            'style' => 'width: 80px;',
-                        ])
-                        ->header('Delete')
-                        ->view('')
-                        ->update('')
-                        ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
-                            return Link::widget()
-                                ->label((string) Icon::widget()->name('delete')->options(['class' => 'mr-1']))
-                                ->method('delete')
-                                ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
-                                ->confirm('Are you sure?')
-                                ->options([
-                                    'class' => 'text-decoration-none text-danger',
-                                ]);
-                        }),
-                ]);
-                    }
+                return GridView::widget()
+                    ->paginator($paginator)
+                    ->options([
+                        'class' => 'table-responsive',
+                    ])
+                    ->tableOptions([
+                        'class' => 'table table-hover',
+                    ])
+                    ->emptyText('No data')
+                    ->emptyTextOptions([
+                        'class' => 'text-center text-muted mt-4 mb-4',
+                    ])
+                    ->columns([
+                        (new DataColumn())
+                            ->header('Email')
+                            ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                                return Html::a(
+                                    $data->getEmail(),
+                                    $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
+                                );
+                            }),
+                        (new ActionColumn())
+                            ->contentOptions([
+                                'style' => 'width: 80px;',
+                            ])
+                            ->header('Edit')
+                            ->view('')
+                            ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
+                                return Html::a(
+                                    (string) Icon::widget()->name('pencil'),
+                                    $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
+                                    [
+                                        'class' => 'text-decoration-none mr-3',
+                                    ]
+                                );
+                            })
+                            ->delete(''),
+                        (new ActionColumn())
+                            ->contentOptions([
+                                'style' => 'width: 80px;',
+                            ])
+                            ->header('Delete')
+                            ->view('')
+                            ->update('')
+                            ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
+                                return Link::widget()
+                                    ->label((string) Icon::widget()->name('delete')->options(['class' => 'mr-1']))
+                                    ->method('delete')
+                                    ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
+                                    ->confirm('Are you sure?')
+                                    ->options([
+                                        'class' => 'text-decoration-none text-danger',
+                                    ]);
+                            }),
+                    ]);
+            }
         ?>
 
         <?= Nav::widget()
