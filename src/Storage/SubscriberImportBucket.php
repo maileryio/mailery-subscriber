@@ -10,4 +10,10 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-return [];
+namespace Mailery\Subscriber\Storage;
+
+use Mailery\Storage\Bucket;
+
+class SubscriberImportBucket extends Bucket
+{
+}

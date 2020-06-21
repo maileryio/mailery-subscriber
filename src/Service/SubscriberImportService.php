@@ -14,7 +14,10 @@ namespace Mailery\Subscriber\Service;
 
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
+use Mailery\Storage\Service\FileService;
+use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\SubscriberImport;
+use Mailery\Subscriber\Storage\SubscriberImportBucket;
 use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
 
 class SubscriberImportService
@@ -25,11 +28,25 @@ class SubscriberImportService
     private ORMInterface $orm;
 
     /**
-     * @param ORMInterface $orm
+     * @var SubscriberImportBucket
      */
-    public function __construct(ORMInterface $orm)
+    private SubscriberImportBucket $fileBucket;
+
+    /**
+     * @var FileService
+     */
+    private FileService $fileService;
+
+    /**
+     * @param ORMInterface $orm
+     * @param SubscriberImportBucket $fileBucket
+     * @param FileService $fileService
+     */
+    public function __construct(ORMInterface $orm, SubscriberImportBucket $fileBucket, FileService $fileService)
     {
         $this->orm = $orm;
+        $this->fileBucket = $fileBucket;
+        $this->fileService = $fileService;
     }
 
     /**
@@ -43,6 +60,19 @@ class SubscriberImportService
         ;
 
         $tr = new Transaction($this->orm);
+        $tr->persist($import);
+        $tr->run();
+
+        $file = $this->fileService->create(
+            (new FileValueObject())
+                ->withUploadedFile($valueObject->getFile())
+                ->withFilePath($import->getFilePath())
+                ->withFileBucket($this->fileBucket)
+                ->withBrand($valueObject->getBrand())
+        );
+
+        $import->setFile($file);
+
         $tr->persist($import);
         $tr->run();
 

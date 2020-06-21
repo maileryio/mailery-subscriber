@@ -16,11 +16,12 @@ use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
+use Mailery\Storage\Entity\File;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscriber_imports",
- *      repository = "Mailery\Subscriber\Repository\GroupRepository",
+ *      repository = "Mailery\Subscriber\Repository\SubscriberImportRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
@@ -39,6 +40,11 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
      * @var Brand
      */
     private $brand;
+
+    /**
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Storage\Entity\File", nullable = true)
+     */
+    private $file;
 
     /**
      * @return string
@@ -84,6 +90,41 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
         $this->brand = $brand;
 
         return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getFile(): File
+    {
+        return $this->file;
+    }
+
+    /**
+     * @param File $file
+     * @return self
+     */
+    public function setFile(File $file): self
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * @throws \RuntimeException
+     * @return string
+     */
+    public function getFilePath(): string
+    {
+        if ($this->file !== null) {
+            return $this->file->getFilePath();
+        }
+        if (empty($this->getId())) {
+            throw new \RuntimeException('Invalid subscriber import entity');
+        }
+
+        return sprintf('/import/subscriber/%s.csv', $this->getId());
     }
 
     /**
