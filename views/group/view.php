@@ -63,7 +63,7 @@ $this->setTitle($group->getName());
 <div class="row">
     <div class="col-12 grid-margin">
         <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
-                return GridView::widget()
+                        return GridView::widget()
                     ->paginator($paginator)
                     ->options([
                         'class' => 'table-responsive',
@@ -118,7 +118,7 @@ $this->setTitle($group->getName());
                                     ]);
                             }),
                     ]);
-            }
+                    }
         ?>
 
         <?= Nav::widget()

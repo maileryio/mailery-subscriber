@@ -30,6 +30,7 @@
         "maileryio/widget-form": "dev-master",
         "maileryio/widget-link": "dev-master",
         "maileryio/widget-search": "^1.0@dev",
+        "symfony/http-foundation": "^5.1",
         "yiisoft/router": "^3.0@dev",
         "yiisoft/yii-bootstrap4": "^3.0@dev",
         "yiisoft/yii-cycle": "^3.0@dev"

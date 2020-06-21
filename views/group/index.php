@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-use Mailery\Icon\Icon;
 use Mailery\Activity\Log\Widget\ActivityLogLink;
-use Mailery\Subscriber\Module;
+use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Module;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
 use Mailery\Widget\Dataview\Columns\DataColumn;
 use Mailery\Widget\Dataview\GridView;
@@ -70,27 +70,27 @@ $this->setTitle('Subscriber groups');
                     }),
                 (new DataColumn())
                     ->header('Active')
-                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                    ->content(function (Group $data, int $index) use ($subscriberCounter) {
                         return $subscriberCounter->withGroup($data)->getActiveCount();
                     }),
                 (new DataColumn())
                     ->header('Unconfirmed')
-                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                    ->content(function (Group $data, int $index) use ($subscriberCounter) {
                         return $subscriberCounter->withGroup($data)->getUnconfirmedCount();
                     }),
                 (new DataColumn())
                     ->header('Unsubscribed')
-                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                    ->content(function (Group $data, int $index) use ($subscriberCounter) {
                         return $subscriberCounter->withGroup($data)->getUnsubscribedCount();
                     }),
                 (new DataColumn())
                     ->header('Bounced')
-                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                    ->content(function (Group $data, int $index) use ($subscriberCounter) {
                         return $subscriberCounter->withGroup($data)->getBouncedCount();
                     }),
                 (new DataColumn())
                     ->header('Marked as spam')
-                    ->content(function (Group $data, int $index) use($subscriberCounter) {
+                    ->content(function (Group $data, int $index) use ($subscriberCounter) {
                         return $subscriberCounter->withGroup($data)->getComplaintCount();
                     }),
                 (new ActionColumn())

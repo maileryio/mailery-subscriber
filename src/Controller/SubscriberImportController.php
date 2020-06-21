@@ -12,15 +12,23 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Mailery\Common\Web\Controller;
+use Mailery\Subscriber\WebController;
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ImportController extends Controller
+class SubscriberImportController extends WebController
 {
     /**
      * @return Response
      */
     public function index(): Response
+    {
+        return $this->render('index');
+    }
+
+    /**
+     * @return Response
+     */
+    public function view(): Response
     {
         return $this->render('index');
     }

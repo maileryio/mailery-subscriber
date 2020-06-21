@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-use Mailery\Icon\Icon;
 use Mailery\Activity\Log\Widget\ActivityLogLink;
-use Mailery\Subscriber\Module;
+use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\Subscriber;
+use Mailery\Subscriber\Module;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
 use Mailery\Widget\Dataview\Columns\DataColumn;
 use Mailery\Widget\Dataview\GridView;

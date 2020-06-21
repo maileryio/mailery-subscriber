@@ -14,11 +14,10 @@ namespace Mailery\Subscriber\Service;
 
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
-use Mailery\Common\Counter\Counter;
+use Mailery\Subscriber\Counter\SubscriberCounter;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
-use Mailery\Subscriber\Counter\SubscriberCounter;
 
 class SubscriberService
 {
@@ -33,6 +32,7 @@ class SubscriberService
     private SubscriberCounter $counter;
 
     /**
+     * @param SubscriberCounter $counter
      * @param ORMInterface $orm
      */
     public function __construct(SubscriberCounter $counter, ORMInterface $orm)
@@ -52,9 +52,9 @@ class SubscriberService
             ->setEmail($valueObject->getEmail())
             ->setBrand($valueObject->getBrand())
             ->setConfirmed($valueObject->getConfirmed())
-            ->setConfirmed($valueObject->getUnsubscribed())
-            ->setConfirmed($valueObject->getBounced())
-            ->setConfirmed($valueObject->getComplaint())
+            ->setUnsubscribed($valueObject->getUnsubscribed())
+            ->setBounced($valueObject->getBounced())
+            ->setComplaint($valueObject->getComplaint())
         ;
 
         $tr = new Transaction($this->orm);
@@ -88,9 +88,9 @@ class SubscriberService
             ->setEmail($valueObject->getEmail())
             ->setBrand($valueObject->getBrand())
             ->setConfirmed($valueObject->getConfirmed())
-            ->setConfirmed($valueObject->getUnsubscribed())
-            ->setConfirmed($valueObject->getBounced())
-            ->setConfirmed($valueObject->getComplaint())
+            ->setUnsubscribed($valueObject->getUnsubscribed())
+            ->setBounced($valueObject->getBounced())
+            ->setComplaint($valueObject->getComplaint())
         ;
 
         $tr = new Transaction($this->orm);
@@ -155,7 +155,7 @@ class SubscriberService
 
     /**
      * @param Subscriber $subscriber
-     * @param Counter[] $counters
+     * @param SubscriberCounter[] $counters
      */
     private function incrCounters(Subscriber $subscriber, array $counters)
     {
@@ -179,7 +179,7 @@ class SubscriberService
 
     /**
      * @param Subscriber $subscriber
-     * @param Counter[] $counters
+     * @param SubscriberCounter[] $counters
      */
     private function decrCounters(Subscriber $subscriber, array $counters)
     {

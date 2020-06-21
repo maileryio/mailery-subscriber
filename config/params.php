@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 use Mailery\Menu\MenuItem;
 use Mailery\Subscriber\Controller\GroupController;
-use Mailery\Subscriber\Controller\ImportController;
 use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
+use Mailery\Subscriber\Controller\SubscriberImportController;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -39,10 +39,14 @@ return [
                 ->name('/subscriber/subscriber/edit'),
             '/subscriber/subscriber/delete' => Route::delete('/brand/{brandId:\d+}/subscriber/subscriber/delete/{id:\d+}', [SubscriberController::class, 'delete'])
                 ->name('/subscriber/subscriber/delete'),
+            '/subscriber/subscriber/import' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/import', [SubscriberController::class, 'import'])
+                ->name('/subscriber/subscriber/import'),
 
             // Imports:
-            '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [ImportController::class, 'index'])
+            '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [SubscriberImportController::class, 'index'])
                 ->name('/subscriber/import/index'),
+            '/subscriber/import/view' => Route::methods(['POST'], '/brand/{brandId:\d+}/import/view/{id:\d+}', [SubscriberImportController::class, 'view'])
+                ->name('/subscriber/import/view'),
 
             // Groups:
             '/subscriber/group/index' => Route::get('/brand/{brandId:\d+}/subscriber/groups', [GroupController::class, 'index'])
@@ -82,6 +86,7 @@ return [
                                 '/subscriber/subscriber/create',
                                 '/subscriber/subscriber/edit',
                                 '/subscriber/subscriber/delete',
+                                '/subscriber/subscriber/import',
                             ])
                             ->withOrder(100),
                         'groups' => (new MenuItem())

@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Mailery\Common\Web\Controller;
+use Mailery\Subscriber\WebController;
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ReportController extends Controller
+class ReportController extends WebController
 {
     /**
      * @return Response

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Mailery\Common\Web\Controller;
+use Mailery\Subscriber\Counter\SubscriberCounter;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\GroupForm;
@@ -22,6 +22,7 @@ use Mailery\Subscriber\Search\GroupSearchBy;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Mailery\Subscriber\Service\GroupService;
 use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\WebController;
 use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
 use Mailery\Widget\Search\Data\Reader\Search;
 use Mailery\Widget\Search\Form\SearchForm;
@@ -31,9 +32,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
-use Mailery\Subscriber\Counter\SubscriberCounter;
 
-class GroupController extends Controller
+class GroupController extends WebController
 {
     private const PAGINATION_INDEX = 10;
 
@@ -89,21 +89,27 @@ class GroupController extends Controller
         switch ($tab) {
             case 'active':
                 $dataReader = $repo->withActive()->withGroup($group)->getDataReader();
+
                 break;
             case 'unconfirmed':
                 $dataReader = $repo->withUnconfirmed()->withGroup($group)->getDataReader();
+
                 break;
             case 'unsubscribed':
                 $dataReader = $repo->withUnsubscribed()->withGroup($group)->getDataReader();
+
                 break;
             case 'bounced':
                 $dataReader = $repo->withBounced()->withGroup($group)->getDataReader();
+
                 break;
             case 'complaint':
                 $dataReader = $repo->withComplaint()->withGroup($group)->getDataReader();
+
                 break;
             default:
                 $dataReader = $repo->withGroup($group)->getDataReader();
+
                 break;
         }
 

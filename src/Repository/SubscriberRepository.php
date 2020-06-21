@@ -14,10 +14,10 @@ namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\QueryBuilder;
 use Cycle\ORM\Select\Repository;
+use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Widget\Search\Data\Reader\SelectDataReader;
-use Mailery\Brand\Entity\Brand;
 
 class SubscriberRepository extends Repository
 {
@@ -32,6 +32,7 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @param Brand $brand
      * @return self
      */
     public function withBrand(Brand $brand): self
@@ -46,6 +47,7 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @param Group $group
      * @return self
      */
     public function withGroup(Group $group): self

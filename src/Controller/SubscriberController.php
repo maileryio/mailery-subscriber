@@ -12,14 +12,15 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Controller;
 
-use Mailery\Common\Web\Controller;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
+use Mailery\Subscriber\Form\SubscriberImportForm;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\WebController;
 use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
 use Mailery\Widget\Search\Data\Reader\Search;
 use Mailery\Widget\Search\Form\SearchForm;
@@ -30,7 +31,7 @@ use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 
-class SubscriberController extends Controller
+class SubscriberController extends WebController
 {
     private const PAGINATION_INDEX = 10;
 
@@ -82,42 +83,6 @@ class SubscriberController extends Controller
      */
     public function create(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
     {
-        $tab = $request->getQueryParams()['tab'] ?? null;
-        $groupId = $request->getQueryParams()['groupId'] ?? null;
-        $submitted = $request->getMethod() === Method::POST;
-
-        $group = null;
-        if (!empty($groupId)) {
-            $group = $this->getGroupRepository()->findByPK($groupId);
-        }
-
-        $subscriberForm
-            ->setAttributes([
-                'action' => $request->getUri()->getPath(),
-                'method' => 'post',
-                'enctype' => 'multipart/form-data',
-            ])
-        ;
-
-        if ($submitted) {
-            $subscriberForm->loadFromServerRequest($request);
-
-            if (($subscriber = $subscriberForm->save()) !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
-            }
-        }
-
-        return $this->render('create', compact('subscriberForm', 'submitted', 'group', 'tab'));
-    }
-
-    /**
-     * @param Request $request
-     * @param SubscriberForm $subscriberForm
-     * @param UrlGenerator $urlGenerator
-     * @return Response
-     */
-    public function import(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
-    {
         $groupId = $request->getQueryParams()['groupId'] ?? null;
         $submitted = $request->getMethod() === Method::POST;
 
@@ -143,6 +108,41 @@ class SubscriberController extends Controller
         }
 
         return $this->render('create', compact('subscriberForm', 'submitted', 'group'));
+    }
+
+    /**
+     * @param Request $request
+     * @param SubscriberImportForm $importForm
+     * @param UrlGenerator $urlGenerator
+     * @return Response
+     */
+    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator): Response
+    {
+        $groupId = $request->getQueryParams()['groupId'] ?? null;
+        $submitted = $request->getMethod() === Method::POST;
+
+        $group = null;
+        if (!empty($groupId)) {
+            $group = $this->getGroupRepository()->findByPK($groupId);
+        }
+
+        $importForm
+            ->setAttributes([
+                'action' => $request->getUri()->getPath(),
+                'method' => 'post',
+                'enctype' => 'multipart/form-data',
+            ])
+        ;
+
+        if ($submitted) {
+            $importForm->loadFromServerRequest($request);
+
+            if (($import = $importForm->import()) !== null) {
+                return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
+            }
+        }
+
+        return $this->render('create', compact('importForm', 'submitted', 'group'));
     }
 
     /**

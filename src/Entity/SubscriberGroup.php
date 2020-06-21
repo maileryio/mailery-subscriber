@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
-use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
+use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(

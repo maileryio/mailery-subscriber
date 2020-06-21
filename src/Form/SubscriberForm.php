@@ -150,18 +150,18 @@ class SubscriberForm extends Form
         $groupOptions = $this->getGroupOptions();
 
         return [
+            'groups[]' => F::select('Add to groups', $groupOptions, ['multiple' => true])
+                ->addConstraint(new Constraints\NotBlank())
+                ->addConstraint(new Constraints\Choice([
+                    'choices' => array_keys($groupOptions),
+                    'multiple' => true,
+                ])),
             'name' => F::text('Name')
                 ->addConstraint(new Constraints\NotBlank()),
             'email' => F::text('Email')
                 ->addConstraint(new Constraints\NotBlank())
                 ->addConstraint(new Constraints\Email())
                 ->addConstraint($uniqueEmailConstraint),
-            'groups[]' => F::select('Groups', $groupOptions, ['multiple' => true])
-                ->addConstraint(new Constraints\NotBlank())
-                ->addConstraint(new Constraints\Choice([
-                    'choices' => array_keys($groupOptions),
-                    'multiple' => true,
-                ])),
             'confirmed' => (new RadioGroup(
                 'Confirmed',
                 [

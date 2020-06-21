@@ -6,8 +6,8 @@ use Yiisoft\Yii\Bootstrap4\Nav;
 /** @var Mailery\Web\View\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var FormManager\Form $subscriberForm */
+/** @var FormManager\Form $importForm */
 /** @var bool $submitted */
-/** @var string $tab */
 $this->setTitle('Add subscribers');
 
 ?><div class="row">
@@ -36,13 +36,13 @@ $this->setTitle('Add subscribers');
                     'label' => 'Add single subscriber',
                     'url' => $urlGenerator->generate('/subscriber/subscriber/create', $routeParams),
                     'encode' => false,
-                    'active' => empty($tab),
+                    'active' => !empty($subscriberForm),
                 ],
                 [
                     'label' => 'Import from file',
-                    'url' => $urlGenerator->generate('/subscriber/subscriber/create', array_merge($routeParams, ['tab' => 'import'])),
+                    'url' => $urlGenerator->generate('/subscriber/subscriber/import', $routeParams),
                     'encode' => false,
-                    'active' => $tab === 'import',
+                    'active' => !empty($importForm),
                 ],
             ])
             ->options([
@@ -54,14 +54,16 @@ $this->setTitle('Add subscribers');
         <div class="tab-content">
             <div class="tab-pane fade show active" role="tabpanel">
                 <div class="row"><?php
-                    if ($tab === 'import') {
-                        ?><div class="col-6">
-                            ;
-                        </div><?php
-                    } else {
+                    if (!empty($subscriberForm)) {
                         ?><div class="col-6">
                             <?= (new FormRenderer($subscriberForm))($submitted); ?>
                         </div><?php
+                    } else {
+                        if (!empty($importForm)) {
+                            ?><div class="col-6">
+                            <?= (new FormRenderer($importForm))($submitted); ?>
+                        </div><?php
+                        }
                     }
                 ?></div>
             </div>

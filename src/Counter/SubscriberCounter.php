@@ -1,11 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Counter;
 
 use Mailery\Brand\Entity\Brand;
-use Mailery\Subscriber\Entity\Group;
 use Mailery\Common\Counter\Counter;
 use Mailery\Common\Counter\CounterFactory;
+use Mailery\Subscriber\Entity\Group;
 
 class SubscriberCounter
 {
@@ -16,12 +26,12 @@ class SubscriberCounter
     private const COMPLAINT_COUNT_TPL = 'counter:subscriber:brand-{brandId}:group-{groupId}:complaint';
 
     /**
-     * @var Brand
+     * @var Brand|null
      */
     private ?Brand $brand = null;
 
     /**
-     * @var Group
+     * @var Group|null
      */
     private ?Group $group = null;
 
@@ -373,5 +383,4 @@ class SubscriberCounter
 
         return $this->complaintCounter[$key];
     }
-
 }

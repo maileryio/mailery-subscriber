@@ -14,10 +14,10 @@ namespace Mailery\Subscriber\Entity;
 
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
+use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
-use Mailery\Activity\Log\Entity\LoggableEntityTrait;
-use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
@@ -301,7 +301,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getEditRouteName(): ?string
     {
@@ -309,7 +309,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getEditRouteParams(): array
     {
@@ -317,7 +317,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getViewRouteName(): ?string
     {
@@ -325,7 +325,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getViewRouteParams(): array
     {

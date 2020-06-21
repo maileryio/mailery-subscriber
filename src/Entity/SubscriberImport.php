@@ -19,12 +19,12 @@ use Mailery\Common\Entity\RoutableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
- *      table = "groups",
+ *      table = "subscriber_imports",
  *      repository = "Mailery\Subscriber\Repository\GroupRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
-class Group implements RoutableEntityInterface, LoggableEntityInterface
+class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
@@ -41,17 +41,11 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     private $brand;
 
     /**
-     * @Cycle\Annotated\Annotation\Column(type = "string(32)")
-     * @var string
-     */
-    private $name;
-
-    /**
      * @return string
      */
     public function __toString(): string
     {
-        return $this->getName();
+        return 'Import #' . $this->getId();
     }
 
     /**
@@ -93,30 +87,11 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     * @return self
-     */
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getEditRouteName(): ?string
     {
-        return '/subscriber/group/edit';
+        return '/subscriber/import/edit';
     }
 
     /**
@@ -132,7 +107,7 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
      */
     public function getViewRouteName(): ?string
     {
-        return '/subscriber/group/view';
+        return '/subscriber/import/view';
     }
 
     /**
