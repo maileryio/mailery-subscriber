@@ -51,6 +51,7 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
 
     /**
      * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Storage\Entity\File", nullable = true)
+     * @var File
      */
     private $file;
 
