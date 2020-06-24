@@ -138,6 +138,7 @@ class SubscriberController extends WebController
             $importForm->loadFromServerRequest($request);
 
             if (($import = $importForm->import()) !== null) {
+                // add to job
                 return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
             }
         }

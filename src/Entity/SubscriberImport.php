@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
+use Cycle\ORM\Relation\Pivoted\PivotedCollection;
+use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
@@ -42,9 +44,32 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     private $brand;
 
     /**
+     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "SubscriberImportGroup", thoughInnerKey = "subscriber_import_id", nullable = false)
+     * @var PivotedCollectionInterface
+     */
+    private $groups;
+
+    /**
      * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Storage\Entity\File", nullable = true)
      */
     private $file;
+
+    /**
+     * @Cycle\Annotated\Annotation\Column(type = "json")
+     * @var string
+     */
+    private $fieldsMap;
+
+    /**
+     * @Cycle\Annotated\Annotation\Column(type = "datetime")
+     * @var string|null
+     */
+    private $createdAt;
+
+    public function __construct()
+    {
+        $this->groups = new PivotedCollection();
+    }
 
     /**
      * @return string
@@ -93,6 +118,25 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     }
 
     /**
+     * @return PivotedCollectionInterface
+     */
+    public function getGroups(): PivotedCollectionInterface
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param PivotedCollectionInterface $groups
+     * @return self
+     */
+    public function setGroups(PivotedCollectionInterface $groups): self
+    {
+        $this->groups = $groups;
+
+        return $this;
+    }
+
+    /**
      * @return File
      */
     public function getFile(): File
@@ -109,6 +153,33 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
         $this->file = $file;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldsMap(): array
+    {
+        return json_decode($this->fieldsMap, true);
+    }
+
+    /**
+     * @param array $fieldsMap
+     * @return self
+     */
+    public function setFieldsMap(array $fieldsMap): self
+    {
+        $this->fieldsMap = json_encode($fieldsMap);
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     /**

@@ -14,10 +14,10 @@ namespace Mailery\Subscriber\Service;
 
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
-use Mailery\Storage\Service\FileService;
+use Mailery\Storage\Service\StorageService;
+use Mailery\Storage\ValueObject\BucketValueObject;
 use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\SubscriberImport;
-use Mailery\Subscriber\Storage\SubscriberImportBucket;
 use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
 
 class SubscriberImportService
@@ -28,25 +28,18 @@ class SubscriberImportService
     private ORMInterface $orm;
 
     /**
-     * @var SubscriberImportBucket
+     * @var StorageService
      */
-    private SubscriberImportBucket $fileBucket;
-
-    /**
-     * @var FileService
-     */
-    private FileService $fileService;
+    private StorageService $storageService;
 
     /**
      * @param ORMInterface $orm
-     * @param SubscriberImportBucket $fileBucket
-     * @param FileService $fileService
+     * @param StorageService $storageService
      */
-    public function __construct(ORMInterface $orm, SubscriberImportBucket $fileBucket, FileService $fileService)
+    public function __construct(ORMInterface $orm, StorageService $storageService)
     {
         $this->orm = $orm;
-        $this->fileBucket = $fileBucket;
-        $this->fileService = $fileService;
+        $this->storageService = $storageService;
     }
 
     /**
@@ -55,24 +48,27 @@ class SubscriberImportService
      */
     public function create(SubscriberImportValueObject $valueObject): SubscriberImport
     {
-        $import = (new SubscriberImport())
-            ->setBrand($valueObject->getBrand())
-        ;
-
-        $tr = new Transaction($this->orm);
-        $tr->persist($import);
-        $tr->run();
-
-        $file = $this->fileService->create(
-            (new FileValueObject())
-                ->withUploadedFile($valueObject->getFile())
-                ->withFilePath($import->getFilePath())
-                ->withFileBucket($this->fileBucket)
+        $file = $this->storageService->create(
+            FileValueObject::fromUploadedFile($valueObject->getFile())
                 ->withBrand($valueObject->getBrand())
+                ->withLocation('/import/subscribers/' . uniqid()),
+            (new BucketValueObject())
+                ->withBrand($valueObject->getBrand())
+                ->withName('subscriber-import')
+                ->withTitle('Subscriber import lists')
         );
 
-        $import->setFile($file);
+        $import = (new SubscriberImport())
+            ->setBrand($valueObject->getBrand())
+            ->setFile($file)
+            ->setFieldsMap($valueObject->getFieldsMap())
+        ;
 
+        foreach ($valueObject->getGroups() as $group) {
+            $import->getGroups()->add($group);
+        }
+
+        $tr = new Transaction($this->orm);
         $tr->persist($import);
         $tr->run();
 

@@ -15,7 +15,6 @@ use Mailery\Subscriber\Controller\GroupController;
 use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
 use Mailery\Subscriber\Controller\SubscriberImportController;
-use Mailery\Subscriber\Storage\SubscriberImportBucket;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -124,12 +123,6 @@ return [
                     ])
                     ->withOrder(200),
             ],
-        ],
-    ],
-
-    'maileryio/mailery-storage' => [
-        'buckets' => [
-            SubscriberImportBucket::class => SubscriberImportBucket::class,
         ],
     ],
 ];

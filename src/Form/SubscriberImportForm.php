@@ -112,7 +112,16 @@ class SubscriberImportForm extends Form
         parent::loadFromServerRequest($request);
 
         $parsedBody = (array) $request->getParsedBody();
-        $this['groups[]']->setValue($parsedBody['groups'] ?? []);
+        $this['groups[]']->setValue(array_map('intval', $parsedBody['groups'] ?? []));
+
+        $fieldsMap = [];
+        foreach (array_keys($this->getFieldsMap()) as $field) {
+            if (isset($parsedBody['fields'][$field])) {
+                $fieldsMap[$field] = (int) $parsedBody['fields'][$field];
+            }
+        }
+
+        $this['fields[]']->setValue($fieldsMap);
 
         return $this;
     }
@@ -124,6 +133,10 @@ class SubscriberImportForm extends Form
     {
         $groupOptions = $this->getGroupOptions();
 
+        $fileAttributes = [
+            'map-fields' => json_encode($this->getFieldsMap()),
+        ];
+
         return [
             'groups[]' => F::select('Import to groups', $groupOptions, ['multiple' => true])
                 ->addConstraint(new Constraints\NotBlank())
@@ -131,7 +144,7 @@ class SubscriberImportForm extends Form
                     'choices' => array_keys($groupOptions),
                     'multiple' => true,
                 ])),
-            'file' => (new CsvImport('File in CSV format', $this->getFileAttributes()))
+            'file' => (new CsvImport('File in CSV format', $fileAttributes))
                 ->addConstraint(new Constraints\Required())
                 ->addConstraint(new Constraints\Callback([
                     'callback' => function ($value, ExecutionContextInterface $context) {
@@ -168,6 +181,7 @@ class SubscriberImportForm extends Form
                         }
                     },
                 ])),
+            'fields[]' => F::hidden(),
 
             '' => F::submit('Import'),
         ];
@@ -176,14 +190,11 @@ class SubscriberImportForm extends Form
     /**
      * @return array
      */
-    private function getFileAttributes(): array
+    private function getFieldsMap(): array
     {
-        $mapFields = [
-            'email' => 'Email',
-        ];
-
         return [
-            'map-fields' => json_encode($mapFields),
+            'name' => 'Name',
+            'email' => 'Email',
         ];
     }
 

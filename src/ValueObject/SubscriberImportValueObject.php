@@ -35,6 +35,11 @@ class SubscriberImportValueObject
     private UploadedFile $file;
 
     /**
+     * @var array
+     */
+    private array $fieldsMap;
+
+    /**
      * @param SubscriberImportForm $form
      * @return self
      */
@@ -43,6 +48,7 @@ class SubscriberImportValueObject
         $new = new self();
 
         $new->file = $form['file']->getValue();
+        $new->fieldsMap = $form['fields[]']->getValue();
 
         return $new;
     }
@@ -69,6 +75,14 @@ class SubscriberImportValueObject
     public function getGroups(): array
     {
         return $this->groups;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldsMap(): array
+    {
+        return $this->fieldsMap;
     }
 
     /**
