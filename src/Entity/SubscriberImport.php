@@ -63,7 +63,7 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
 
     /**
      * @Cycle\Annotated\Annotation\Column(type = "datetime")
-     * @var string|null
+     * @var \DateTimeImmutable
      */
     private $createdAt;
 
@@ -161,7 +161,12 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
      */
     public function getFieldsMap(): array
     {
-        return json_decode($this->fieldsMap, true);
+        $fieldsMap = json_decode($this->fieldsMap, true);
+        if (!is_array($fieldsMap)) {
+            return [];
+        }
+
+        return $fieldsMap;
     }
 
     /**
@@ -170,7 +175,12 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
      */
     public function setFieldsMap(array $fieldsMap): self
     {
-        $this->fieldsMap = json_encode($fieldsMap);
+        $jsonString = json_encode($fieldsMap);
+        if ($jsonString === false) {
+            $jsonString = '[]';
+        }
+
+        $this->fieldsMap = $jsonString;
 
         return $this;
     }
@@ -181,22 +191,6 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
-    }
-
-    /**
-     * @throws \RuntimeException
-     * @return string
-     */
-    public function getFilePath(): string
-    {
-        if ($this->file !== null) {
-            return $this->file->getFilePath();
-        }
-        if (empty($this->getId())) {
-            throw new \RuntimeException('Invalid subscriber import entity');
-        }
-
-        return sprintf('/import/subscriber/%s.csv', $this->getId());
     }
 
     /**
