@@ -22,6 +22,7 @@ use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\SubscriberImport;
 use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
 use Ramsey\Uuid\Rfc4122\UuidV5;
+use Mailery\Storage\Filesystem\FileStorageInterface;
 
 class SubscriberImportService
 {
@@ -108,18 +109,21 @@ class SubscriberImportService
      */
     private function createFileRecursively(SubscriberImportValueObject $valueObject, int $tryCount = 0): File
     {
+        $brand = $valueObject->getBrand();
+        $uuid = UuidV5::fromDateTime(new \DateTimeImmutable('now'))->toString();
+        $location = sprintf('/%s/import/subscribers/%s.csv', $brand->getId(), $uuid);
+
         // TODO: need to use concurently strategy, e.g. mutex or lock file
         try {
-            $uuid = UuidV5::fromDateTime(new \DateTimeImmutable('now'))->toString();
-
             return $this->storageService->create(
                 FileValueObject::fromUploadedFile($valueObject->getFile())
-                    ->withBrand($valueObject->getBrand())
-                    ->withLocation('/import/subscribers/' . $uuid . '.csv'),
+                    ->withBrand($brand)
+                    ->withLocation($location),
                 (new BucketValueObject())
-                    ->withBrand($valueObject->getBrand())
+                    ->withBrand($brand)
                     ->withName('subscriber-import')
-                    ->withTitle('Subscriber import lists')
+                    ->withTitle('Subscriber imports')
+                    ->withFilesystem(FileStorageInterface::class)
             );
         } catch (FileAlreadyExistsException $e) {
             if ($tryCount === 5) {

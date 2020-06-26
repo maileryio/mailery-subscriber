@@ -10,21 +10,4 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-use Cycle\ORM\ORMInterface;
-use Mailery\Storage\Factory\StorageFactory;
-use Mailery\Storage\Filesystem\FileStorageInterface;
-use Mailery\Subscriber\Service\SubscriberImportService;
-use Psr\Container\ContainerInterface;
-
-return [
-    SubscriberImportService::class => static function (ContainerInterface $container) {
-        $orm = $container->get(ORMInterface::class);
-        $storageFactory = $container->get(StorageFactory::class);
-        $fileStorage = $container->get(FileStorageInterface::class);
-
-        return new SubscriberImportService(
-            $orm,
-            $storageFactory->withFilesystem($fileStorage)->create()
-        );
-    },
-];
+return [];
