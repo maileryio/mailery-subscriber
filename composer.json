@@ -25,6 +25,7 @@
         "maileryio/mailery-brand": "dev-master",
         "maileryio/mailery-common": "dev-master",
         "maileryio/mailery-menu": "dev-master",
+        "maileryio/mailery-queue": "^1.0@dev",
         "maileryio/mailery-storage": "dev-master",
         "maileryio/mailery-web": "dev-master",
         "maileryio/widget-dataview": "dev-master",

@@ -16,13 +16,13 @@ use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Mailery\Storage\Entity\File;
 use Mailery\Storage\Exception\FileAlreadyExistsException;
+use Mailery\Storage\Filesystem\FileStorageInterface;
 use Mailery\Storage\Service\StorageService;
 use Mailery\Storage\ValueObject\BucketValueObject;
 use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\SubscriberImport;
 use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
 use Ramsey\Uuid\Rfc4122\UuidV5;
-use Mailery\Storage\Filesystem\FileStorageInterface;
 
 class SubscriberImportService
 {

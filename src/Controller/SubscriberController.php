@@ -16,6 +16,7 @@ use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Form\SubscriberImportForm;
+use Mailery\Subscriber\Queue\SubscriberImportJob;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
@@ -30,6 +31,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
+use Yiisoft\Yii\Queue\Queue;
 
 class SubscriberController extends WebController
 {
@@ -114,9 +116,10 @@ class SubscriberController extends WebController
      * @param Request $request
      * @param SubscriberImportForm $importForm
      * @param UrlGenerator $urlGenerator
+     * @param Queue $queue
      * @return Response
      */
-    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator): Response
+    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator, Queue $queue): Response
     {
         $groupId = $request->getQueryParams()['groupId'] ?? null;
         $submitted = $request->getMethod() === Method::POST;
@@ -138,7 +141,8 @@ class SubscriberController extends WebController
             $importForm->loadFromServerRequest($request);
 
             if (($import = $importForm->import()) !== null) {
-                // add to job
+                $queue->push(new SubscriberImportJob($import));
+
                 return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
             }
         }
