@@ -19,6 +19,7 @@
     "require": {
         "php": "^7.4",
         "cycle/orm": "^1.2",
+        "ddeboer/data-import": "^0.20.0",
         "form-manager/form-manager": "^6.0",
         "foxy/foxy": "^1.0",
         "maileryio/mailery-activity-log": "dev-master",
@@ -35,6 +36,7 @@
         "ramsey/uuid": "^4.0",
         "symfony/http-foundation": "^5.1",
         "yiisoft/router": "^3.0@dev",
+        "yiisoft/validator": "^3.0@dev",
         "yiisoft/yii-bootstrap4": "^3.0@dev",
         "yiisoft/yii-cycle": "^3.0@dev"
     },

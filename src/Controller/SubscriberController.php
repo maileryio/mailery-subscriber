@@ -31,7 +31,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
-use Yiisoft\Yii\Queue\Queue;
 
 class SubscriberController extends WebController
 {
@@ -119,7 +118,7 @@ class SubscriberController extends WebController
      * @param Queue $queue
      * @return Response
      */
-    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator, Queue $queue): Response
+    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator, SubscriberImportJob $importJob): Response
     {
         $groupId = $request->getQueryParams()['groupId'] ?? null;
         $submitted = $request->getMethod() === Method::POST;
@@ -141,8 +140,7 @@ class SubscriberController extends WebController
             $importForm->loadFromServerRequest($request);
 
             if (($import = $importForm->import()) !== null) {
-                $queue->push(new SubscriberImportJob($import));
-
+                $importJob->push($import);
                 return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
             }
         }

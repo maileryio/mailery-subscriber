@@ -15,8 +15,9 @@ namespace Mailery\Subscriber\ValueObject;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\SubscriberForm;
+use Yiisoft\Validator\DataSetInterface;
 
-class SubscriberValueObject
+class SubscriberValueObject implements DataSetInterface
 {
     /**
      * @var string
@@ -31,22 +32,22 @@ class SubscriberValueObject
     /**
      * @var bool
      */
-    private bool $confirmed;
+    private bool $confirmed = false;
 
     /**
      * @var bool
      */
-    private bool $unsubscribed;
+    private bool $unsubscribed = false;
 
     /**
      * @var bool
      */
-    private bool $bounced;
+    private bool $bounced = false;
 
     /**
      * @var bool
      */
-    private bool $complaint;
+    private bool $complaint = false;
 
     /**
      * @var Brand
@@ -69,9 +70,20 @@ class SubscriberValueObject
         $new->name = $form['name']->getValue();
         $new->email = $form['email']->getValue();
         $new->confirmed = filter_var($form['confirmed']->getValue(), FILTER_VALIDATE_BOOLEAN);
-        $new->unsubscribed = false;
-        $new->bounced = false;
-        $new->complaint = false;
+
+        return $new;
+    }
+
+    /**
+     * @param array $array
+     * @return self
+     */
+    public static function fromArray(array $array): self
+    {
+        $new = new self();
+
+        $new->name = $array['name'] ?? '';
+        $new->email = $array['email'] ?? '';
 
         return $new;
     }
@@ -163,4 +175,28 @@ class SubscriberValueObject
 
         return $new;
     }
+
+    /**
+     * @param string $attribute
+     * @return bool
+     */
+    public function hasAttribute(string $attribute): bool
+    {
+        return isset($this->$attribute);
+    }
+
+    /**
+     * @param string $attribute
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    public function getAttributeValue(string $attribute)
+    {
+        if (!isset($this->$attribute)) {
+            throw new \InvalidArgumentException("There is no \"$attribute\" in object value.");
+        }
+
+        return $this->$attribute;
+    }
+
 }

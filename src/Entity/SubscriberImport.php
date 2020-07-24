@@ -50,6 +50,12 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     private $groups;
 
     /**
+     * @Cycle\Annotated\Annotation\Relation\HasMany(target = "SubscriberImportError", outerKey = "subscriber_import_id", nullable = false)
+     * @var PivotedCollectionInterface
+     */
+    private $errors;
+
+    /**
      * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Storage\Entity\File", nullable = true)
      * @var File
      */
@@ -70,6 +76,7 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     public function __construct()
     {
         $this->groups = new PivotedCollection();
+        $this->errors = new PivotedCollection();
     }
 
     /**
@@ -133,6 +140,25 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     public function setGroups(PivotedCollectionInterface $groups): self
     {
         $this->groups = $groups;
+
+        return $this;
+    }
+
+    /**
+     * @return PivotedCollectionInterface
+     */
+    public function getErrors(): PivotedCollectionInterface
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param PivotedCollectionInterface $errors
+     * @return self
+     */
+    public function setErrors(PivotedCollectionInterface $errors): self
+    {
+        $this->errors = $errors;
 
         return $this;
     }

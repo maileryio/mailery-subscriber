@@ -57,19 +57,17 @@ class SubscriberService
             ->setComplaint($valueObject->getComplaint())
         ;
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-
         $counters = [];
-
         foreach ($valueObject->getGroups() as $group) {
             $counters[] = $this->counter->withGroup($group);
             $subscriber->getGroups()->add($group);
         }
 
-        $tr->run();
-
         $counters[] = $this->counter->withBrand($subscriber->getBrand());
+
+        $tr = new Transaction($this->orm);
+        $tr->persist($subscriber);
+        $tr->run();
 
         $this->incrCounters($subscriber, $counters);
 
@@ -93,9 +91,6 @@ class SubscriberService
             ->setComplaint($valueObject->getComplaint())
         ;
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-
         $counters = [
             'incr' => [],
             'decr' => [],
@@ -113,6 +108,8 @@ class SubscriberService
             }
         }
 
+        $tr = new Transaction($this->orm);
+        $tr->persist($subscriber);
         $tr->run();
 
         $this->decrCounters($subscriber, $counters['decr']);
