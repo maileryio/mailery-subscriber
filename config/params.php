@@ -20,8 +20,8 @@ use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 return [
-    'cycle.common' => [
-        'entityPaths' => [
+    'yiisoft/yii-cycle' => [
+        'annotated-entity-paths' => [
             '@vendor/maileryio/mailery-subscriber/src/Entity',
         ],
     ],
