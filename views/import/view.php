@@ -47,9 +47,9 @@ $this->setTitle($import->getFile()->getName());
             </p>
             <p>Status: <?= ImportStatusBadge::widget()->import($import) ?></p>
         </div>
-        <div>
+<!--        <div>
             <p class="text-muted text-right"><?= Icon::widget()->name('clock-outline')->options(['class' => 'mr-1']); ?> Time elapsed: <b>00:00:37</b> / 00:00:00 (approximate)</p>
-        </div>
+        </div>-->
         <div class="progress">
             <?php
                 $total = $import->getTotalCount();
