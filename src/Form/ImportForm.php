@@ -18,11 +18,11 @@ use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\Service\BrandLocator;
 use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\SubscriberImport;
+use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\Inputs\CsvImport;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Service\SubscriberImportService;
-use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
+use Mailery\Subscriber\Service\ImportService;
+use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Spiral\Database\Injection\Parameter;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validation;
 
-class SubscriberImportForm extends Form
+class ImportForm extends Form
 {
     /**
      * @var Brand
@@ -43,21 +43,21 @@ class SubscriberImportForm extends Form
     private ORMInterface $orm;
 
     /**
-     * @var SubscriberImport|null
+     * @var Import|null
      */
-    private ?SubscriberImport $import;
+    private ?Import $import;
 
     /**
-     * @var SubscriberImportService
+     * @var ImportService
      */
     private $importService;
 
     /**
      * @param BrandLocator $brandLocator
-     * @param SubscriberImportService $importService
+     * @param ImportService $importService
      * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, SubscriberImportService $importService, ORMInterface $orm)
+    public function __construct(BrandLocator $brandLocator, ImportService $importService, ORMInterface $orm)
     {
         $this->orm = $orm;
         $this->brand = $brandLocator->getBrand();
@@ -66,10 +66,10 @@ class SubscriberImportForm extends Form
     }
 
     /**
-     * @param SubscriberImport $import
+     * @param Import $import
      * @return self
      */
-    public function withSubscriberImport(SubscriberImport $import): self
+    public function withImport(Import $import): self
     {
         $this->import = $import;
 
@@ -77,9 +77,9 @@ class SubscriberImportForm extends Form
     }
 
     /**
-     * @return SubscriberImport|null
+     * @return Import|null
      */
-    public function import(): ?SubscriberImport
+    public function import(): ?Import
     {
         if (!$this->isValid()) {
             return null;
@@ -91,7 +91,7 @@ class SubscriberImportForm extends Form
             'id' => ['in' => new Parameter($groupIds)],
         ]);
 
-        $valueObject = SubscriberImportValueObject::fromForm($this)
+        $valueObject = ImportValueObject::fromForm($this)
             ->withBrand($this->brand)
             ->withGroups((array) $groups);
 

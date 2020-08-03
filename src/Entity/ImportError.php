@@ -14,15 +14,16 @@ namespace Mailery\Subscriber\Entity;
 
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
-use Mailery\Subscriber\Entity\SubscriberImport;
+use Mailery\Subscriber\Entity\Import;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscriber_import_errors",
+ *      repository = "Mailery\Subscriber\Repository\ImportErrorRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
-class SubscriberImportError implements LoggableEntityInterface
+class ImportError implements LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
@@ -51,8 +52,8 @@ class SubscriberImportError implements LoggableEntityInterface
     private $error;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Subscriber\Entity\SubscriberImport", innerKey = "subscriber_import_id", nullable = false)
-     * @var SubscriberImport
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Subscriber\Entity\Import", innerKey = "subscriber_import_id", nullable = false)
+     * @var Import
      */
     private $import;
 
@@ -141,18 +142,18 @@ class SubscriberImportError implements LoggableEntityInterface
     }
 
     /**
-     * @return SubscriberImport
+     * @return Import
      */
-    public function getImport(): SubscriberImport
+    public function getImport(): Import
     {
         return $this->import;
     }
 
     /**
-     * @param SubscriberImport $import
+     * @param Import $import
      * @return self
      */
-    public function setImport(SubscriberImport $import): self
+    public function setImport(Import $import): self
     {
         $this->import = $import;
 

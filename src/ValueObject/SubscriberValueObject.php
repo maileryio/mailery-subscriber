@@ -16,6 +16,7 @@ use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Yiisoft\Validator\DataSetInterface;
+use Mailery\Subscriber\Entity\Import;
 
 class SubscriberValueObject implements DataSetInterface
 {
@@ -58,6 +59,11 @@ class SubscriberValueObject implements DataSetInterface
      * @var Group[]
      */
     private array $groups;
+
+    /**
+     * @var Import|null
+     */
+    private ?Import $import = null;
 
     /**
      * @param SubscriberForm $form
@@ -153,6 +159,14 @@ class SubscriberValueObject implements DataSetInterface
     }
 
     /**
+     * @return Import|null
+     */
+    public function getImport(): ?Import
+    {
+        return $this->import;
+    }
+
+    /**
      * @param Brand $brand
      * @return self
      */
@@ -172,6 +186,18 @@ class SubscriberValueObject implements DataSetInterface
     {
         $new = clone $this;
         $new->groups = $groups;
+
+        return $new;
+    }
+
+    /**
+     * @param Import $import
+     * @return self
+     */
+    public function withImport(Import $import): self
+    {
+        $new = clone $this;
+        $new->import = $import;
 
         return $new;
     }

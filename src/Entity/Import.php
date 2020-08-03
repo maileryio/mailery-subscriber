@@ -19,15 +19,16 @@ use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
 use Mailery\Storage\Entity\File;
+use Mailery\Subscriber\Enum\ImportStatus;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "subscriber_imports",
- *      repository = "Mailery\Subscriber\Repository\SubscriberImportRepository",
+ *      repository = "Mailery\Subscriber\Repository\ImportRepository",
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
-class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterface
+class Import implements RoutableEntityInterface, LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
@@ -44,13 +45,13 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     private $brand;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "SubscriberImportGroup", thoughInnerKey = "subscriber_import_id", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "ImportGroup", thoughInnerKey = "subscriber_import_id", nullable = false)
      * @var PivotedCollectionInterface
      */
     private $groups;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\HasMany(target = "SubscriberImportError", outerKey = "subscriber_import_id", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\HasMany(target = "ImportError", outerKey = "subscriber_import_id", nullable = false)
      * @var PivotedCollectionInterface
      */
     private $errors;
@@ -60,6 +61,18 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
      * @var File
      */
     private $file;
+
+    /**
+     * @Cycle\Annotated\Annotation\Column(type = "integer")
+     * @var int
+     */
+    private $status;
+
+    /**
+     * @Cycle\Annotated\Annotation\Column(type = "integer")
+     * @var int
+     */
+    private $totalCount;
 
     /**
      * @Cycle\Annotated\Annotation\Column(type = "json")
@@ -183,6 +196,44 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     }
 
     /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param int $status
+     * @return self
+     */
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalCount(): int
+    {
+        return $this->totalCount;
+    }
+
+    /**
+     * @param int $totalCount
+     * @return self
+     */
+    public function setTotalCount(int $totalCount): self
+    {
+        $this->totalCount = $totalCount;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getFieldsMap(): array
@@ -249,5 +300,85 @@ class SubscriberImport implements RoutableEntityInterface, LoggableEntityInterfa
     public function getViewRouteParams(): array
     {
         return ['id' => $this->getId()];
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsPending(): self
+    {
+        return $this->setStatus(ImportStatus::PENDING);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPending(): bool
+    {
+        return $this->getStatus() === ImportStatus::PENDING;
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsRunning(): self
+    {
+        return $this->setStatus(ImportStatus::RUNNING);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsRunning(): bool
+    {
+        return $this->getStatus() === ImportStatus::RUNNING;
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsPaused(): self
+    {
+        return $this->setStatus(ImportStatus::PAUSED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPaused(): bool
+    {
+        return $this->getStatus() === ImportStatus::PAUSED;
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsErrored(): self
+    {
+        return $this->setStatus(ImportStatus::ERRORED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsErrored(): bool
+    {
+        return $this->getStatus() === ImportStatus::ERRORED;
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsCompleted(): self
+    {
+        return $this->setStatus(ImportStatus::COMPLETED);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsCompleted(): bool
+    {
+        return $this->getStatus() === ImportStatus::COMPLETED;
     }
 }

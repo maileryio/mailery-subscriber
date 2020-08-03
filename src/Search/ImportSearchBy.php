@@ -16,7 +16,7 @@ use Cycle\ORM\Select;
 use Cycle\ORM\Select\QueryBuilder;
 use Mailery\Widget\Search\Model\SearchBy;
 
-class SubscriberImportSearchBy extends SearchBy
+class ImportSearchBy extends SearchBy
 {
     /**
      * {@inheritdoc}

@@ -16,7 +16,7 @@ use Cycle\ORM\Select\Repository;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 
-class SubscriberImportRepository extends Repository
+class ImportRepository extends Repository
 {
     /**
      * @param array $scope

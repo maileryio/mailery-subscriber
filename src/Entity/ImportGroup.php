@@ -21,7 +21,7 @@ use Mailery\Activity\Log\Entity\LoggableEntityTrait;
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
-class SubscriberImportGroup implements LoggableEntityInterface
+class ImportGroup implements LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
@@ -36,7 +36,7 @@ class SubscriberImportGroup implements LoggableEntityInterface
      */
     public function __toString(): string
     {
-        return 'SubscriberImportGroup';
+        return 'ImportGroup';
     }
 
     /**

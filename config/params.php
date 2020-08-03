@@ -14,7 +14,7 @@ use Mailery\Menu\MenuItem;
 use Mailery\Subscriber\Controller\GroupController;
 use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
-use Mailery\Subscriber\Controller\SubscriberImportController;
+use Mailery\Subscriber\Controller\ImportController;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -43,9 +43,9 @@ return [
                 ->name('/subscriber/subscriber/import'),
 
             // Imports:
-            '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [SubscriberImportController::class, 'index'])
+            '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [ImportController::class, 'index'])
                 ->name('/subscriber/import/index'),
-            '/subscriber/import/view' => Route::methods(['POST'], '/brand/{brandId:\d+}/import/view/{id:\d+}', [SubscriberImportController::class, 'view'])
+            '/subscriber/import/view' => Route::get('/brand/{brandId:\d+}/import/view/{id:\d+}', [ImportController::class, 'view'])
                 ->name('/subscriber/import/view'),
 
             // Groups:
@@ -109,6 +109,7 @@ return [
                             }))
                             ->withActiveRouteNames([
                                 '/subscriber/import/index',
+                                '/subscriber/import/view',
                             ])
                             ->withOrder(300),
                         'reports' => (new MenuItem())

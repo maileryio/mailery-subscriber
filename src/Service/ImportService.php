@@ -20,11 +20,11 @@ use Mailery\Storage\Filesystem\FileStorageInterface;
 use Mailery\Storage\Service\StorageService;
 use Mailery\Storage\ValueObject\BucketValueObject;
 use Mailery\Storage\ValueObject\FileValueObject;
-use Mailery\Subscriber\Entity\SubscriberImport;
-use Mailery\Subscriber\ValueObject\SubscriberImportValueObject;
+use Mailery\Subscriber\Entity\Import;
+use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Ramsey\Uuid\Rfc4122\UuidV5;
 
-class SubscriberImportService
+class ImportService
 {
     /**
      * @var ORMInterface
@@ -47,17 +47,21 @@ class SubscriberImportService
     }
 
     /**
-     * @param SubscriberImportValueObject $valueObject
-     * @return SubscriberImport
+     * @param ImportValueObject $valueObject
+     * @return Import
      */
-    public function create(SubscriberImportValueObject $valueObject): SubscriberImport
+    public function create(ImportValueObject $valueObject): Import
     {
-        $file = $this->createFileRecursively($valueObject);
+        $file = $this->createFileUniquely($valueObject);
 
-        $import = (new SubscriberImport())
+        $fileInfo = $this->storageService->getFileInfo($file);
+
+        $import = (new Import())
             ->setBrand($valueObject->getBrand())
             ->setFile($file)
             ->setFieldsMap($valueObject->getFieldsMap())
+            ->setTotalCount($fileInfo->getLineCount())
+            ->setIsPending()
         ;
 
         foreach ($valueObject->getGroups() as $group) {
@@ -72,11 +76,11 @@ class SubscriberImportService
     }
 
     /**
-     * @param SubscriberImport $import
-     * @param SubscriberImportValueObject $valueObject
-     * @return SubscriberImport
+     * @param Import $import
+     * @param ImportValueObject $valueObject
+     * @return Import
      */
-    public function update(SubscriberImport $import, SubscriberImportValueObject $valueObject): SubscriberImport
+    public function update(Import $import, ImportValueObject $valueObject): Import
     {
         $import = $import
             ->setBrand($valueObject->getBrand())
@@ -90,10 +94,10 @@ class SubscriberImportService
     }
 
     /**
-     * @param SubscriberImport $import
+     * @param Import $import
      * @return bool
      */
-    public function delete(SubscriberImport $import): bool
+    public function delete(Import $import): bool
     {
         $tr = new Transaction($this->orm);
         $tr->delete($import);
@@ -103,11 +107,11 @@ class SubscriberImportService
     }
 
     /**
-     * @param SubscriberImportValueObject $valueObject
+     * @param ImportValueObject $valueObject
      * @param int $tryCount
      * @return File
      */
-    private function createFileRecursively(SubscriberImportValueObject $valueObject, int $tryCount = 0): File
+    private function createFileUniquely(ImportValueObject $valueObject, int $tryCount = 0): File
     {
         $brand = $valueObject->getBrand();
         $uuid = UuidV5::fromDateTime(new \DateTimeImmutable('now'))->toString();
@@ -130,7 +134,7 @@ class SubscriberImportService
                 throw $e;
             }
 
-            return $this->createFileRecursively($valueObject, ++$tryCount);
+            return $this->createFileUniquely($valueObject, ++$tryCount);
         }
     }
 }

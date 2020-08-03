@@ -155,6 +155,7 @@ class SubscriberCounter
     {
         return $this->getTotalCounter()->decr($amount);
     }
+
     /**
      * @return int
      */

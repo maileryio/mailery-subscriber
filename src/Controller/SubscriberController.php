@@ -15,8 +15,8 @@ namespace Mailery\Subscriber\Controller;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\SubscriberForm;
-use Mailery\Subscriber\Form\SubscriberImportForm;
-use Mailery\Subscriber\Queue\SubscriberImportJob;
+use Mailery\Subscriber\Form\ImportForm;
+use Mailery\Subscriber\Queue\ImportJob;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
@@ -113,12 +113,12 @@ class SubscriberController extends WebController
 
     /**
      * @param Request $request
-     * @param SubscriberImportForm $importForm
+     * @param ImportForm $importForm
      * @param UrlGenerator $urlGenerator
-     * @param Queue $queue
+     * @param ImportJob $importJob
      * @return Response
      */
-    public function import(Request $request, SubscriberImportForm $importForm, UrlGenerator $urlGenerator, SubscriberImportJob $importJob): Response
+    public function import(Request $request, ImportForm $importForm, UrlGenerator $urlGenerator, ImportJob $importJob): Response
     {
         $groupId = $request->getQueryParams()['groupId'] ?? null;
         $submitted = $request->getMethod() === Method::POST;

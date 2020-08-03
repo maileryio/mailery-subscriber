@@ -14,10 +14,10 @@ namespace Mailery\Subscriber\ValueObject;
 
 use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Form\SubscriberImportForm;
+use Mailery\Subscriber\Form\ImportForm;
 use Nyholm\Psr7\UploadedFile;
 
-class SubscriberImportValueObject
+class ImportValueObject
 {
     /**
      * @var Brand
@@ -40,10 +40,10 @@ class SubscriberImportValueObject
     private array $fieldsMap;
 
     /**
-     * @param SubscriberImportForm $form
+     * @param ImportForm $form
      * @return self
      */
-    public static function fromForm(SubscriberImportForm $form): self
+    public static function fromForm(ImportForm $form): self
     {
         $new = new self();
 

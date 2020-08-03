@@ -4,15 +4,17 @@ namespace Mailery\Subscriber\Importer\Interpreter;
 
 use Mailery\Subscriber\Importer\InterpreterInterface;
 use Mailery\Subscriber\Service\SubscriberService;
-use Mailery\Subscriber\Validator\SubscriberValidator;
+use Mailery\Subscriber\Factory\ValidatorFactory;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Cycle\ORM\ORMInterface;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Entity\SubscriberImport;
-use Mailery\Subscriber\Entity\SubscriberImportError;
+use Mailery\Subscriber\Entity\Import;
+use Mailery\Subscriber\Entity\ImportError;
+use Mailery\Subscriber\Counter\ImportCounter;
 use Cycle\ORM\Transaction;
 use Mailery\Brand\Entity\Brand;
+use Yiisoft\Validator\Validator;
 
 class SubscriberInterpreter implements InterpreterInterface
 {
@@ -22,9 +24,9 @@ class SubscriberInterpreter implements InterpreterInterface
     private array $rows = [];
 
     /**
-     * @var SubscriberImport
+     * @var Import
      */
-    private SubscriberImport $import;
+    private Import $import;
 
     /**
      * @var ORMInterface
@@ -32,32 +34,39 @@ class SubscriberInterpreter implements InterpreterInterface
     private ORMInterface $orm;
 
     /**
+     * @var Validator
+     */
+    private Validator $validator;
+
+    /**
      * @var SubscriberService
      */
     private SubscriberService $subscriberService;
 
     /**
-     * @var SubscriberValidator
+     * @var ImportCounter
      */
-    private SubscriberValidator $subscriberValidator;
+    private ImportCounter $importCounter;
 
     /**
      * @param ORMInterface $orm
+     * @param ValidatorFactory $validatorFactory
      * @param SubscriberService $subscriberService
-     * @param SubscriberValidator $subscriberValidator
+     * @param ImportCounter $importCounter
      */
-    public function __construct(ORMInterface $orm, SubscriberService $subscriberService, SubscriberValidator $subscriberValidator)
+    public function __construct(ORMInterface $orm, ValidatorFactory $validatorFactory, SubscriberService $subscriberService, ImportCounter $importCounter)
     {
         $this->orm = $orm;
+        $this->validator = $validatorFactory->createSubscriberValidator();
         $this->subscriberService = $subscriberService;
-        $this->subscriberValidator = $subscriberValidator;
+        $this->importCounter = $importCounter;
     }
 
     /**
-     * @param SubscriberImport $import
+     * @param Import $import
      * @return self
      */
-    public function withImport(SubscriberImport $import): self
+    public function withImport(Import $import): self
     {
         $new = clone $this;
         $new->import = $import;
@@ -76,13 +85,13 @@ class SubscriberInterpreter implements InterpreterInterface
             $attributes[$field] = $line[$column] ?? null;
         }
 
-        $hasErrors = false;
-
         $valueObject = SubscriberValueObject::fromArray($attributes)
             ->withBrand($this->import->getBrand())
             ->withGroups($this->import->getGroups()->toArray());
 
-        $results = $this->subscriberValidator->validate($valueObject);
+        $hasErrors = false;
+        $results = $this->validator->validate($valueObject);
+
         foreach ($results as $attribute => $result) {
             if ($result->isValid() === false) {
                 $hasErrors = true;
@@ -95,9 +104,7 @@ class SubscriberInterpreter implements InterpreterInterface
             }
         }
 
-        if (!$hasErrors) {
-            $this->flushSubscriberValueObject($valueObject);
-        }
+        $this->flushSubscriberValueObject($valueObject, $hasErrors);
     }
 
     /**
@@ -108,7 +115,7 @@ class SubscriberInterpreter implements InterpreterInterface
      */
     private function flushError(string $attribute, ?string $value, string $message): void
     {
-        $error = (new SubscriberImportError())
+        $error = (new ImportError())
             ->setImport($this->import)
             ->setName($attribute)
             ->setValue($value)
@@ -121,16 +128,25 @@ class SubscriberInterpreter implements InterpreterInterface
 
     /**
      * @param SubscriberValueObject $valueObject
+     * @param bool $hasErrors
      * @return void
      */
-    private function flushSubscriberValueObject(SubscriberValueObject $valueObject): void
+    private function flushSubscriberValueObject(SubscriberValueObject $valueObject, bool $hasErrors): void
     {
         $repo = $this->getSubscriberRepository($valueObject->getBrand());
+        $counter = $this->importCounter->withImport($this->import);
+
+        if ($hasErrors) {
+            $counter->incrSkippedCount();
+            return;
+        }
 
         if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
             $this->subscriberService->create($valueObject);
+            $counter->incrInsertedCount();
         } else {
             $this->subscriberService->update($subscriber, $valueObject);
+            $counter->incrUpdatedCount();
         }
     }
 
