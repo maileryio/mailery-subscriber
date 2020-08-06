@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 use Mailery\Menu\MenuItem;
 use Mailery\Subscriber\Controller\GroupController;
+use Mailery\Subscriber\Controller\ImportController;
 use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
-use Mailery\Subscriber\Controller\ImportController;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;

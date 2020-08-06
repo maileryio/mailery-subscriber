@@ -115,7 +115,7 @@ class ImportService
     {
         $brand = $valueObject->getBrand();
         $uuid = UuidV5::fromDateTime(new \DateTimeImmutable('now'))->toString();
-        $location = sprintf('/%s/import/subscribers/%s.csv', $brand->getId(), $uuid);
+        $location = sprintf('/%d/import/subscribers/%s.csv', (int) $brand->getId(), $uuid);
 
         // TODO: need to use concurently strategy, e.g. mutex or lock file
         try {

@@ -1,16 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Factory;
 
-use Yiisoft\Validator\Validator;
 use Yiisoft\I18n\TranslatorInterface;
-use Yiisoft\Validator\Rule\Required;
 use Yiisoft\Validator\Rule\Email;
 use Yiisoft\Validator\Rule\HasLength;
+use Yiisoft\Validator\Rule\Required;
+use Yiisoft\Validator\Validator;
 
 class ValidatorFactory
 {
-
     /**
      * @var TranslatorInterface
      */
@@ -37,9 +46,9 @@ class ValidatorFactory
             'name' => [
                 new Required(),
                 (new HasLength())
-                    ->translator($this->translator)
                     ->min(3)
-                    ->max(255),
+                    ->max(255)
+                    ->translator($this->translator),
             ],
         ]);
     }

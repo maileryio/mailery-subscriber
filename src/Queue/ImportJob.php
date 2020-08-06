@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Queue;
 
-use Mailery\Subscriber\Entity\Import;
-use Mailery\Subscriber\Importer\Importer;
-use Ddeboer\DataImport\Reader\CsvReader;
-use Yiisoft\Yii\Queue\Queue;
-use Mailery\Storage\Provider\FilesystemProvider;
-use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
+use Ddeboer\DataImport\Reader\CsvReader;
+use Mailery\Storage\Provider\FilesystemProvider;
+use Mailery\Subscriber\Entity\Import;
+use Mailery\Subscriber\Importer\Importer;
+use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
+use Yiisoft\Yii\Queue\Queue;
 
 class ImportJob
 {
@@ -72,7 +72,7 @@ class ImportJob
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function execute()
     {
@@ -82,6 +82,7 @@ class ImportJob
             $this->afterExecute();
         } catch (\Exception $e) {
             $this->thrownExecute();
+
             throw $e;
         }
     }

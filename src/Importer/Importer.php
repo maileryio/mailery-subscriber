@@ -1,10 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Importer;
 
 use Ddeboer\DataImport\Reader;
-use Mailery\Subscriber\Importer\ImporterInterface;
-use Mailery\Subscriber\Importer\InterpreterInterface;
 
 class Importer implements ImporterInterface
 {
@@ -27,7 +35,7 @@ class Importer implements ImporterInterface
      */
     public function import(InterpreterInterface $interpreter): void
     {
-        foreach($this->reader as $row) {
+        foreach ($this->reader as $row) {
             $interpreter->interpret($row);
         }
     }

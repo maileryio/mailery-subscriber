@@ -14,9 +14,9 @@ namespace Mailery\Subscriber\ValueObject;
 
 use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Yiisoft\Validator\DataSetInterface;
-use Mailery\Subscriber\Entity\Import;
 
 class SubscriberValueObject implements DataSetInterface
 {
@@ -213,8 +213,8 @@ class SubscriberValueObject implements DataSetInterface
 
     /**
      * @param string $attribute
-     * @return mixed
      * @throws \InvalidArgumentException
+     * @return mixed
      */
     public function getAttributeValue(string $attribute)
     {
@@ -224,5 +224,4 @@ class SubscriberValueObject implements DataSetInterface
 
         return $this->$attribute;
     }
-
 }

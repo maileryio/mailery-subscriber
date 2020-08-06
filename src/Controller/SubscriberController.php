@@ -14,8 +14,8 @@ namespace Mailery\Subscriber\Controller;
 
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
-use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Form\ImportForm;
+use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Queue\ImportJob;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
@@ -141,6 +141,7 @@ class SubscriberController extends WebController
 
             if (($import = $importForm->import()) !== null) {
                 $importJob->push($import);
+
                 return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
             }
         }

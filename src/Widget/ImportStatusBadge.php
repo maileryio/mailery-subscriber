@@ -1,14 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Widget;
 
-use Yiisoft\Widget\Widget;
 use Mailery\Subscriber\Entity\Import;
 use Yiisoft\Html\Html;
+use Yiisoft\Widget\Widget;
 
 class ImportStatusBadge extends Widget
 {
-
     /**
      * @var string|null
      */
@@ -67,21 +76,29 @@ class ImportStatusBadge extends Widget
         if ($this->import->getIsPending()) {
             $label = 'Pending';
             Html::addCssClass($options, 'badge badge-secondary');
-        } else if ($this->import->getIsRunning()) {
-            $label = 'Running';
-            Html::addCssClass($options, 'badge badge-info');
-        } else if ($this->import->getIsPaused()) {
-            $label = 'Paused';
-            Html::addCssClass($options, 'badge badge-warning');
-        } else if ($this->import->getIsCompleted()) {
-            $label = 'Completed';
-            Html::addCssClass($options, 'badge badge-success');
-        } else if ($this->import->getIsErrored()) {
-            $label = 'Completed';
-            Html::addCssClass($options, 'badge badge-danger');
         } else {
-            $label = 'Unknown';
-            Html::addCssClass($options, 'badge badge-light');
+            if ($this->import->getIsRunning()) {
+                $label = 'Running';
+                Html::addCssClass($options, 'badge badge-info');
+            } else {
+                if ($this->import->getIsPaused()) {
+                    $label = 'Paused';
+                    Html::addCssClass($options, 'badge badge-warning');
+                } else {
+                    if ($this->import->getIsCompleted()) {
+                        $label = 'Completed';
+                        Html::addCssClass($options, 'badge badge-success');
+                    } else {
+                        if ($this->import->getIsErrored()) {
+                            $label = 'Completed';
+                            Html::addCssClass($options, 'badge badge-danger');
+                        } else {
+                            $label = 'Unknown';
+                            Html::addCssClass($options, 'badge badge-light');
+                        }
+                    }
+                }
+            }
         }
 
         return Html::tag($this->tag, $label, $options);

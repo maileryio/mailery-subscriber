@@ -1,19 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Subscriber module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-subscriber
+ * @package   Mailery\Subscriber
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Subscriber\Importer\Interpreter;
 
-use Mailery\Subscriber\Importer\InterpreterInterface;
-use Mailery\Subscriber\Service\SubscriberService;
-use Mailery\Subscriber\Factory\ValidatorFactory;
-use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Cycle\ORM\ORMInterface;
-use Mailery\Subscriber\Entity\Subscriber;
-use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Entity\Import;
-use Mailery\Subscriber\Entity\ImportError;
-use Mailery\Subscriber\Counter\ImportCounter;
 use Cycle\ORM\Transaction;
 use Mailery\Brand\Entity\Brand;
+use Mailery\Subscriber\Counter\ImportCounter;
+use Mailery\Subscriber\Entity\Import;
+use Mailery\Subscriber\Entity\ImportError;
+use Mailery\Subscriber\Entity\Subscriber;
+use Mailery\Subscriber\Factory\ValidatorFactory;
+use Mailery\Subscriber\Importer\InterpreterInterface;
+use Mailery\Subscriber\Repository\SubscriberRepository;
+use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Yiisoft\Validator\Validator;
 
 class SubscriberInterpreter implements InterpreterInterface
@@ -75,7 +85,7 @@ class SubscriberInterpreter implements InterpreterInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function interpret($line): void
     {
@@ -93,7 +103,7 @@ class SubscriberInterpreter implements InterpreterInterface
         $results = $this->validator->validate($valueObject);
 
         foreach ($results as $attribute => $result) {
-            if ($result->isValid() === false) {
+            if (is_string($attribute) && $result->isValid() === false) {
                 $hasErrors = true;
 
                 $this->flushError(
@@ -118,8 +128,11 @@ class SubscriberInterpreter implements InterpreterInterface
         $error = (new ImportError())
             ->setImport($this->import)
             ->setName($attribute)
-            ->setValue($value)
             ->setError($message);
+
+        if ($value) {
+            $error->setValue($value);
+        }
 
         $transaction = new Transaction($this->orm);
         $transaction->persist($error);
@@ -138,6 +151,7 @@ class SubscriberInterpreter implements InterpreterInterface
 
         if ($hasErrors) {
             $counter->incrSkippedCount();
+
             return;
         }
 

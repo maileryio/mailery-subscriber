@@ -259,5 +259,4 @@ class ImportCounter
 
         return $this->skippedCounter[$key];
     }
-
 }

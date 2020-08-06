@@ -14,7 +14,6 @@ namespace Mailery\Subscriber\Entity;
 
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
-use Mailery\Subscriber\Entity\Import;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(

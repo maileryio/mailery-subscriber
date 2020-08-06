@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
 use Mailery\Icon\Icon;
+use Mailery\Subscriber\Entity\ImportError;
+use Mailery\Subscriber\Widget\ImportStatusBadge;
 use Mailery\Widget\Dataview\Columns\DataColumn;
 use Mailery\Widget\Dataview\GridView;
 use Mailery\Widget\Dataview\GridView\LinkPager;
-use Mailery\Subscriber\Entity\ImportError;
-use Mailery\Subscriber\Widget\ImportStatusBadge;
 
 /** @var Mailery\Web\View\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -13,13 +13,12 @@ use Mailery\Subscriber\Widget\ImportStatusBadge;
 /** @var Mailery\Subscriber\Counter\ImportCounter $importCounter */
 /** @var Mailery\Storage\Filesystem\FileInfo $fileInfo */
 /** @var bool $submitted */
-
 $this->setTitle($import->getFile()->getName());
 
 ?><div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h2">Import #<?= $import->getId() ?></h1>
+            <h1 class="h2">Import #<?= $import->getId(); ?></h1>
             <div class="btn-toolbar float-right">
                 <div class="btn-toolbar float-right">
                     <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/import/index'); ?>">
@@ -34,7 +33,7 @@ $this->setTitle($import->getFile()->getName());
 <div class="row">
     <div class="col-12 grid-margin">
         <div>
-            <p>File name: <b><?= $import->getFile()->getName() ?></b></p>
+            <p>File name: <b><?= $import->getFile()->getName(); ?></b></p>
             <p>File size:
                 <b><?php
                     $fileSize = $fileInfo->getFileSize();
@@ -45,7 +44,7 @@ $this->setTitle($import->getFile()->getName());
                     }
                 ?></b>
             </p>
-            <p>Status: <?= ImportStatusBadge::widget()->import($import) ?></p>
+            <p>Status: <?= ImportStatusBadge::widget()->import($import); ?></p>
         </div>
 <!--        <div>
             <p class="text-muted text-right"><?= Icon::widget()->name('clock-outline')->options(['class' => 'mr-1']); ?> Time elapsed: <b>00:00:37</b> / 00:00:00 (approximate)</p>
@@ -57,7 +56,7 @@ $this->setTitle($import->getFile()->getName());
                 $progress = $processed > 0 ? round(($processed / $total) * 100, 2) : 0;
                 $percent = $progress > 100 ? 100 : $progress;
             ?>
-            <div class="progress-bar" role="progressbar" style="width: <?= $percent ?>%;" aria-valuenow="<?= $percent ?>" aria-valuemin="0" aria-valuemax="100"><?= $percent ?>%</div>
+            <div class="progress-bar" role="progressbar" style="width: <?= $percent; ?>%;" aria-valuenow="<?= $percent; ?>" aria-valuemin="0" aria-valuemax="100"><?= $percent; ?>%</div>
         </div>
     </div>
 </div>

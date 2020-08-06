@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\Repository;
-use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 use Mailery\Subscriber\Entity\Import;
+use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 
 class ImportErrorRepository extends Repository
 {
