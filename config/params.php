@@ -13,7 +13,6 @@ declare(strict_types=1);
 use Mailery\Menu\MenuItem;
 use Mailery\Subscriber\Controller\GroupController;
 use Mailery\Subscriber\Controller\ImportController;
-use Mailery\Subscriber\Controller\ReportController;
 use Mailery\Subscriber\Controller\SubscriberController;
 use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\Route;
@@ -108,17 +107,8 @@ return [
                                 '/subscriber/import/view',
                             ])
                             ->withOrder(300),
-                        'reports' => (new MenuItem())
-                            ->withLabel('Reports')
-                            ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
-                                return $urlGenerator->generate('/subscriber/report/index');
-                            }))
-                            ->withActiveRouteNames([
-                                '/subscriber/report/index',
-                            ])
-                            ->withOrder(400),
                     ])
-                    ->withOrder(200),
+                    ->withOrder(300),
             ],
         ],
     ],

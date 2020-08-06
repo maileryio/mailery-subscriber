@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Mailery\Activity\Log\Widget\ActivityLogLink;
 use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Widget\ImportStatusBadge;
@@ -20,6 +21,15 @@ $this->setTitle($import->getFile()->getName());
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
             <h1 class="h2">Import #<?= $import->getId(); ?></h1>
             <div class="btn-toolbar float-right">
+                <b-dropdown right size="sm" variant="secondary" class="mb-2">
+                    <template v-slot:button-content>
+                        <?= Icon::widget()->name('settings'); ?>
+                    </template>
+                    <?= ActivityLogLink::widget()
+                        ->tag('b-dropdown-item')
+                        ->label('Activity log')
+                        ->entity($import); ?>
+                </b-dropdown>
                 <div class="btn-toolbar float-right">
                     <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/import/index'); ?>">
                         Back
