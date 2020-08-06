@@ -61,10 +61,6 @@ return [
                 ->name('/subscriber/group/delete'),
             '/subscriber/group/delete-subscriber' => Route::delete('/brand/{brandId:\d+}/subscriber/group/delete-subscriber/{id:\d+}/{subscriberId:\d+}', [GroupController::class, 'deleteSubscriber'])
                 ->name('/subscriber/group/delete-subscriber'),
-
-            // Reports:
-            '/subscriber/report/index' => Route::get('/brand/{brandId:\d+}/reports', [ReportController::class, 'index'])
-                ->name('/subscriber/report/index'),
         ],
     ],
 
