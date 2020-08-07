@@ -68,7 +68,7 @@ return [
             'items' => [
                 'subscribers' => (new MenuItem())
                     ->withLabel('Subscribers')
-                    ->withIcon('account-multiple')
+                    ->withIcon('account-multiple-outline')
                     ->withChildItems([
                         'subscribers' => (new MenuItem())
                             ->withLabel('All Subscribers')
