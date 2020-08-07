@@ -26,10 +26,6 @@ $this->setTitle($group->getName());
             <h1 class="h2"><?= $group->getName(); ?></h1>
             <div class="btn-toolbar float-right">
                 <?= SearchWidget::widget()->form($searchForm); ?>
-                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
-                    <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
-                    Add subscribers
-                </a>
                 <b-dropdown right size="sm" variant="secondary" class="mb-2">
                     <template v-slot:button-content>
                         <?= Icon::widget()->name('settings'); ?>
@@ -50,6 +46,10 @@ $this->setTitle($group->getName());
                         ]);
                     ?></b-dropdown-text>
                 </b-dropdown>
+                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
+                    <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
+                    Add subscribers
+                </a>
                 <div class="btn-toolbar float-right">
                     <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/index'); ?>">
                         Back
