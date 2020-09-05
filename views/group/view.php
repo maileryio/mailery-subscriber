@@ -86,6 +86,11 @@ $this->setTitle($group->getName());
                                     $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
                                 );
                             }),
+                        (new DataColumn())
+                            ->header('Name')
+                            ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                                return $data->getName();
+                            }),
                         (new ActionColumn())
                             ->contentOptions([
                                 'style' => 'width: 80px;',
