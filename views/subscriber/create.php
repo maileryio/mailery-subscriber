@@ -7,7 +7,9 @@ use Yiisoft\Yii\Bootstrap4\Nav;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var FormManager\Form $subscriberForm */
 /** @var FormManager\Form $importForm */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle('Add subscribers');
 
 ?><div class="row">
@@ -56,12 +58,12 @@ $this->setTitle('Add subscribers');
                 <div class="row"><?php
                     if (!empty($subscriberForm)) {
                         ?><div class="col-6">
-                            <?= (new FormRenderer($subscriberForm))($submitted); ?>
+                            <?= (new FormRenderer($subscriberForm->withCsrf($csrf)))($submitted); ?>
                         </div><?php
                     } else {
                         if (!empty($importForm)) {
                             ?><div class="col-6">
-                            <?= (new FormRenderer($importForm))($submitted); ?>
+                            <?= (new FormRenderer($importForm->withCsrf($csrf)))($submitted); ?>
                         </div><?php
                         }
                     }

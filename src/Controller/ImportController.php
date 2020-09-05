@@ -14,74 +14,120 @@ namespace Mailery\Subscriber\Controller;
 
 use Mailery\Storage\Service\StorageService;
 use Mailery\Subscriber\Counter\ImportCounter;
-use Mailery\Subscriber\Entity\Import;
-use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Repository\ImportErrorRepository;
 use Mailery\Subscriber\Repository\ImportRepository;
-use Mailery\Subscriber\Search\ImportSearchBy;
-use Mailery\Subscriber\WebController;
-use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
-use Mailery\Widget\Search\Data\Reader\Search;
-use Mailery\Widget\Search\Data\Reader\SelectDataReader;
-use Mailery\Widget\Search\Form\SearchForm;
-use Mailery\Widget\Search\Model\SearchByList;
+use Yiisoft\Data\Paginator\OffsetPaginator;
+use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
+use Mailery\Web\ViewRenderer;
+use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
+use Mailery\Brand\Service\BrandLocatorInterface;
+use Mailery\Subscriber\Service\ImportService;
 
-class ImportController extends WebController
+class ImportController
 {
     private const PAGINATION_INDEX = 10;
 
     /**
-     * @param Request $request
-     * @param SearchForm $searchForm
-     * @param ImportCounter $importCounter
-     * @return Response
+     * @var ViewRenderer
      */
-    public function index(Request $request, SearchForm $searchForm, ImportCounter $importCounter): Response
-    {
-        $searchForm = $searchForm->withSearchByList(new SearchByList([
-            new ImportSearchBy(),
-        ]));
+    private ViewRenderer $viewRenderer;
 
-        $queryParams = $request->getQueryParams();
-        $pageNum = (int) ($queryParams['page'] ?? 1);
+    /**
+     * @var ResponseFactory
+     */
+    private ResponseFactory $responseFactory;
 
-        $query = $this->getImportRepository()
-            ->select()
-            ->with('file');
+    /**
+     * @var ImportRepository
+     */
+    private ImportRepository $importRepo;
 
-        $dataReader = (new SelectDataReader($query))
-            ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
-            ->withSort((new Sort([]))->withOrder(['id' => 'desc']));
+    /**
+     * @var ImportErrorRepository
+     */
+    private ImportErrorRepository $importErrorRepo;
 
-        $paginator = (new OffsetPaginator($dataReader))
-            ->withPageSize(self::PAGINATION_INDEX)
-            ->withCurrentPage($pageNum);
+    /**
+     * @var StorageService
+     */
+    private StorageService $storageService;
 
-        return $this->render('index', compact('searchForm', 'paginator', 'importCounter'));
+    /**
+     * @param ViewRenderer $viewRenderer
+     * @param ResponseFactory $responseFactory
+     * @param BrandLocatorInterface $brandLocator
+     * @param ImportRepository $importRepo
+     * @param ImportService $importService
+     * @param ImportErrorRepository $importErrorRepo
+     * @param StorageService $storageService
+     */
+    public function __construct(
+        ViewRenderer $viewRenderer,
+        ResponseFactory $responseFactory,
+        BrandLocatorInterface $brandLocator,
+        ImportRepository $importRepo,
+        ImportService $importService,
+        ImportErrorRepository $importErrorRepo,
+        StorageService $storageService
+    ) {
+        $this->viewRenderer = $viewRenderer
+            ->withController($this)
+            ->withCsrf();
+
+        $this->responseFactory = $responseFactory;
+        $this->importRepo = $importRepo
+            ->withBrand($brandLocator->getBrand());
+        $this->importService = $importService;
+
+        $this->importErrorRepo = $importErrorRepo;
+        $this->storageService = $storageService;
     }
 
     /**
      * @param Request $request
-     * @param StorageService $storageService
      * @param ImportCounter $importCounter
      * @return Response
      */
-    public function view(Request $request, StorageService $storageService, ImportCounter $importCounter): Response
+    public function index(Request $request, ImportCounter $importCounter): Response
+    {
+        $queryParams = $request->getQueryParams();
+        $pageNum = (int) ($queryParams['page'] ?? 1);
+        $searchBy = $queryParams['searchBy'] ?? null;
+        $searchPhrase = $queryParams['search'] ?? null;
+
+        $searchForm = $this->importService->getSearchForm()
+            ->withSearchBy($searchBy)
+            ->withSearchPhrase($searchPhrase);
+
+        $paginator = $this->importService->getFullPaginator($searchForm->getSearchBy())
+            ->withPageSize(self::PAGINATION_INDEX)
+            ->withCurrentPage($pageNum);
+
+        return $this->viewRenderer->render('index', compact('searchForm', 'paginator', 'importCounter'));
+    }
+
+    /**
+     * @param Request $request
+     * @param ImportCounter $importCounter
+     * @return Response
+     */
+    public function view(Request $request, ImportCounter $importCounter): Response
     {
         $importId = $request->getAttribute('id');
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        if (empty($importId) || ($import = $this->getImportRepository()->findByPK($importId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($importId) || ($import = $this->importRepo->findByPK($importId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        $fileInfo = $storageService->getFileInfo($import->getFile());
+        $fileInfo = $this->storageService->getFileInfo($import->getFile());
 
-        $query = $this->getImportErrorRepository($import)
+        $query = $this->importErrorRepo
+            ->withImport($import)
             ->select();
 
         $dataReader = (new SelectDataReader($query))
@@ -93,27 +139,6 @@ class ImportController extends WebController
 
         $importCounter = $importCounter->withImport($import);
 
-        return $this->render('view', compact('import', 'paginator', 'fileInfo', 'importCounter'));
-    }
-
-    /**
-     * @return ImportRepository
-     */
-    private function getImportRepository(): ImportRepository
-    {
-        return $this->getOrm()
-            ->getRepository(Import::class)
-            ->withBrand($this->getBrandLocator()->getBrand());
-    }
-
-    /**
-     * @param Import $import
-     * @return ImportErrorRepository
-     */
-    private function getImportErrorRepository(Import $import): ImportErrorRepository
-    {
-        return $this->getOrm()
-            ->getRepository(ImportError::class)
-            ->withImport($import);
+        return $this->viewRenderer->render('view', compact('import', 'paginator', 'fileInfo', 'importCounter'));
     }
 }

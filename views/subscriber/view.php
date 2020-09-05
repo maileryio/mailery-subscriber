@@ -9,7 +9,9 @@ use Mailery\Widget\Link\Link;
 /** @var Mailery\Web\View\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle($subscriber->getName());
 
 ?><div class="row">

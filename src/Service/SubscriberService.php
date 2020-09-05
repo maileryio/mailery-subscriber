@@ -12,189 +12,67 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Service;
 
-use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
-use Mailery\Subscriber\Counter\SubscriberCounter;
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\Subscriber;
-use Mailery\Subscriber\ValueObject\SubscriberValueObject;
+use Mailery\Widget\Search\Form\SearchForm;
+use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Search\SubscriberSearchBy;
+use Yiisoft\Data\Paginator\PaginatorInterface;
+use Yiisoft\Data\Paginator\OffsetPaginator;
+use Mailery\Subscriber\Repository\SubscriberRepository;
+use Mailery\Brand\Service\BrandLocator;
+use Yiisoft\Data\Reader\Sort;
+use Yiisoft\Data\Reader\Filter\FilterInterface;
 
 class SubscriberService
 {
     /**
-     * @var ORMInterface
+     * @var BrandLocator
      */
-    private ORMInterface $orm;
+    private BrandLocator $brandLocator;
 
     /**
-     * @var SubscriberCounter
+     * @var SubscriberRepository
      */
-    private SubscriberCounter $counter;
+    private SubscriberRepository $subscriberRepo;
 
     /**
-     * @param SubscriberCounter $counter
-     * @param ORMInterface $orm
+     * @param BrandLocator $brandLocator
+     * @param SubscriberRepository $subscriberRepo
      */
-    public function __construct(SubscriberCounter $counter, ORMInterface $orm)
+    public function __construct(BrandLocator $brandLocator, SubscriberRepository $subscriberRepo)
     {
-        $this->counter = $counter;
-        $this->orm = $orm;
+        $this->brandLocator = $brandLocator;
+        $this->subscriberRepo = $subscriberRepo;
     }
 
     /**
-     * @param SubscriberValueObject $valueObject
-     * @return Subscriber
+     * @return SearchForm
      */
-    public function create(SubscriberValueObject $valueObject): Subscriber
+    public function getSearchForm(): SearchForm
     {
-        $subscriber = (new Subscriber())
-            ->setName($valueObject->getName())
-            ->setEmail($valueObject->getEmail())
-            ->setBrand($valueObject->getBrand())
-            ->setConfirmed($valueObject->getConfirmed())
-            ->setUnsubscribed($valueObject->getUnsubscribed())
-            ->setBounced($valueObject->getBounced())
-            ->setComplaint($valueObject->getComplaint())
-        ;
-
-        $counters = [];
-        foreach ($valueObject->getGroups() as $group) {
-            $counters[] = $this->counter->withGroup($group);
-            $subscriber->getGroups()->add($group);
-        }
-
-        $counters[] = $this->counter->withBrand($subscriber->getBrand());
-
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-        $tr->run();
-
-        $this->incrCounters($subscriber, $counters);
-
-        return $subscriber;
+        return (new SearchForm())
+            ->withSearchByList(new SearchByList([
+                new SubscriberSearchBy(),
+            ]));
     }
 
     /**
-     * @param Subscriber $subscriber
-     * @param SubscriberValueObject $valueObject
-     * @return Subscriber
+     * @param FilterInterface|null $filter
+     * @return PaginatorInterface
      */
-    public function update(Subscriber $subscriber, SubscriberValueObject $valueObject): Subscriber
+    public function getFullPaginator(FilterInterface $filter = null): PaginatorInterface
     {
-        $subscriber = $subscriber
-            ->setName($valueObject->getName())
-            ->setEmail($valueObject->getEmail())
-            ->setBrand($valueObject->getBrand())
-            ->setConfirmed($valueObject->getConfirmed())
-            ->setUnsubscribed($valueObject->getUnsubscribed())
-            ->setBounced($valueObject->getBounced())
-            ->setComplaint($valueObject->getComplaint())
-        ;
+        $dataReader = $this->subscriberRepo
+            ->withBrand($this->brandLocator->getBrand())
+            ->getDataReader();
 
-        $counters = [
-            'incr' => [],
-            'decr' => [],
-        ];
-
-        foreach ($subscriber->getGroups() as $group) {
-            $subscriber->getGroups()->removeElement($group);
-            $counters['decr'][] = $this->counter->withGroup($group);
+        if ($filter !== null) {
+            $dataReader = $dataReader->withFilter($filter);
         }
 
-        foreach ($valueObject->getGroups() as $group) {
-            if (!$subscriber->getGroups()->hasPivot($group)) {
-                $subscriber->getGroups()->add($group);
-                $counters['incr'][] = $this->counter->withGroup($group);
-            }
-        }
-
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-        $tr->run();
-
-        $this->decrCounters($subscriber, $counters['decr']);
-        $this->incrCounters($subscriber, $counters['incr']);
-
-        return $subscriber;
-    }
-
-    /**
-     * @param Subscriber $subscriber
-     * @param Group|null $group
-     * @return bool
-     */
-    public function delete(Subscriber $subscriber, Group $group = null): bool
-    {
-        $tr = new Transaction($this->orm);
-
-        $counters = [];
-
-        foreach ($subscriber->getGroups() as $groupPivot) {
-            if ($group === null || $group === $groupPivot) {
-                $counters[] = $this->counter->withGroup($groupPivot);
-                $subscriber->getGroups()->removeElement($groupPivot);
-            }
-        }
-
-        if ($subscriber->getGroups()->count() > 0) {
-            $tr->persist($subscriber);
-        } else {
-            $counters[] = $this->counter->withBrand($subscriber->getBrand());
-            $tr->delete($subscriber);
-        }
-
-        $tr->run();
-
-        $this->decrCounters($subscriber, $counters);
-
-        return true;
-    }
-
-    /**
-     * @param Subscriber $subscriber
-     * @param SubscriberCounter[] $counters
-     */
-    private function incrCounters(Subscriber $subscriber, array $counters)
-    {
-        foreach ($counters as $counter) {
-            $counter->incrTotalCount();
-
-            if ($subscriber->isConfirmed()) {
-                $counter->incrConfirmedCount();
-            }
-            if ($subscriber->isUnsubscribed()) {
-                $counter->incrUnsubscribedCount();
-            }
-            if ($subscriber->isBounced()) {
-                $counter->incrBouncedCount();
-            }
-            if ($subscriber->isComplaint()) {
-                $counter->incrComplaintCount();
-            }
-        }
-    }
-
-    /**
-     * @param Subscriber $subscriber
-     * @param SubscriberCounter[] $counters
-     */
-    private function decrCounters(Subscriber $subscriber, array $counters)
-    {
-        foreach ($counters as $counter) {
-            $counter->decrTotalCount();
-
-            if ($subscriber->isConfirmed()) {
-                $counter->decrConfirmedCount();
-            }
-            if ($subscriber->isUnsubscribed()) {
-                $counter->decrUnsubscribedCount();
-            }
-            if ($subscriber->isBounced()) {
-                $counter->decrBouncedCount();
-            }
-            if ($subscriber->isComplaint()) {
-                $counter->decrComplaintCount();
-            }
-        }
+        return new OffsetPaginator(
+            $dataReader->withSort(
+                (new Sort([]))->withOrderString('email')
+            )
+        );
     }
 }

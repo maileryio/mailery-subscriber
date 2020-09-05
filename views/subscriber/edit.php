@@ -7,8 +7,12 @@ use Mailery\Widget\Form\FormRenderer;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
 /** @var Mailery\Subscriber\Form\SubscriberForm $subscriberForm */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle('Edit subscriber #' . $subscriber->getId());
+
+$subscriberForm = $subscriberForm->withCsrf($csrf);
 
 ?><div class="row">
     <div class="col-12">

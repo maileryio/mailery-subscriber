@@ -21,7 +21,7 @@ use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\Service\SubscriberCrudService;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Mailery\Widget\Form\Groups\RadioGroup;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -47,21 +47,51 @@ class SubscriberForm extends Form
     private ?Subscriber $subscriber;
 
     /**
-     * @var SubscriberService
+     * @var GroupRepository
      */
-    private $subscriberService;
+    private GroupRepository $groupRepo;
+
+    /**
+     * @var SubscriberRepository
+     */
+    private SubscriberRepository $subscriberRepo;
+
+    /**
+     * @var SubscriberCrudService
+     */
+    private SubscriberCrudService $subscriberCrudService;
 
     /**
      * @param BrandLocator $brandLocator
-     * @param SubscriberService $subscriberService
+     * @param GroupRepository $groupRepo
+     * @param SubscriberRepository $subscriberRepo
+     * @param SubscriberCrudService $subscriberCrudService
      * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, SubscriberService $subscriberService, ORMInterface $orm)
-    {
-        $this->orm = $orm;
+    public function __construct(
+        BrandLocator $brandLocator,
+        GroupRepository $groupRepo,
+        SubscriberRepository $subscriberRepo,
+        SubscriberCrudService $subscriberCrudService,
+        ORMInterface $orm
+    ) {
         $this->brand = $brandLocator->getBrand();
-        $this->subscriberService = $subscriberService;
+        $this->groupRepo = $groupRepo->withBrand($this->brand);
+        $this->subscriberRepo = $subscriberRepo->withBrand($this->brand);
+        $this->subscriberCrudService = $subscriberCrudService;
+
         parent::__construct($this->inputs());
+    }
+
+    /**
+     * @param string $csrf
+     * @return \self
+     */
+    public function withCsrf(string $value, string $name = '_csrf'): self
+    {
+        $this->offsetSet($name, F::hidden($value));
+
+        return $this;
     }
 
     /**
@@ -97,7 +127,7 @@ class SubscriberForm extends Form
 
         $groupIds = $this['groups[]']->getValue();
 
-        $groups = $this->getGroupRepository()->findAll([
+        $groups = $this->groupRepo->findAll([
             'id' => ['in' => new Parameter($groupIds)],
         ]);
 
@@ -106,9 +136,9 @@ class SubscriberForm extends Form
             ->withGroups((array) $groups);
 
         if (($subscriber = $this->subscriber) === null) {
-            $subscriber = $this->subscriberService->create($valueObject);
+            $subscriber = $this->subscriberCrudService->create($valueObject);
         } else {
-            $this->subscriberService->update($subscriber, $valueObject);
+            $this->subscriberCrudService->update($subscriber, $valueObject);
         }
 
         return $subscriber;
@@ -138,7 +168,7 @@ class SubscriberForm extends Form
                     return;
                 }
 
-                $subscriber = $this->getSubscriberRepository()->findByEmail($value, $this->subscriber);
+                $subscriber = $this->subscriberRepo->findByEmail($value, $this->subscriber);
                 if ($subscriber !== null) {
                     $context->buildViolation('Subscriber with this email already exists.')
                         ->atPath('email')
@@ -180,30 +210,12 @@ class SubscriberForm extends Form
     private function getGroupOptions(): array
     {
         $options = [];
-        $groups = $this->getGroupRepository()->findAll();
+        $groups = $this->groupRepo->findAll();
 
         foreach ($groups as $group) {
             $options[$group->getId()] = $group->getName();
         }
 
         return $options;
-    }
-
-    /**
-     * @return GroupRepository
-     */
-    private function getGroupRepository(): GroupRepository
-    {
-        return $this->orm->getRepository(Group::class)
-            ->withBrand($this->brand);
-    }
-
-    /**
-     * @return SubscriberRepository
-     */
-    private function getSubscriberRepository(): SubscriberRepository
-    {
-        return $this->orm->getRepository(Subscriber::class)
-            ->withBrand($this->brand);
     }
 }

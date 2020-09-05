@@ -13,7 +13,9 @@ use Mailery\Widget\Dataview\GridView\LinkPager;
 /** @var Mailery\Subscriber\Entity\Import $import */
 /** @var Mailery\Subscriber\Counter\ImportCounter $importCounter */
 /** @var Mailery\Storage\Filesystem\FileInfo $fileInfo */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle($import->getFile()->getName());
 
 ?><div class="row">
@@ -139,7 +141,7 @@ $this->setTitle($import->getFile()->getName());
         ?>
     </div>
 </div><?php
-if ($paginator->getTotalCount() > 0) {
+if ($paginator->getTotalItems() > 0) {
             ?><div class="mb-4"></div>
     <div class="row">
         <div class="col-6">

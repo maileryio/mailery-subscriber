@@ -6,8 +6,10 @@ use Mailery\Widget\Form\FormRenderer;
 /** @var Mailery\Web\View\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
-/** @var Mailery\Subscriber\Form\GroupForm $groupForm */
+/** @var FormManager\Form $groupForm */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle('Edit Group #' . $group->getId());
 
 ?><div class="row">
@@ -29,6 +31,6 @@ $this->setTitle('Edit Group #' . $group->getId());
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-6">
-        <?= (new FormRenderer($groupForm))($submitted); ?>
+        <?= (new FormRenderer($groupForm->withCsrf($csrf)))($submitted); ?>
     </div>
 </div>

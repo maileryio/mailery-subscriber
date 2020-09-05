@@ -14,7 +14,7 @@ namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\Repository;
 use Mailery\Subscriber\Entity\Import;
-use Mailery\Widget\Search\Data\Reader\SelectDataReader;
+use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
 
 class ImportErrorRepository extends Repository
 {

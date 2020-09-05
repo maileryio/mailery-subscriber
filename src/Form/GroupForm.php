@@ -19,7 +19,7 @@ use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\Service\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Service\GroupService;
+use Mailery\Subscriber\Service\GroupCrudService;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
 use Symfony\Component\Validator\Constraints;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -42,21 +42,32 @@ class GroupForm extends Form
     private ?Group $group;
 
     /**
-     * @var GroupService
+     * @var GroupCrudService
      */
-    private $groupService;
+    private $groupCrudService;
 
     /**
      * @param BrandLocator $brandLocator
-     * @param GroupService $groupService
+     * @param GroupCrudService $groupCrudService
      * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, GroupService $groupService, ORMInterface $orm)
+    public function __construct(BrandLocator $brandLocator, GroupCrudService $groupCrudService, ORMInterface $orm)
     {
         $this->orm = $orm;
         $this->brand = $brandLocator->getBrand();
-        $this->groupService = $groupService;
+        $this->groupCrudService = $groupCrudService;
         parent::__construct($this->inputs());
+    }
+
+    /**
+     * @param string $csrf
+     * @return \self
+     */
+    public function withCsrf(string $value, string $name = '_csrf'): self
+    {
+        $this->offsetSet($name, F::hidden($value));
+
+        return $this;
     }
 
     /**
@@ -86,9 +97,9 @@ class GroupForm extends Form
             ->withBrand($this->brand);
 
         if (($group = $this->group) === null) {
-            $group = $this->groupService->create($valueObject);
+            $group = $this->groupCrudService->create($valueObject);
         } else {
-            $this->groupService->update($group, $valueObject);
+            $this->groupCrudService->update($group, $valueObject);
         }
 
         return $group;

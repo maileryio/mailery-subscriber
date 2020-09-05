@@ -11,55 +11,13 @@ declare(strict_types=1);
  */
 
 use Mailery\Menu\MenuItem;
-use Mailery\Subscriber\Controller\GroupController;
-use Mailery\Subscriber\Controller\ImportController;
-use Mailery\Subscriber\Controller\SubscriberController;
 use Opis\Closure\SerializableClosure;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 return [
     'yiisoft/yii-cycle' => [
         'annotated-entity-paths' => [
             '@vendor/maileryio/mailery-subscriber/src/Entity',
-        ],
-    ],
-
-    'router' => [
-        'routes' => [
-            // Subscribers:
-            '/subscriber/subscriber/index' => Route::get('/brand/{brandId:\d+}/subscribers', [SubscriberController::class, 'index'])
-                ->name('/subscriber/subscriber/index'),
-            '/subscriber/subscriber/view' => Route::get('/brand/{brandId:\d+}/subscriber/subscriber/view/{id:\d+}', [SubscriberController::class, 'view'])
-                ->name('/subscriber/subscriber/view'),
-            '/subscriber/subscriber/create' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/create', [SubscriberController::class, 'create'])
-                ->name('/subscriber/subscriber/create'),
-            '/subscriber/subscriber/edit' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/edit/{id:\d+}', [SubscriberController::class, 'edit'])
-                ->name('/subscriber/subscriber/edit'),
-            '/subscriber/subscriber/delete' => Route::delete('/brand/{brandId:\d+}/subscriber/subscriber/delete/{id:\d+}', [SubscriberController::class, 'delete'])
-                ->name('/subscriber/subscriber/delete'),
-            '/subscriber/subscriber/import' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/subscriber/import', [SubscriberController::class, 'import'])
-                ->name('/subscriber/subscriber/import'),
-
-            // Imports:
-            '/subscriber/import/index' => Route::get('/brand/{brandId:\d+}/imports', [ImportController::class, 'index'])
-                ->name('/subscriber/import/index'),
-            '/subscriber/import/view' => Route::get('/brand/{brandId:\d+}/import/view/{id:\d+}', [ImportController::class, 'view'])
-                ->name('/subscriber/import/view'),
-
-            // Groups:
-            '/subscriber/group/index' => Route::get('/brand/{brandId:\d+}/subscriber/groups', [GroupController::class, 'index'])
-                ->name('/subscriber/group/index'),
-            '/subscriber/group/view' => Route::get('/brand/{brandId:\d+}/subscriber/group/view/{id:\d+}', [GroupController::class, 'view'])
-                ->name('/subscriber/group/view'),
-            '/subscriber/group/create' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/group/create', [GroupController::class, 'create'])
-                ->name('/subscriber/group/create'),
-            '/subscriber/group/edit' => Route::methods(['GET', 'POST'], '/brand/{brandId:\d+}/subscriber/group/edit/{id:\d+}', [GroupController::class, 'edit'])
-                ->name('/subscriber/group/edit'),
-            '/subscriber/group/delete' => Route::delete('/brand/{brandId:\d+}/subscriber/group/delete/{id:\d+}', [GroupController::class, 'delete'])
-                ->name('/subscriber/group/delete'),
-            '/subscriber/group/delete-subscriber' => Route::delete('/brand/{brandId:\d+}/subscriber/group/delete-subscriber/{id:\d+}/{subscriberId:\d+}', [GroupController::class, 'deleteSubscriber'])
-                ->name('/subscriber/group/delete-subscriber'),
         ],
     ],
 

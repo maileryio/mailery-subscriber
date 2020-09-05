@@ -22,7 +22,7 @@ use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Factory\ValidatorFactory;
 use Mailery\Subscriber\Importer\InterpreterInterface;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Subscriber\Service\SubscriberCrudService;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Yiisoft\Validator\Validator;
 
@@ -49,9 +49,9 @@ class SubscriberInterpreter implements InterpreterInterface
     private Validator $validator;
 
     /**
-     * @var SubscriberService
+     * @var SubscriberCrudService
      */
-    private SubscriberService $subscriberService;
+    private SubscriberCrudService $subscriberCrudService;
 
     /**
      * @var ImportCounter
@@ -61,14 +61,14 @@ class SubscriberInterpreter implements InterpreterInterface
     /**
      * @param ORMInterface $orm
      * @param ValidatorFactory $validatorFactory
-     * @param SubscriberService $subscriberService
+     * @param SubscriberCrudService $subscriberCrudService
      * @param ImportCounter $importCounter
      */
-    public function __construct(ORMInterface $orm, ValidatorFactory $validatorFactory, SubscriberService $subscriberService, ImportCounter $importCounter)
+    public function __construct(ORMInterface $orm, ValidatorFactory $validatorFactory, SubscriberCrudService $subscriberCrudService, ImportCounter $importCounter)
     {
         $this->orm = $orm;
         $this->validator = $validatorFactory->createSubscriberValidator();
-        $this->subscriberService = $subscriberService;
+        $this->subscriberCrudService = $subscriberCrudService;
         $this->importCounter = $importCounter;
     }
 
@@ -156,10 +156,10 @@ class SubscriberInterpreter implements InterpreterInterface
         }
 
         if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
-            $this->subscriberService->create($valueObject);
+            $this->subscriberCrudService->create($valueObject);
             $counter->incrInsertedCount();
         } else {
-            $this->subscriberService->update($subscriber, $valueObject);
+            $this->subscriberCrudService->update($subscriber, $valueObject);
             $counter->incrUpdatedCount();
         }
     }

@@ -17,7 +17,9 @@ use Yiisoft\Yii\Bootstrap4\Nav;
 /** @var Mailery\Subscriber\Counter\SubscriberCounter $subscriberCounter */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
+/** @var string $csrf */
 /** @var bool $submitted */
+
 $this->setTitle($group->getName());
 
 ?><div class="row">
@@ -170,7 +172,7 @@ $this->setTitle($group->getName());
                 <?= $dataRenderer($paginator); ?>
 
                 <?php
-                    if ($paginator->getTotalCount() > 0) {
+                    if ($paginator->getTotalItems() > 0) {
                         ?><div class="mb-4"></div>
                         <div class="row">
                             <div class="col-6">

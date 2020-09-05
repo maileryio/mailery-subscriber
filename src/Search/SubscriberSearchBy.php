@@ -12,25 +12,29 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Search;
 
-use Cycle\ORM\Select;
-use Cycle\ORM\Select\QueryBuilder;
 use Mailery\Widget\Search\Model\SearchBy;
 
 class SubscriberSearchBy extends SearchBy
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    protected function buildQueryInternal(Select $query, string $searchPhrase): Select
+    public function toArray(): array
     {
-        $newQuery = clone $query;
+        return [
+            self::getOperator(),
+            [
+                ['like', 'name', '%' . $this->getSearchPhrase() . '%'],
+                ['like', 'email', '%' . $this->getSearchPhrase() . '%'],
+            ]
+        ];
+    }
 
-        $newQuery->andWhere(function (QueryBuilder $select) use ($searchPhrase) {
-            return $select
-                ->andWhere(['name' => ['like' => '%' . $searchPhrase . '%']])
-                ->orWhere(['email' => ['like' => '%' . $searchPhrase . '%']]);
-        });
-
-        return $newQuery;
+    /**
+     * @inheritdoc
+     */
+    public static function getOperator(): string
+    {
+        return 'or';
     }
 }

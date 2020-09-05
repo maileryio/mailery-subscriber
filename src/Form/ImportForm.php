@@ -21,7 +21,7 @@ use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\Inputs\CsvImport;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Service\ImportService;
+use Mailery\Subscriber\Service\ImportCrudService;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Spiral\Database\Injection\Parameter;
@@ -48,21 +48,32 @@ class ImportForm extends Form
     private ?Import $import;
 
     /**
-     * @var ImportService
+     * @var ImportCrudService
      */
-    private $importService;
+    private $importCrudService;
 
     /**
      * @param BrandLocator $brandLocator
-     * @param ImportService $importService
+     * @param ImportCrudService $importCrudService
      * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, ImportService $importService, ORMInterface $orm)
+    public function __construct(BrandLocator $brandLocator, ImportCrudService $importCrudService, ORMInterface $orm)
     {
         $this->orm = $orm;
         $this->brand = $brandLocator->getBrand();
-        $this->importService = $importService;
+        $this->importCrudService = $importCrudService;
         parent::__construct($this->inputs());
+    }
+
+    /**
+     * @param string $csrf
+     * @return \self
+     */
+    public function withCsrf(string $value, string $name = '_csrf'): self
+    {
+        $this->offsetSet($name, F::hidden($value));
+
+        return $this;
     }
 
     /**
@@ -96,9 +107,9 @@ class ImportForm extends Form
             ->withGroups((array) $groups);
 
         if (($import = $this->import) === null) {
-            $import = $this->importService->create($valueObject);
+            $import = $this->importCrudService->create($valueObject);
         } else {
-            $this->importService->update($import, $valueObject);
+            $this->importCrudService->update($import, $valueObject);
         }
 
         return $import;

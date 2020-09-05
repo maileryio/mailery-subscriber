@@ -11,55 +11,109 @@ declare(strict_types=1);
  */
 
 namespace Mailery\Subscriber\Controller;
-
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\ImportForm;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Queue\ImportJob;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Search\SubscriberSearchBy;
-use Mailery\Subscriber\Service\SubscriberService;
-use Mailery\Subscriber\WebController;
-use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
-use Mailery\Widget\Search\Data\Reader\Search;
-use Mailery\Widget\Search\Form\SearchForm;
-use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Service\SubscriberCrudService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
+use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Web\ViewRenderer;
+use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
+use Mailery\Brand\Service\BrandLocatorInterface;
+use Mailery\Subscriber\Service\GroupService;
 
-class SubscriberController extends WebController
+class SubscriberController
 {
     private const PAGINATION_INDEX = 10;
 
     /**
+     * @var ViewRenderer
+     */
+    private ViewRenderer $viewRenderer;
+
+    /**
+     * @var ResponseFactory
+     */
+    private ResponseFactory $responseFactory;
+
+    /**
+     * @var GroupRepository
+     */
+    private GroupRepository $groupRepo;
+
+    /**
+     * @var GroupService
+     */
+    private GroupService $groupService;
+
+    /**
+     * @var SubscriberRepository
+     */
+    private SubscriberRepository $subscriberRepo;
+
+    /**
+     * @var SubscriberService
+     */
+    private SubscriberService $subscriberService;
+
+    /**
+     * @param ViewRenderer $viewRenderer
+     * @param ResponseFactory $responseFactory
+     * @param BrandLocatorInterface $brandLocator
+     * @param GroupRepository $groupRepo
+     * @param GroupService $groupService
+     * @param SubscriberRepository $subscriberRepo
+     * @param SubscriberService $subscriberService
+     */
+    public function __construct(
+        ViewRenderer $viewRenderer,
+        ResponseFactory $responseFactory,
+        BrandLocatorInterface $brandLocator,
+        GroupRepository $groupRepo,
+        GroupService $groupService,
+        SubscriberRepository $subscriberRepo,
+        SubscriberService $subscriberService
+    ) {
+        $this->viewRenderer = $viewRenderer
+            ->withController($this)
+            ->withCsrf();
+
+        $this->responseFactory = $responseFactory;
+
+        $this->groupRepo = $groupRepo
+            ->withBrand($brandLocator->getBrand());
+        $this->groupService = $groupService;
+
+        $this->subscriberRepo = $subscriberRepo
+            ->withBrand($brandLocator->getBrand());
+        $this->subscriberService = $subscriberService;
+    }
+
+    /**
      * @param Request $request
-     * @param SearchForm $searchForm
      * @return Response
      */
-    public function index(Request $request, SearchForm $searchForm): Response
+    public function index(Request $request): Response
     {
-        $searchForm = $searchForm->withSearchByList(new SearchByList([
-            new SubscriberSearchBy(),
-        ]));
-
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
+        $searchBy = $queryParams['searchBy'] ?? null;
+        $searchPhrase = $queryParams['search'] ?? null;
 
-        $dataReader = $this->getSubscriberRepository()
-            ->getDataReader()
-            ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
-            ->withSort((new Sort([]))->withOrderString('email'));
+        $searchForm = $this->subscriberService->getSearchForm()
+            ->withSearchBy($searchBy)
+            ->withSearchPhrase($searchPhrase);
 
-        $paginator = (new OffsetPaginator($dataReader))
+        $paginator = $this->subscriberService->getFullPaginator($searchForm->getSearchBy())
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 
-        return $this->render('index', compact('searchForm', 'paginator'));
+        return $this->viewRenderer->render('index', compact('searchForm', 'paginator'));
     }
 
     /**
@@ -69,11 +123,11 @@ class SubscriberController extends WebController
     public function view(Request $request): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        return $this->render('view', compact('subscriber'));
+        return $this->viewRenderer->render('view', compact('subscriber'));
     }
 
     /**
@@ -89,7 +143,7 @@ class SubscriberController extends WebController
 
         $group = null;
         if (!empty($groupId)) {
-            $group = $this->getGroupRepository()->findByPK($groupId);
+            $group = $this->groupRepo->findByPK($groupId);
         }
 
         $subscriberForm
@@ -104,11 +158,13 @@ class SubscriberController extends WebController
             $subscriberForm->loadFromServerRequest($request);
 
             if (($subscriber = $subscriberForm->save()) !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
             }
         }
 
-        return $this->render('create', compact('subscriberForm', 'submitted', 'group'));
+        return $this->viewRenderer->render('create', compact('subscriberForm', 'submitted', 'group'));
     }
 
     /**
@@ -125,7 +181,7 @@ class SubscriberController extends WebController
 
         $group = null;
         if (!empty($groupId)) {
-            $group = $this->getGroupRepository()->findByPK($groupId);
+            $group = $this->groupRepo->findByPK($groupId);
         }
 
         $importForm
@@ -142,11 +198,13 @@ class SubscriberController extends WebController
             if (($import = $importForm->import()) !== null) {
                 $importJob->push($import);
 
-                return $this->redirect($urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
             }
         }
 
-        return $this->render('create', compact('importForm', 'submitted', 'group'));
+        return $this->viewRenderer->render('create', compact('importForm', 'submitted', 'group'));
     }
 
     /**
@@ -158,8 +216,8 @@ class SubscriberController extends WebController
     public function edit(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
         $subscriberForm
@@ -177,48 +235,32 @@ class SubscriberController extends WebController
             $subscriberForm->loadFromServerRequest($request);
 
             if ($subscriberForm->save() !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
             }
         }
 
-        return $this->render('edit', compact('subscriber', 'subscriberForm', 'submitted'));
+        return $this->viewRenderer->render('edit', compact('subscriber', 'subscriberForm', 'submitted'));
     }
 
     /**
      * @param Request $request
-     * @param SubscriberService $subscriberService
+     * @param SubscriberCrudService $subscriberCrudService
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function delete(Request $request, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
+    public function delete(Request $request, SubscriberCrudService $subscriberCrudService, UrlGenerator $urlGenerator): Response
     {
         $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        $subscriberService->delete($subscriber);
+        $subscriberCrudService->delete($subscriber);
 
-        return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
-    }
-
-    /**
-     * @return GroupRepository
-     */
-    private function getGroupRepository(): GroupRepository
-    {
-        return $this->getOrm()
-            ->getRepository(Group::class)
-            ->withBrand($this->getBrandLocator()->getBrand());
-    }
-
-    /**
-     * @return SubscriberRepository
-     */
-    private function getSubscriberRepository(): SubscriberRepository
-    {
-        return $this->getOrm()
-            ->getRepository(Subscriber::class)
-            ->withBrand($this->getBrandLocator()->getBrand());
+        return $this->responseFactory
+            ->createResponse(302)
+            ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/index'));
     }
 }

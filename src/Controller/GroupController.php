@@ -13,115 +13,165 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Controller;
 
 use Mailery\Subscriber\Counter\SubscriberCounter;
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Form\GroupForm;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Search\GroupSearchBy;
-use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Mailery\Subscriber\Service\GroupService;
-use Mailery\Subscriber\Service\SubscriberService;
-use Mailery\Subscriber\WebController;
-use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
-use Mailery\Widget\Search\Data\Reader\Search;
-use Mailery\Widget\Search\Form\SearchForm;
-use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Service\GroupCrudService;
+use Mailery\Subscriber\Service\SubscriberCrudService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
+use Mailery\Subscriber\Service\SubscriberService;
+use Mailery\Web\ViewRenderer;
+use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
+use Mailery\Brand\Service\BrandLocatorInterface;
 
-class GroupController extends WebController
+class GroupController
 {
     private const PAGINATION_INDEX = 10;
 
     /**
-     * @param Request $request
-     * @param SearchForm $searchForm
-     * @param SubscriberCounter $subscriberCounter
-     * @return Response
+     * @var ViewRenderer
      */
-    public function index(Request $request, SearchForm $searchForm, SubscriberCounter $subscriberCounter): Response
-    {
-        $searchForm = $searchForm->withSearchByList(new SearchByList([
-            new GroupSearchBy(),
-        ]));
+    private ViewRenderer $viewRenderer;
 
-        $queryParams = $request->getQueryParams();
-        $pageNum = (int) ($queryParams['page'] ?? 1);
+    /**
+     * @var ResponseFactory
+     */
+    private ResponseFactory $responseFactory;
 
-        $dataReader = $this->getGroupRepository()
-            ->getDataReader()
-            ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
-            ->withSort((new Sort([]))->withOrderString('name'));
+    /**
+     * @var GroupRepository
+     */
+    private GroupRepository $groupRepo;
 
-        $paginator = (new OffsetPaginator($dataReader))
-            ->withPageSize(self::PAGINATION_INDEX)
-            ->withCurrentPage($pageNum);
+    /**
+     * @var GroupService
+     */
+    private GroupService $groupService;
 
-        return $this->render('index', compact('searchForm', 'paginator', 'subscriberCounter'));
+    /**
+     * @var SubscriberRepository
+     */
+    private SubscriberRepository $subscriberRepo;
+
+    /**
+     * @var SubscriberService
+     */
+    private SubscriberService $subscriberService;
+
+    /**
+     * @param ViewRenderer $viewRenderer
+     * @param ResponseFactory $responseFactory
+     * @param BrandLocatorInterface $brandLocator
+     * @param GroupRepository $groupRepo
+     * @param GroupService $groupService
+     * @param SubscriberRepository $subscriberRepo
+     * @param SubscriberService $subscriberService
+     */
+    public function __construct(
+        ViewRenderer $viewRenderer,
+        ResponseFactory $responseFactory,
+        BrandLocatorInterface $brandLocator,
+        GroupRepository $groupRepo,
+        GroupService $groupService,
+        SubscriberRepository $subscriberRepo,
+        SubscriberService $subscriberService
+    ) {
+        $this->viewRenderer = $viewRenderer
+            ->withController($this)
+            ->withCsrf();
+
+        $this->responseFactory = $responseFactory;
+
+        $this->groupRepo = $groupRepo
+            ->withBrand($brandLocator->getBrand());
+        $this->groupService = $groupService;
+
+        $this->subscriberRepo = $subscriberRepo
+            ->withBrand($brandLocator->getBrand());
+        $this->subscriberService = $subscriberService;
     }
 
     /**
      * @param Request $request
-     * @param SearchForm $searchForm
      * @param SubscriberCounter $subscriberCounter
      * @return Response
      */
-    public function view(Request $request, SearchForm $searchForm, SubscriberCounter $subscriberCounter): Response
+    public function index(Request $request, SubscriberCounter $subscriberCounter): Response
     {
-        $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $this->getGroupRepository()->findByPK($groupId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
-        }
+        $queryParams = $request->getQueryParams();
+        $pageNum = (int) ($queryParams['page'] ?? 1);
+        $searchBy = $queryParams['searchBy'] ?? null;
+        $searchPhrase = $queryParams['search'] ?? null;
 
-        $searchForm = $searchForm->withSearchByList(new SearchByList([
-            new SubscriberSearchBy(),
-        ]));
+        $searchForm = $this->groupService->getSearchForm()
+            ->withSearchBy($searchBy)
+            ->withSearchPhrase($searchPhrase);
 
-        $tab = $request->getQueryParams()['tab'] ?? null;
-        $pageNum = (int) ($request->getQueryParams()['page'] ?? 1);
-
-        $repo = $this->getSubscriberRepository();
-
-        switch ($tab) {
-            case 'active':
-                $dataReader = $repo->withActive()->withGroup($group)->getDataReader();
-
-                break;
-            case 'unconfirmed':
-                $dataReader = $repo->withUnconfirmed()->withGroup($group)->getDataReader();
-
-                break;
-            case 'unsubscribed':
-                $dataReader = $repo->withUnsubscribed()->withGroup($group)->getDataReader();
-
-                break;
-            case 'bounced':
-                $dataReader = $repo->withBounced()->withGroup($group)->getDataReader();
-
-                break;
-            case 'complaint':
-                $dataReader = $repo->withComplaint()->withGroup($group)->getDataReader();
-
-                break;
-            default:
-                $dataReader = $repo->withGroup($group)->getDataReader();
-
-                break;
-        }
-
-        $dataReader = $dataReader
-            ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
-            ->withSort((new Sort([]))->withOrderString('email'));
-
-        $paginator = (new OffsetPaginator($dataReader))
+        $paginator = $this->groupService->getFullPaginator($searchForm->getSearchBy())
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 
-        return $this->render('view', compact('searchForm', 'tab', 'group', 'paginator', 'subscriberCounter'));
+        return $this->viewRenderer->render('index', compact('searchForm', 'paginator', 'subscriberCounter'));
+    }
+
+    /**
+     * @param Request $request
+     * @param SubscriberCounter $subscriberCounter
+     * @return Response
+     */
+    public function view(Request $request, SubscriberCounter $subscriberCounter): Response
+    {
+        $groupId = $request->getAttribute('id');
+        if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
+            return $this->responseFactory->createResponse(404);
+        }
+
+        $queryParams = $request->getQueryParams();
+        $tab = $queryParams['tab'] ?? null;
+        $pageNum = (int) ($queryParams['page'] ?? 1);
+        $searchBy = $queryParams['searchBy'] ?? null;
+        $searchPhrase = $queryParams['search'] ?? null;
+
+        $searchForm = $this->subscriberService->getSearchForm()
+            ->withSearchBy($searchBy)
+            ->withSearchPhrase($searchPhrase);
+
+        switch ($tab) {
+            case 'active':
+                $dataReader = $this->subscriberRepo->withActive()->withGroup($group)->getDataReader();
+
+                break;
+            case 'unconfirmed':
+                $dataReader = $this->subscriberRepo->withUnconfirmed()->withGroup($group)->getDataReader();
+
+                break;
+            case 'unsubscribed':
+                $dataReader = $this->subscriberRepo->withUnsubscribed()->withGroup($group)->getDataReader();
+
+                break;
+            case 'bounced':
+                $dataReader = $this->subscriberRepo->withBounced()->withGroup($group)->getDataReader();
+
+                break;
+            case 'complaint':
+                $dataReader = $this->subscriberRepo->withComplaint()->withGroup($group)->getDataReader();
+
+                break;
+            default:
+                $dataReader = $this->subscriberRepo->withGroup($group)->getDataReader();
+
+                break;
+        }
+
+        $paginator = $this->subscriberService->getFullPaginator($searchForm->getSearchBy())
+            ->withPageSize(self::PAGINATION_INDEX)
+            ->withCurrentPage($pageNum);
+
+        return $this->viewRenderer->render('view', compact('searchForm', 'tab', 'group', 'paginator', 'subscriberCounter'));
     }
 
     /**
@@ -146,11 +196,13 @@ class GroupController extends WebController
             $groupForm->loadFromServerRequest($request);
 
             if (($group = $groupForm->save()) !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
             }
         }
 
-        return $this->render('create', compact('groupForm', 'submitted'));
+        return $this->viewRenderer->render('create', compact('groupForm', 'submitted'));
     }
 
     /**
@@ -162,8 +214,8 @@ class GroupController extends WebController
     public function edit(Request $request, GroupForm $groupForm, UrlGenerator $urlGenerator): Response
     {
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $this->getGroupRepository()->findByPK($groupId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
         $groupForm
@@ -181,71 +233,57 @@ class GroupController extends WebController
             $groupForm->loadFromServerRequest($request);
 
             if ($groupForm->save() !== null) {
-                return $this->redirect($urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
             }
         }
 
-        return $this->render('edit', compact('group', 'groupForm', 'submitted'));
+        return $this->viewRenderer->render('edit', compact('group', 'groupForm', 'submitted'));
     }
 
     /**
      * @param Request $request
-     * @param GroupService $groupService
+     * @param GroupCrudService $groupCrudService
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function delete(Request $request, GroupService $groupService, UrlGenerator $urlGenerator): Response
+    public function delete(Request $request, GroupCrudService $groupCrudService, UrlGenerator $urlGenerator): Response
     {
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $this->getGroupRepository()->findByPK($groupId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        $groupService->delete($group);
+        $groupCrudService->delete($group);
 
-        return $this->redirect($urlGenerator->generate('/subscriber/group/index'));
+        return $this->responseFactory
+            ->createResponse(302)
+            ->withHeader('Location', $urlGenerator->generate('/subscriber/group/index'));
     }
 
     /**
      * @param Request $request
-     * @param SubscriberService $subscriberService
+     * @param SubscriberCrudService $subscriberCrudService
      * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function deleteSubscriber(Request $request, SubscriberService $subscriberService, UrlGenerator $urlGenerator): Response
+    public function deleteSubscriber(Request $request, SubscriberCrudService $subscriberCrudService, UrlGenerator $urlGenerator): Response
     {
         $groupId = $request->getAttribute('id');
-        if (empty($groupId) || ($group = $this->getGroupRepository()->findByPK($groupId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
         $subscriberId = $request->getAttribute('subscriberId');
-        if (empty($subscriberId) || ($subscriber = $this->getSubscriberRepository()->findByPK($subscriberId)) === null) {
-            return $this->getResponseFactory()->createResponse(404);
+        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        $subscriberService->delete($subscriber, $group);
+        $subscriberCrudService->delete($subscriber, $group);
 
-        return $this->redirect($urlGenerator->generate('/subscriber/subscriber/index'));
-    }
-
-    /**
-     * @return GroupRepository
-     */
-    private function getGroupRepository(): GroupRepository
-    {
-        return $this->getOrm()
-            ->getRepository(Group::class)
-            ->withBrand($this->getBrandLocator()->getBrand());
-    }
-
-    /**
-     * @return SubscriberRepository
-     */
-    private function getSubscriberRepository(): SubscriberRepository
-    {
-        return $this->getOrm()
-            ->getRepository(Subscriber::class)
-            ->withBrand($this->getBrandLocator()->getBrand());
+        return $this->responseFactory
+            ->createResponse(302)
+            ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/index'));
     }
 }

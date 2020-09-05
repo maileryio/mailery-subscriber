@@ -12,73 +12,67 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Service;
 
-use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
-use Mailery\Subscriber\Entity\Group;
-use Mailery\Subscriber\ValueObject\GroupValueObject;
+use Mailery\Widget\Search\Form\SearchForm;
+use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Search\GroupSearchBy;
+use Yiisoft\Data\Paginator\PaginatorInterface;
+use Yiisoft\Data\Paginator\OffsetPaginator;
+use Mailery\Subscriber\Repository\GroupRepository;
+use Mailery\Brand\Service\BrandLocator;
+use Yiisoft\Data\Reader\Sort;
+use Yiisoft\Data\Reader\Filter\FilterInterface;
 
 class GroupService
 {
     /**
-     * @var ORMInterface
+     * @var BrandLocator
      */
-    private ORMInterface $orm;
+    private BrandLocator $brandLocator;
 
     /**
-     * @param ORMInterface $orm
+     * @var GroupRepository
      */
-    public function __construct(ORMInterface $orm)
+    private GroupRepository $groupRepo;
+
+    /**
+     * @param BrandLocator $brandLocator
+     * @param GroupRepository $groupRepo
+     */
+    public function __construct(BrandLocator $brandLocator, GroupRepository $groupRepo)
     {
-        $this->orm = $orm;
+        $this->brandLocator = $brandLocator;
+        $this->groupRepo = $groupRepo;
     }
 
     /**
-     * @param GroupValueObject $valueObject
-     * @return Group
+     * @return SearchForm
      */
-    public function create(GroupValueObject $valueObject): Group
+    public function getSearchForm(): SearchForm
     {
-        $group = (new Group())
-            ->setName($valueObject->getName())
-            ->setBrand($valueObject->getBrand())
-        ;
-
-        $tr = new Transaction($this->orm);
-        $tr->persist($group);
-        $tr->run();
-
-        return $group;
+        return (new SearchForm())
+            ->withSearchByList(new SearchByList([
+                new GroupSearchBy(),
+            ]));
     }
 
     /**
-     * @param Group $group
-     * @param GroupValueObject $valueObject
-     * @return Group
+     * @param FilterInterface|null $filter
+     * @return PaginatorInterface
      */
-    public function update(Group $group, GroupValueObject $valueObject): Group
+    public function getFullPaginator(FilterInterface $filter = null): PaginatorInterface
     {
-        $group = $group
-            ->setName($valueObject->getName())
-            ->setBrand($valueObject->getBrand())
-        ;
+        $dataReader = $this->groupRepo
+            ->withBrand($this->brandLocator->getBrand())
+            ->getDataReader();
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($group);
-        $tr->run();
+        if ($filter !== null) {
+            $dataReader = $dataReader->withFilter($filter);
+        }
 
-        return $group;
-    }
-
-    /**
-     * @param Group $group
-     * @return bool
-     */
-    public function delete(Group $group): bool
-    {
-        $tr = new Transaction($this->orm);
-        $tr->delete($group);
-        $tr->run();
-
-        return true;
+        return new OffsetPaginator(
+            $dataReader->withSort(
+                (new Sort([]))->withOrderString('name')
+            )
+        );
     }
 }
