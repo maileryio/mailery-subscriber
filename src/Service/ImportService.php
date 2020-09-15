@@ -61,7 +61,7 @@ class ImportService
 
         return new OffsetPaginator(
             $dataReader->withSort(
-                (new Sort([]))->withOrder(['id' => 'desc'])
+                (new Sort([]))->withOrder(['id' => 'DESC'])
             )
         );
     }

@@ -71,7 +71,7 @@ class SubscriberService
 
         return new OffsetPaginator(
             $dataReader->withSort(
-                (new Sort([]))->withOrderString('email')
+                (new Sort([]))->withOrder(['id' => 'DESC'])
             )
         );
     }

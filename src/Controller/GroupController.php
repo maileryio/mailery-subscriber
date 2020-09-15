@@ -27,6 +27,8 @@ use Mailery\Subscriber\Service\SubscriberService;
 use Mailery\Web\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
 use Mailery\Brand\Service\BrandLocatorInterface;
+use Yiisoft\Data\Reader\Filter\All;
+use Yiisoft\Data\Reader\Filter\Equals;
 
 class GroupController
 {
@@ -140,34 +142,35 @@ class GroupController
             ->withSearchBy($searchBy)
             ->withSearchPhrase($searchPhrase);
 
+        $filter = new Equals('groups.id', $group->getId());
+
         switch ($tab) {
             case 'active':
                 $dataReader = $this->subscriberRepo->withActive()->withGroup($group)->getDataReader();
-
                 break;
             case 'unconfirmed':
                 $dataReader = $this->subscriberRepo->withUnconfirmed()->withGroup($group)->getDataReader();
-
                 break;
             case 'unsubscribed':
                 $dataReader = $this->subscriberRepo->withUnsubscribed()->withGroup($group)->getDataReader();
-
                 break;
             case 'bounced':
                 $dataReader = $this->subscriberRepo->withBounced()->withGroup($group)->getDataReader();
-
                 break;
             case 'complaint':
                 $dataReader = $this->subscriberRepo->withComplaint()->withGroup($group)->getDataReader();
-
                 break;
             default:
                 $dataReader = $this->subscriberRepo->withGroup($group)->getDataReader();
-
                 break;
         }
 
-        $paginator = $this->subscriberService->getFullPaginator($searchForm->getSearchBy())
+        $paginator = $this->subscriberService->getFullPaginator(new All(
+                ...array_filter([
+                    $filter,
+                    $searchForm->getSearchBy(),
+                ])
+            ))
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 

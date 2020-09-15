@@ -71,7 +71,7 @@ class GroupService
 
         return new OffsetPaginator(
             $dataReader->withSort(
-                (new Sort([]))->withOrderString('name')
+                (new Sort([]))->withOrder(['id' => 'DESC'])
             )
         );
     }
