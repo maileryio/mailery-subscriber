@@ -14,10 +14,13 @@ namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\QueryBuilder;
 use Cycle\ORM\Select\Repository;
-use Mailery\Brand\Entity\Brand;
-use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Mailery\Brand\Entity\Brand;
+use Mailery\Subscriber\Filter\SubscriberFilter;
+use Yiisoft\Data\Paginator\PaginatorInterface;
+use Yiisoft\Data\Paginator\OffsetPaginator;
+use Yiisoft\Data\Reader\Sort;
 
 class SubscriberRepository extends Repository
 {
@@ -32,6 +35,25 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @param SubscriberFilter $filter
+     * @return PaginatorInterface
+     */
+    public function getFullPaginator(SubscriberFilter $filter): PaginatorInterface
+    {
+        $dataReader = $this->getDataReader();
+
+        if (!$filter->isEmpty()) {
+            $dataReader = $dataReader->withFilter($filter);
+        }
+
+        return new OffsetPaginator(
+            $dataReader->withSort(
+                (new Sort([]))->withOrder(['id' => 'DESC'])
+            )
+        );
+    }
+
+    /**
      * @param Brand $brand
      * @return self
      */
@@ -41,94 +63,6 @@ class SubscriberRepository extends Repository
         $repo->select
             ->andWhere([
                 'brand_id' => $brand->getId(),
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @param Group $group
-     * @return self
-     */
-    public function withGroup(Group $group): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'groups.id' => $group->getId(),
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @return self
-     */
-    public function withActive(): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'confirmed' => true,
-                'unsubscribed' => false,
-                'bounced' => false,
-                'complaint' => false,
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @return self
-     */
-    public function withUnconfirmed(): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'confirmed' => false,
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @return self
-     */
-    public function withUnsubscribed(): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'unsubscribed' => true,
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @return self
-     */
-    public function withBounced(): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'bounced' => true,
-            ]);
-
-        return $repo;
-    }
-
-    /**
-     * @return self
-     */
-    public function withComplaint(): self
-    {
-        $repo = clone $this;
-        $repo->select
-            ->andWhere([
-                'complaint' => true,
             ]);
 
         return $repo;

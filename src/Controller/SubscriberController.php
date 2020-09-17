@@ -21,11 +21,13 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
-use Mailery\Subscriber\Service\SubscriberService;
 use Mailery\Web\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
 use Mailery\Brand\Service\BrandLocatorInterface;
-use Mailery\Subscriber\Service\GroupService;
+use Mailery\Subscriber\Filter\SubscriberFilter;
+use Mailery\Widget\Search\Form\SearchForm;
+use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Search\SubscriberSearchBy;
 
 class SubscriberController
 {
@@ -47,51 +49,31 @@ class SubscriberController
     private GroupRepository $groupRepo;
 
     /**
-     * @var GroupService
-     */
-    private GroupService $groupService;
-
-    /**
      * @var SubscriberRepository
      */
     private SubscriberRepository $subscriberRepo;
-
-    /**
-     * @var SubscriberService
-     */
-    private SubscriberService $subscriberService;
 
     /**
      * @param ViewRenderer $viewRenderer
      * @param ResponseFactory $responseFactory
      * @param BrandLocatorInterface $brandLocator
      * @param GroupRepository $groupRepo
-     * @param GroupService $groupService
      * @param SubscriberRepository $subscriberRepo
-     * @param SubscriberService $subscriberService
      */
     public function __construct(
         ViewRenderer $viewRenderer,
         ResponseFactory $responseFactory,
         BrandLocatorInterface $brandLocator,
         GroupRepository $groupRepo,
-        GroupService $groupService,
-        SubscriberRepository $subscriberRepo,
-        SubscriberService $subscriberService
+        SubscriberRepository $subscriberRepo
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
             ->withCsrf();
 
         $this->responseFactory = $responseFactory;
-
-        $this->groupRepo = $groupRepo
-            ->withBrand($brandLocator->getBrand());
-        $this->groupService = $groupService;
-
-        $this->subscriberRepo = $subscriberRepo
-            ->withBrand($brandLocator->getBrand());
-        $this->subscriberService = $subscriberService;
+        $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
+        $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
     }
 
     /**
@@ -105,11 +87,17 @@ class SubscriberController
         $searchBy = $queryParams['searchBy'] ?? null;
         $searchPhrase = $queryParams['search'] ?? null;
 
-        $searchForm = $this->subscriberService->getSearchForm()
+        $searchForm = (new SearchForm())
+            ->withSearchByList(new SearchByList([
+                new SubscriberSearchBy(),
+            ]))
             ->withSearchBy($searchBy)
             ->withSearchPhrase($searchPhrase);
 
-        $paginator = $this->subscriberService->getFullPaginator($searchForm->getSearchBy())
+        $filter = (new SubscriberFilter())
+            ->withSearchForm($searchForm);
+
+        $paginator = $this->subscriberRepo->getFullPaginator($filter)
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 

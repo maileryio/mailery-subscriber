@@ -15,6 +15,10 @@ namespace Mailery\Subscriber\Repository;
 use Cycle\ORM\Select\Repository;
 use Mailery\Brand\Entity\Brand;
 use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Mailery\Subscriber\Filter\ImportFilter;
+use Yiisoft\Data\Paginator\PaginatorInterface;
+use Yiisoft\Data\Paginator\OffsetPaginator;
+use Yiisoft\Data\Reader\Sort;
 
 class ImportRepository extends Repository
 {
@@ -26,6 +30,25 @@ class ImportRepository extends Repository
     public function getDataReader(array $scope = [], array $orderBy = []): SelectDataReader
     {
         return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
+    }
+
+    /**
+     * @param ImportFilter $filter
+     * @return PaginatorInterface
+     */
+    public function getFullPaginator(ImportFilter $filter): PaginatorInterface
+    {
+        $dataReader = $this->getDataReader();
+
+        if (!$filter->isEmpty()) {
+            $dataReader = $dataReader->withFilter($filter);
+        }
+
+        return new OffsetPaginator(
+            $dataReader->withSort(
+                (new Sort([]))->withOrder(['id' => 'DESC'])
+            )
+        );
     }
 
     /**

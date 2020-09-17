@@ -24,7 +24,10 @@ use Yiisoft\Data\Reader\Sort;
 use Mailery\Web\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
 use Mailery\Brand\Service\BrandLocatorInterface;
-use Mailery\Subscriber\Service\ImportService;
+use Mailery\Subscriber\Filter\ImportFilter;
+use Mailery\Widget\Search\Form\SearchForm;
+use Mailery\Widget\Search\Model\SearchByList;
+use Mailery\Subscriber\Search\ImportSearchBy;
 
 class ImportController
 {
@@ -60,7 +63,6 @@ class ImportController
      * @param ResponseFactory $responseFactory
      * @param BrandLocatorInterface $brandLocator
      * @param ImportRepository $importRepo
-     * @param ImportService $importService
      * @param ImportErrorRepository $importErrorRepo
      * @param StorageService $storageService
      */
@@ -69,7 +71,6 @@ class ImportController
         ResponseFactory $responseFactory,
         BrandLocatorInterface $brandLocator,
         ImportRepository $importRepo,
-        ImportService $importService,
         ImportErrorRepository $importErrorRepo,
         StorageService $storageService
     ) {
@@ -78,10 +79,7 @@ class ImportController
             ->withCsrf();
 
         $this->responseFactory = $responseFactory;
-        $this->importRepo = $importRepo
-            ->withBrand($brandLocator->getBrand());
-        $this->importService = $importService;
-
+        $this->importRepo = $importRepo->withBrand($brandLocator->getBrand());
         $this->importErrorRepo = $importErrorRepo;
         $this->storageService = $storageService;
     }
@@ -98,11 +96,17 @@ class ImportController
         $searchBy = $queryParams['searchBy'] ?? null;
         $searchPhrase = $queryParams['search'] ?? null;
 
-        $searchForm = $this->importService->getSearchForm()
+        $searchForm = (new SearchForm())
+            ->withSearchByList(new SearchByList([
+                new ImportSearchBy(),
+            ]))
             ->withSearchBy($searchBy)
             ->withSearchPhrase($searchPhrase);
 
-        $paginator = $this->importService->getFullPaginator($searchForm->getSearchBy())
+        $filter = (new ImportFilter())
+            ->withSearchForm($searchForm);
+
+        $paginator = $this->importRepo->getFullPaginator($filter)
             ->withPageSize(self::PAGINATION_INDEX)
             ->withCurrentPage($pageNum);
 

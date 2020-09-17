@@ -2,6 +2,7 @@
 
 use Mailery\Activity\Log\Widget\ActivityLogLink;
 use Mailery\Icon\Icon;
+use Mailery\Subscriber\Controller\GroupController;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Widget\Dataview\Columns\ActionColumn;
 use Mailery\Widget\Dataview\Columns\DataColumn;
@@ -138,33 +139,33 @@ $this->setTitle($group->getName());
                 ],
                 [
                     'label' => 'Active <b-badge pill variant="success">' . $subscriberCounter->withGroup($group)->getActiveCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'active']),
+                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_ACTIVE]),
                     'encode' => false,
-                    'active' => $tab === 'active',
+                    'active' => $tab === GroupController::TAB_ACTIVE,
                 ],
                 [
                     'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $subscriberCounter->withGroup($group)->getUnconfirmedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'unconfirmed']),
+                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNCONFIRMED]),
                     'encode' => false,
-                    'active' => $tab === 'unconfirmed',
+                    'active' => $tab === GroupController::TAB_UNCONFIRMED,
                 ],
                 [
                     'label' => 'Unsubscribed <b-badge pill variant="warning">' . $subscriberCounter->withGroup($group)->getUnsubscribedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'unsubscribed']),
+                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNSUBSCRIBED]),
                     'encode' => false,
-                    'active' => $tab === 'unsubscribed',
+                    'active' => $tab === GroupController::TAB_UNSUBSCRIBED,
                 ],
                 [
                     'label' => 'Bounced <b-badge pill variant="dark">' . $subscriberCounter->withGroup($group)->getBouncedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'bounced']),
+                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_BOUNCED]),
                     'encode' => false,
-                    'active' => $tab === 'bounced',
+                    'active' => $tab === GroupController::TAB_BOUNCED,
                 ],
                 [
                     'label' => 'Marked as spam <b-badge pill variant="danger">' . $subscriberCounter->withGroup($group)->getComplaintCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => 'complaint']),
+                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_COMPLAINT]),
                     'encode' => false,
-                    'active' => $tab === 'complaint',
+                    'active' => $tab === GroupController::TAB_COMPLAINT,
                 ],
             ])
             ->options([
