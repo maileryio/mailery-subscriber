@@ -3,7 +3,7 @@
 use Mailery\Widget\Form\FormRenderer;
 use Yiisoft\Yii\Bootstrap4\Nav;
 
-/** @var Mailery\Web\View\WebView $this */
+/** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var FormManager\Form $subscriberForm */
 /** @var FormManager\Form $importForm */

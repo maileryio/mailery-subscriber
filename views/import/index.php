@@ -11,7 +11,7 @@ use Mailery\Widget\Dataview\GridView\LinkPager;
 use Mailery\Widget\Search\Widget\SearchWidget;
 use Yiisoft\Html\Html;
 
-/** @var Mailery\Web\View\WebView $this */
+/** @var Yiisoft\Yii\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
 /** @var Mailery\Subscriber\Counter\ImportCounter $importCounter */
 /** @var Yiisoft\Aliases\Aliases $aliases */

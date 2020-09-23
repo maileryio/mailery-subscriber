@@ -22,7 +22,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
-use Mailery\Web\ViewRenderer;
+use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
 use Mailery\Brand\Service\BrandLocatorInterface;
 use Mailery\Subscriber\Filter\GroupFilter;
@@ -78,6 +78,7 @@ class GroupController
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
+            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views')
             ->withCsrf();
 
         $this->responseFactory = $responseFactory;

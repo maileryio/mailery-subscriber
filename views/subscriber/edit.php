@@ -3,7 +3,7 @@
 use Mailery\Icon\Icon;
 use Mailery\Widget\Form\FormRenderer;
 
-/** @var Mailery\Web\View\WebView $this */
+/** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
 /** @var Mailery\Subscriber\Form\SubscriberForm $subscriberForm */
