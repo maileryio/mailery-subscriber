@@ -17,7 +17,7 @@ use Mailery\Subscriber\Counter\ImportCounter;
 use Mailery\Subscriber\Repository\ImportErrorRepository;
 use Mailery\Subscriber\Repository\ImportRepository;
 use Yiisoft\Data\Paginator\OffsetPaginator;
-use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Yiisoft\Yii\Cycle\Data\Reader\EntityReader;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
@@ -76,8 +76,7 @@ class ImportController
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
-            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views')
-            ->withCsrf();
+            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views');
 
         $this->responseFactory = $responseFactory;
         $this->importRepo = $importRepo->withBrand($brandLocator->getBrand());
@@ -135,7 +134,7 @@ class ImportController
             ->withImport($import)
             ->select();
 
-        $dataReader = (new SelectDataReader($query))
+        $dataReader = (new EntityReader($query))
             ->withSort((new Sort([]))->withOrder(['id' => 'desc']));
 
         $paginator = (new OffsetPaginator($dataReader))

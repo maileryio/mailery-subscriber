@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Factory;
 
-use Yiisoft\I18n\TranslatorInterface;
+use Yiisoft\Translator\TranslatorInterface;
 use Yiisoft\Validator\Rule\Email;
 use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Required;

@@ -14,22 +14,23 @@ namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\Repository;
 use Mailery\Brand\Entity\Brand;
-use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Yiisoft\Yii\Cycle\Data\Reader\EntityReader;
 use Mailery\Subscriber\Filter\ImportFilter;
 use Yiisoft\Data\Paginator\PaginatorInterface;
 use Yiisoft\Data\Paginator\OffsetPaginator;
 use Yiisoft\Data\Reader\Sort;
+use Yiisoft\Data\Reader\DataReaderInterface;
 
 class ImportRepository extends Repository
 {
     /**
      * @param array $scope
      * @param array $orderBy
-     * @return SelectDataReader
+     * @return DataReaderInterface
      */
-    public function getDataReader(array $scope = [], array $orderBy = []): SelectDataReader
+    public function getDataReader(array $scope = [], array $orderBy = []): DataReaderInterface
     {
-        return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
+        return new EntityReader($this->select()->where($scope)->orderBy($orderBy));
     }
 
     /**
