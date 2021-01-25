@@ -19,20 +19,18 @@ use Mailery\Subscriber\Counter\ImportCounter;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Entity\Subscriber;
-use Mailery\Subscriber\Factory\ValidatorFactory;
 use Mailery\Subscriber\Importer\InterpreterInterface;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Service\SubscriberCrudService;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Yiisoft\Validator\Validator;
+use Yiisoft\Validator\Rule\Email;
+use Yiisoft\Validator\Rule\HasLength;
+use Yiisoft\Validator\Rule\Required;
+use Yiisoft\Validator\DataSetInterface;
 
 class SubscriberInterpreter implements InterpreterInterface
 {
-    /**
-     * @var array
-     */
-    private array $rows = [];
-
     /**
      * @var Import
      */
@@ -42,11 +40,6 @@ class SubscriberInterpreter implements InterpreterInterface
      * @var ORMInterface
      */
     private ORMInterface $orm;
-
-    /**
-     * @var Validator
-     */
-    private Validator $validator;
 
     /**
      * @var SubscriberCrudService
@@ -60,14 +53,12 @@ class SubscriberInterpreter implements InterpreterInterface
 
     /**
      * @param ORMInterface $orm
-     * @param ValidatorFactory $validatorFactory
      * @param SubscriberCrudService $subscriberCrudService
      * @param ImportCounter $importCounter
      */
-    public function __construct(ORMInterface $orm, ValidatorFactory $validatorFactory, SubscriberCrudService $subscriberCrudService, ImportCounter $importCounter)
+    public function __construct(ORMInterface $orm, SubscriberCrudService $subscriberCrudService, ImportCounter $importCounter)
     {
         $this->orm = $orm;
-        $this->validator = $validatorFactory->createSubscriberValidator();
         $this->subscriberCrudService = $subscriberCrudService;
         $this->importCounter = $importCounter;
     }
@@ -100,9 +91,7 @@ class SubscriberInterpreter implements InterpreterInterface
             ->withGroups($this->import->getGroups()->toArray());
 
         $hasErrors = false;
-        $results = $this->validator->validate($valueObject);
-
-        foreach ($results as $attribute => $result) {
+        foreach ($this->validate($valueObject) as $attribute => $result) {
             if (is_string($attribute) && $result->isValid() === false) {
                 $hasErrors = true;
 
@@ -115,6 +104,26 @@ class SubscriberInterpreter implements InterpreterInterface
         }
 
         $this->flushSubscriberValueObject($valueObject, $hasErrors);
+    }
+
+    private function validate(DataSetInterface $valueObject): array
+    {
+        return (new Validator())
+            ->validate(
+                $valueObject,
+                [
+                    'email' => [
+                        new Required(),
+                        new Email(),
+                    ],
+                    'name' => [
+                        new Required(),
+                        (new HasLength())
+                            ->min(3)
+                            ->max(255),
+                    ],
+                ]
+            );
     }
 
     /**
