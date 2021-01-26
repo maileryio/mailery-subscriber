@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use Cycle\ORM\ORMInterface;
 use FormManager\Factory as F;
 use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\Service\BrandLocator;
-use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\Inputs\CsvImport;
 use Mailery\Subscriber\Repository\GroupRepository;
@@ -38,29 +36,33 @@ class ImportForm extends Form
     private Brand $brand;
 
     /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
      * @var Import|null
      */
-    private ?Import $import;
+    private ?Import $import = null;
 
+    /**
+     * @var GroupRepository
+     */
+    private GroupRepository $groupRepo;
+    
     /**
      * @var ImportCrudService
      */
-    private $importCrudService;
+    private ImportCrudService $importCrudService;
 
     /**
      * @param BrandLocator $brandLocator
+     * @param GroupRepository $groupRepo
      * @param ImportCrudService $importCrudService
-     * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, ImportCrudService $importCrudService, ORMInterface $orm)
-    {
+    public function __construct(
+        BrandLocator $brandLocator,
+        GroupRepository $groupRepo,
+        ImportCrudService $importCrudService
+    ) {
         $this->orm = $orm;
         $this->brand = $brandLocator->getBrand();
+        $this->groupRepo = $groupRepo->withBrand($this->brand);
         $this->importCrudService = $importCrudService;
         parent::__construct($this->inputs());
     }
@@ -98,7 +100,7 @@ class ImportForm extends Form
 
         $groupIds = $this['groups[]']->getValue();
 
-        $groups = $this->getGroupRepository()->findAll([
+        $groups = $this->groupRepo->findAll([
             'id' => ['in' => new Parameter($groupIds)],
         ]);
 
@@ -215,21 +217,12 @@ class ImportForm extends Form
     private function getGroupOptions(): array
     {
         $options = [];
-        $groups = $this->getGroupRepository()->findAll();
+        $groups = $this->groupRepo->findAll();
 
         foreach ($groups as $group) {
             $options[$group->getId()] = $group->getName();
         }
 
         return $options;
-    }
-
-    /**
-     * @return GroupRepository
-     */
-    private function getGroupRepository(): GroupRepository
-    {
-        return $this->orm->getRepository(Group::class)
-            ->withBrand($this->brand);
     }
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use Cycle\ORM\ORMInterface;
 use FormManager\Factory as F;
 use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
@@ -32,29 +31,32 @@ class GroupForm extends Form
     private Brand $brand;
 
     /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
      * @var Group|null
      */
-    private ?Group $group;
+    private ?Group $group = null;
 
+    /**
+     * @var GroupRepository
+     */
+    private GroupRepository $groupRepo;
+    
     /**
      * @var GroupCrudService
      */
-    private $groupCrudService;
+    private GroupCrudService $groupCrudService;
 
     /**
      * @param BrandLocator $brandLocator
+     * @param GroupRepository $groupRepo
      * @param GroupCrudService $groupCrudService
-     * @param ORMInterface $orm
      */
-    public function __construct(BrandLocator $brandLocator, GroupCrudService $groupCrudService, ORMInterface $orm)
-    {
-        $this->orm = $orm;
+    public function __construct(
+        BrandLocator $brandLocator,
+        GroupRepository $groupRepo,
+        GroupCrudService $groupCrudService
+    ) {
         $this->brand = $brandLocator->getBrand();
+        $this->groupRepo = $groupRepo->withBrand($this->brand);
         $this->groupCrudService = $groupCrudService;
         parent::__construct($this->inputs());
     }
@@ -116,7 +118,7 @@ class GroupForm extends Form
                     return;
                 }
 
-                $group = $this->getGroupRepository()->findByName($value, $this->group);
+                $group = $this->groupRepo->findByName($value, $this->group);
                 if ($group !== null) {
                     $context->buildViolation('Group with this name already exists.')
                         ->atPath('name')
@@ -135,14 +137,5 @@ class GroupForm extends Form
 
             '' => F::submit($this->group === null ? 'Create' : 'Update'),
         ];
-    }
-
-    /**
-     * @return GroupRepository
-     */
-    private function getGroupRepository(): GroupRepository
-    {
-        return $this->orm->getRepository(Group::class)
-            ->withBrand($this->brand);
     }
 }

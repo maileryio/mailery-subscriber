@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use Cycle\ORM\ORMInterface;
 use FormManager\Factory as F;
 use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
@@ -37,14 +36,9 @@ class SubscriberForm extends Form
     private Brand $brand;
 
     /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
      * @var Subscriber|null
      */
-    private ?Subscriber $subscriber;
+    private ?Subscriber $subscriber = null;
 
     /**
      * @var GroupRepository
@@ -66,14 +60,12 @@ class SubscriberForm extends Form
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
      * @param SubscriberCrudService $subscriberCrudService
-     * @param ORMInterface $orm
      */
     public function __construct(
         BrandLocator $brandLocator,
         GroupRepository $groupRepo,
         SubscriberRepository $subscriberRepo,
-        SubscriberCrudService $subscriberCrudService,
-        ORMInterface $orm
+        SubscriberCrudService $subscriberCrudService
     ) {
         $this->brand = $brandLocator->getBrand();
         $this->groupRepo = $groupRepo->withBrand($this->brand);
@@ -105,7 +97,7 @@ class SubscriberForm extends Form
 
         $this['name']->setValue($subscriber->getName());
         $this['email']->setValue($subscriber->getEmail());
-        $this['groups[]']->setValue(array_map(
+        $this['groups']->setValue(array_map(
             function (Group $group) {
                 return $group->getId();
             },
@@ -125,7 +117,7 @@ class SubscriberForm extends Form
             return null;
         }
 
-        $groupIds = $this['groups[]']->getValue();
+        $groupIds = $this['groups']->getValue();
 
         $groups = $this->groupRepo->findAll([
             'id' => ['in' => new Parameter($groupIds)],
@@ -152,7 +144,7 @@ class SubscriberForm extends Form
         parent::loadFromServerRequest($request);
 
         $parsedBody = (array) $request->getParsedBody();
-        $this['groups[]']->setValue($parsedBody['groups'] ?? []);
+        $this['groups']->setValue($parsedBody['groups'] ?? []);
 
         return $this;
     }
@@ -180,7 +172,7 @@ class SubscriberForm extends Form
         $groupOptions = $this->getGroupOptions();
 
         return [
-            'groups[]' => F::select('Add to groups', $groupOptions, ['multiple' => true])
+            'groups' => F::select('Add to groups', $groupOptions, ['multiple' => true])
                 ->addConstraint(new Constraints\NotBlank())
                 ->addConstraint(new Constraints\Choice([
                     'choices' => array_keys($groupOptions),
