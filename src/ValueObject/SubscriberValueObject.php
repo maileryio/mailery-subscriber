@@ -151,7 +151,7 @@ class SubscriberValueObject implements DataSetInterface
     }
 
     /**
-     * @return array
+     * @return Group[]
      */
     public function getGroups(): array
     {

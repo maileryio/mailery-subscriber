@@ -55,7 +55,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     private $brand;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "SubscriberGroup", nullable = false)
+     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Mailery\Subscriber\Entity\Group", though = "Mailery\Subscriber\Entity\SubscriberGroup", nullable = false)
      * @var PivotedCollectionInterface
      */
     private $groups;
