@@ -135,7 +135,7 @@ class ImportController
             ->select();
 
         $dataReader = (new EntityReader($query))
-            ->withSort((new Sort([]))->withOrder(['id' => 'desc']));
+            ->withSort(Sort::only(['id'])->withOrder(['id' => 'desc']));
 
         $paginator = (new OffsetPaginator($dataReader))
             ->withPageSize(self::PAGINATION_INDEX)
