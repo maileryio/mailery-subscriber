@@ -10,8 +10,6 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-use Mailery\Menu\MenuItem;
-use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 return [
@@ -21,52 +19,62 @@ return [
         ],
     ],
 
-    'menu' => [
-        'sidebar' => [
-            'items' => [
-                'subscribers' => (new MenuItem())
-                    ->withLabel('Subscribers')
-                    ->withIcon('account-multiple-outline')
-                    ->withChildItems([
-                        'subscribers' => (new MenuItem())
-                            ->withLabel('All Subscribers')
-                            ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
-                                return $urlGenerator->generate('/subscriber/subscriber/index');
-                            }))
-                            ->withActiveRouteNames([
-                                '/subscriber/subscriber/index',
-                                '/subscriber/subscriber/view',
-                                '/subscriber/subscriber/create',
-                                '/subscriber/subscriber/edit',
-                                '/subscriber/subscriber/delete',
-                                '/subscriber/subscriber/import',
-                            ])
-                            ->withOrder(100),
-                        'groups' => (new MenuItem())
-                            ->withLabel('Groups & Segments')
-                            ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
-                                return $urlGenerator->generate('/subscriber/group/index');
-                            }))
-                            ->withActiveRouteNames([
-                                '/subscriber/group/index',
-                                '/subscriber/group/view',
-                                '/subscriber/group/create',
-                                '/subscriber/group/edit',
-                                '/subscriber/group/delete',
-                            ])
-                            ->withOrder(200),
-                        'imports' => (new MenuItem())
-                            ->withLabel('Import Lists')
-                            ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
-                                return $urlGenerator->generate('/subscriber/import/index');
-                            }))
-                            ->withActiveRouteNames([
-                                '/subscriber/import/index',
-                                '/subscriber/import/view',
-                            ])
-                            ->withOrder(300),
-                    ])
-                    ->withOrder(300),
+    'maileryio/mailery-menu-sidebar' => [
+        'items' => [
+            'subscribers' => [
+                'label' => static function () {
+                    return 'Subscribers';
+                },
+                'icon' => 'account-multiple-outline',
+                'order' => 300,
+                'items' => [
+                    'subscribers' => [
+                        'label' => static function () {
+                            return 'All Subscribers';
+                        },
+                        'url' => static function (UrlGeneratorInterface $urlGenerator) {
+                            return $urlGenerator->generate('/subscriber/subscriber/index');
+                        },
+                        'order' => 100,
+                        'activeRouteNames' => [
+                            '/subscriber/subscriber/index',
+                            '/subscriber/subscriber/view',
+                            '/subscriber/subscriber/create',
+                            '/subscriber/subscriber/edit',
+                            '/subscriber/subscriber/delete',
+                            '/subscriber/subscriber/import',
+                        ],
+                    ],
+                    'groups' => [
+                        'label' => static function () {
+                            return 'Groups & Segments';
+                        },
+                        'url' => static function (UrlGeneratorInterface $urlGenerator) {
+                            return $urlGenerator->generate('/subscriber/group/index');
+                        },
+                        'order' => 200,
+                        'activeRouteNames' => [
+                            '/subscriber/group/index',
+                            '/subscriber/group/view',
+                            '/subscriber/group/create',
+                            '/subscriber/group/edit',
+                            '/subscriber/group/delete',
+                        ],
+                    ],
+                    'imports' => [
+                        'label' => static function () {
+                            return 'Import Lists';
+                        },
+                        'url' => static function (UrlGeneratorInterface $urlGenerator) {
+                            return $urlGenerator->generate('/subscriber/import/index');
+                        },
+                        'order' => 300,
+                        'activeRouteNames' => [
+                            '/subscriber/import/index',
+                            '/subscriber/import/view',
+                        ],
+                    ],
+                ],
             ],
         ],
     ],
