@@ -107,6 +107,7 @@ $this->setTitle('Subscriber groups');
                             $urlGenerator->generate('/subscriber/group/edit', ['id' => $data->getId()]),
                             [
                                 'class' => 'text-decoration-none mr-3',
+                                'encode' => false,
                             ]
                         );
                     })
@@ -126,6 +127,7 @@ $this->setTitle('Subscriber groups');
                             ->confirm('Are you sure?')
                             ->options([
                                 'class' => 'text-decoration-none text-danger',
+                                'encode' => false,
                             ]);
                     }),
             ]);

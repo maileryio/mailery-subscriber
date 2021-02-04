@@ -104,6 +104,7 @@ $this->setTitle($group->getName());
                                     $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
                                     [
                                         'class' => 'text-decoration-none mr-3',
+                                        'encode' => false,
                                     ]
                                 );
                             })
@@ -123,6 +124,7 @@ $this->setTitle($group->getName());
                                     ->confirm('Are you sure?')
                                     ->options([
                                         'class' => 'text-decoration-none text-danger',
+                                        'encode' => false,
                                     ]);
                             }),
                     ]);
@@ -136,40 +138,77 @@ $this->setTitle($group->getName());
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]),
                     'encode' => false,
                     'active' => empty($tab),
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
                 [
                     'label' => 'Active <b-badge pill variant="success">' . $subscriberCounter->withGroup($group)->getActiveCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_ACTIVE]),
                     'encode' => false,
                     'active' => $tab === GroupController::TAB_ACTIVE,
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
                 [
                     'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $subscriberCounter->withGroup($group)->getUnconfirmedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNCONFIRMED]),
                     'encode' => false,
                     'active' => $tab === GroupController::TAB_UNCONFIRMED,
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
                 [
                     'label' => 'Unsubscribed <b-badge pill variant="warning">' . $subscriberCounter->withGroup($group)->getUnsubscribedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNSUBSCRIBED]),
                     'encode' => false,
                     'active' => $tab === GroupController::TAB_UNSUBSCRIBED,
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
                 [
                     'label' => 'Bounced <b-badge pill variant="dark">' . $subscriberCounter->withGroup($group)->getBouncedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_BOUNCED]),
                     'encode' => false,
                     'active' => $tab === GroupController::TAB_BOUNCED,
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
                 [
                     'label' => 'Marked as spam <b-badge pill variant="danger">' . $subscriberCounter->withGroup($group)->getComplaintCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_COMPLAINT]),
                     'encode' => false,
                     'active' => $tab === GroupController::TAB_COMPLAINT,
+                    'options' => [
+                        'encode' => false,
+                    ],
+                    'linkOptions' => [
+                        'encode' => false,
+                    ],
                 ],
             ])
             ->options([
                 'class' => 'nav nav-tabs',
+                'encode' => false,
             ]);
         ?>
 
