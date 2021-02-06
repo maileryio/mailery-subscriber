@@ -26,7 +26,6 @@ return [
                     return 'Subscribers';
                 },
                 'icon' => 'account-multiple-outline',
-                'order' => 300,
                 'items' => [
                     'subscribers' => [
                         'label' => static function () {
@@ -35,7 +34,6 @@ return [
                         'url' => static function (UrlGeneratorInterface $urlGenerator) {
                             return $urlGenerator->generate('/subscriber/subscriber/index');
                         },
-                        'order' => 100,
                         'activeRouteNames' => [
                             '/subscriber/subscriber/index',
                             '/subscriber/subscriber/view',
@@ -52,7 +50,6 @@ return [
                         'url' => static function (UrlGeneratorInterface $urlGenerator) {
                             return $urlGenerator->generate('/subscriber/group/index');
                         },
-                        'order' => 200,
                         'activeRouteNames' => [
                             '/subscriber/group/index',
                             '/subscriber/group/view',
@@ -68,7 +65,6 @@ return [
                         'url' => static function (UrlGeneratorInterface $urlGenerator) {
                             return $urlGenerator->generate('/subscriber/import/index');
                         },
-                        'order' => 300,
                         'activeRouteNames' => [
                             '/subscriber/import/index',
                             '/subscriber/import/view',

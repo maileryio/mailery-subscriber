@@ -23,7 +23,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
-use Mailery\Brand\Service\BrandLocatorInterface;
+use Mailery\Brand\BrandLocatorInterface;
 use Mailery\Subscriber\Filter\ImportFilter;
 use Mailery\Widget\Search\Form\SearchForm;
 use Mailery\Widget\Search\Model\SearchByList;

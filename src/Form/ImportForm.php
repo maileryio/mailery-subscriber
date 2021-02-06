@@ -15,7 +15,7 @@ namespace Mailery\Subscriber\Form;
 use FormManager\Factory as F;
 use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
-use Mailery\Brand\Service\BrandLocator;
+use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\Inputs\CsvImport;
 use Mailery\Subscriber\Repository\GroupRepository;
@@ -44,7 +44,7 @@ class ImportForm extends Form
      * @var GroupRepository
      */
     private GroupRepository $groupRepo;
-    
+
     /**
      * @var ImportCrudService
      */

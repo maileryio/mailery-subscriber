@@ -21,7 +21,7 @@ $this->setTitle($import->getFile()->getName());
 ?><div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h2">Import #<?= $import->getId(); ?></h1>
+            <h1 class="h3">Import #<?= $import->getId(); ?></h1>
             <div class="btn-toolbar float-right">
                 <b-dropdown right size="sm" variant="secondary" class="mb-2">
                     <template v-slot:button-content>

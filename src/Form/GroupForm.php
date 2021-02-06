@@ -15,7 +15,7 @@ namespace Mailery\Subscriber\Form;
 use FormManager\Factory as F;
 use FormManager\Form;
 use Mailery\Brand\Entity\Brand;
-use Mailery\Brand\Service\BrandLocatorInterface as BrandLocator;
+use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Service\GroupCrudService;
