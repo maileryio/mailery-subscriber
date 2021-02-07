@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 namespace Mailery\Subscriber\Controller;
+
 use Mailery\Subscriber\Form\ImportForm;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Queue\ImportJob;
