@@ -66,69 +66,69 @@ $this->setTitle($group->getName());
 <div class="row">
     <div class="col-12 grid-margin">
         <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
-                        return GridView::widget()
-                    ->paginator($paginator)
-                    ->options([
-                        'class' => 'table-responsive',
-                    ])
-                    ->tableOptions([
-                        'class' => 'table table-hover',
-                    ])
-                    ->emptyText('No data')
-                    ->emptyTextOptions([
-                        'class' => 'text-center text-muted mt-4 mb-4',
-                    ])
-                    ->columns([
-                        (new DataColumn())
-                            ->header('Email')
-                            ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
-                                return Html::a(
-                                    $data->getEmail(),
-                                    $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
-                                );
-                            }),
-                        (new DataColumn())
-                            ->header('Name')
-                            ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
-                                return $data->getName();
-                            }),
-                        (new ActionColumn())
-                            ->contentOptions([
-                                'style' => 'width: 80px;',
-                            ])
-                            ->header('Edit')
-                            ->view('')
-                            ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
-                                return Html::a(
-                                    (string) Icon::widget()->name('pencil'),
-                                    $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
-                                    [
-                                        'class' => 'text-decoration-none mr-3',
-                                        'encode' => false,
-                                    ]
-                                );
-                            })
-                            ->delete(''),
-                        (new ActionColumn())
-                            ->contentOptions([
-                                'style' => 'width: 80px;',
-                            ])
-                            ->header('Delete')
-                            ->view('')
-                            ->update('')
-                            ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
-                                return Link::widget()
-                                    ->label((string) Icon::widget()->name('delete')->options(['class' => 'mr-1']))
-                                    ->method('delete')
-                                    ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
-                                    ->confirm('Are you sure?')
-                                    ->options([
-                                        'class' => 'text-decoration-none text-danger',
-                                        'encode' => false,
-                                    ]);
-                            }),
-                    ]);
-                    }
+            return GridView::widget()
+                ->paginator($paginator)
+                ->options([
+                    'class' => 'table-responsive',
+                ])
+                ->tableOptions([
+                    'class' => 'table table-hover',
+                ])
+                ->emptyText('No data')
+                ->emptyTextOptions([
+                    'class' => 'text-center text-muted mt-4 mb-4',
+                ])
+                ->columns([
+                    (new DataColumn())
+                        ->header('Email')
+                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                            return Html::a(
+                                $data->getEmail(),
+                                $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
+                            );
+                        }),
+                    (new DataColumn())
+                        ->header('Name')
+                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                            return $data->getName();
+                        }),
+                    (new ActionColumn())
+                        ->contentOptions([
+                            'style' => 'width: 80px;',
+                        ])
+                        ->header('Edit')
+                        ->view('')
+                        ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
+                            return Html::a(
+                                Icon::widget()->name('pencil')->render(),
+                                $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
+                                [
+                                    'class' => 'text-decoration-none mr-3',
+                                ]
+                            )
+                            ->encode(false);
+                        })
+                        ->delete(''),
+                    (new ActionColumn())
+                        ->contentOptions([
+                            'style' => 'width: 80px;',
+                        ])
+                        ->header('Delete')
+                        ->view('')
+                        ->update('')
+                        ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
+                            return Link::widget()
+                                ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render())
+                                ->method('delete')
+                                ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
+                                ->confirm('Are you sure?')
+                                ->options([
+                                    'class' => 'text-decoration-none text-danger',
+                                ])
+                                ->encode(false);
+                        }),
+                ]);
+            }
         ?>
 
         <?= Nav::widget()
@@ -136,80 +136,38 @@ $this->setTitle($group->getName());
                 [
                     'label' => 'All <b-badge pill variant="info">' . $subscriberCounter->withGroup($group)->getTotalCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]),
-                    'encode' => false,
                     'active' => empty($tab),
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
                 [
                     'label' => 'Active <b-badge pill variant="success">' . $subscriberCounter->withGroup($group)->getActiveCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_ACTIVE]),
-                    'encode' => false,
                     'active' => $tab === GroupController::TAB_ACTIVE,
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
                 [
                     'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $subscriberCounter->withGroup($group)->getUnconfirmedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNCONFIRMED]),
-                    'encode' => false,
                     'active' => $tab === GroupController::TAB_UNCONFIRMED,
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
                 [
                     'label' => 'Unsubscribed <b-badge pill variant="warning">' . $subscriberCounter->withGroup($group)->getUnsubscribedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNSUBSCRIBED]),
-                    'encode' => false,
                     'active' => $tab === GroupController::TAB_UNSUBSCRIBED,
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
                 [
                     'label' => 'Bounced <b-badge pill variant="dark">' . $subscriberCounter->withGroup($group)->getBouncedCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_BOUNCED]),
-                    'encode' => false,
                     'active' => $tab === GroupController::TAB_BOUNCED,
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
                 [
                     'label' => 'Marked as spam <b-badge pill variant="danger">' . $subscriberCounter->withGroup($group)->getComplaintCount() . '</b-badge>',
                     'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_COMPLAINT]),
-                    'encode' => false,
                     'active' => $tab === GroupController::TAB_COMPLAINT,
-                    'options' => [
-                        'encode' => false,
-                    ],
-                    'linkOptions' => [
-                        'encode' => false,
-                    ],
                 ],
             ])
             ->options([
                 'class' => 'nav nav-tabs',
-                'encode' => false,
-            ]);
+            ])
+            ->encodeLabels(false);
         ?>
 
         <div class="tab-content">

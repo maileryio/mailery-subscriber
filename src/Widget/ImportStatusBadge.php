@@ -101,6 +101,7 @@ class ImportStatusBadge extends Widget
             }
         }
 
-        return Html::tag($this->tag, $label, $options);
+        return Html::tag($this->tag, $label, $options)
+            ->render();
     }
 }

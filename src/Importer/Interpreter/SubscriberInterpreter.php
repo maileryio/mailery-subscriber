@@ -28,6 +28,7 @@ use Yiisoft\Validator\Rule\Email;
 use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Required;
 use Yiisoft\Validator\DataSetInterface;
+use Yiisoft\Validator\ResultSet;
 
 class SubscriberInterpreter implements InterpreterInterface
 {
@@ -106,7 +107,7 @@ class SubscriberInterpreter implements InterpreterInterface
         $this->flushSubscriberValueObject($valueObject, $hasErrors);
     }
 
-    private function validate(DataSetInterface $valueObject): array
+    private function validate(DataSetInterface $valueObject): ResultSet
     {
         return (new Validator())
             ->validate(

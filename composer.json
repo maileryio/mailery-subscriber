@@ -23,6 +23,7 @@
         "form-manager/form-manager": "^6.0",
         "foxy/foxy": "^1.0",
         "gabrielelana/byte-units": "^0.5.0",
+        "httpsoft/http-message": "^1.0.5",
         "maileryio/mailery-activity-log": "dev-master",
         "maileryio/mailery-brand": "dev-master",
         "maileryio/mailery-common": "dev-master",

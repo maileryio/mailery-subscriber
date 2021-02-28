@@ -82,13 +82,13 @@ $this->setTitle('All subscribers');
                     ->view('')
                     ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
                         return Html::a(
-                            (string) Icon::widget()->name('pencil'),
+                            Icon::widget()->name('pencil')->render(),
                             $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
                             [
                                 'class' => 'text-decoration-none mr-3',
-                                'encode' => false,
                             ]
-                        );
+                        )
+                        ->encode(false);
                     })
                     ->delete(''),
                 (new ActionColumn())
@@ -100,14 +100,14 @@ $this->setTitle('All subscribers');
                     ->update('')
                     ->delete(function (Subscriber $data, int $index) use ($urlGenerator) {
                         return Link::widget()
-                            ->label((string) Icon::widget()->name('delete')->options(['class' => 'mr-1']))
+                            ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render())
                             ->method('delete')
                             ->href($urlGenerator->generate('/subscriber/subscriber/delete', ['id' => $data->getId()]))
                             ->confirm('Are you sure?')
                             ->options([
                                 'class' => 'text-decoration-none text-danger',
-                                'encode' => false,
-                            ]);
+                            ])
+                            ->encode(false);
                     }),
             ]);
         ?>

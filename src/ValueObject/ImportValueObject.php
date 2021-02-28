@@ -15,7 +15,7 @@ namespace Mailery\Subscriber\ValueObject;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\ImportForm;
-use Nyholm\Psr7\UploadedFile;
+use HttpSoft\Message\UploadedFile;
 
 class ImportValueObject
 {

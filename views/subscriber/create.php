@@ -37,13 +37,11 @@ $this->setTitle('Add subscribers');
                 [
                     'label' => 'Add single subscriber',
                     'url' => $urlGenerator->generate('/subscriber/subscriber/create', $routeParams),
-                    'encode' => false,
                     'active' => !empty($subscriberForm),
                 ],
                 [
                     'label' => 'Import from file',
                     'url' => $urlGenerator->generate('/subscriber/subscriber/import', $routeParams),
-                    'encode' => false,
                     'active' => !empty($importForm),
                 ],
             ])

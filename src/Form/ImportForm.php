@@ -60,7 +60,6 @@ class ImportForm extends Form
         GroupRepository $groupRepo,
         ImportCrudService $importCrudService
     ) {
-        $this->orm = $orm;
         $this->brand = $brandLocator->getBrand();
         $this->groupRepo = $groupRepo->withBrand($this->brand);
         $this->importCrudService = $importCrudService;
