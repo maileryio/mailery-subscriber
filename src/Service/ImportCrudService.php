@@ -15,7 +15,6 @@ namespace Mailery\Subscriber\Service;
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Mailery\Storage\Entity\File;
-use Mailery\Storage\Exception\FileAlreadyExistsException;
 use Mailery\Storage\Service\StorageService;
 use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\Import;
@@ -130,18 +129,10 @@ class ImportCrudService
      */
     private function createFile(ImportValueObject $valueObject, int $tryCount = 0): File
     {
-        try {
-            return $this->storageService->create(
-                FileValueObject::fromUploadedFile($valueObject->getFile())
-                    ->withBrand($valueObject->getBrand())
-                    ->withBucket($this->bucket)
-            );
-        } catch (FileAlreadyExistsException $e) {
-            if ($tryCount === 5) {
-                throw $e;
-            }
-
-            return $this->createFile($valueObject, ++$tryCount);
-        }
+        return $this->storageService->create(
+            FileValueObject::fromUploadedFile($valueObject->getFile())
+                ->withBrand($valueObject->getBrand())
+                ->withBucket($this->bucket)
+        );
     }
 }
