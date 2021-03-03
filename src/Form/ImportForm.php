@@ -97,7 +97,7 @@ class ImportForm extends Form
             return null;
         }
 
-        $groupIds = $this['groups[]']->getValue();
+        $groupIds = $this['groups']->getValue();
 
         $groups = $this->groupRepo->findAll([
             'id' => ['in' => new Parameter($groupIds)],
@@ -124,7 +124,7 @@ class ImportForm extends Form
         parent::loadFromServerRequest($request);
 
         $parsedBody = (array) $request->getParsedBody();
-        $this['groups[]']->setValue(array_map('intval', $parsedBody['groups'] ?? []));
+        $this['groups']->setValue(array_map('intval', $parsedBody['groups'] ?? []));
 
         $fieldsMap = [];
         foreach (array_keys($this->getFieldsMap()) as $field) {
@@ -150,7 +150,7 @@ class ImportForm extends Form
         ];
 
         return [
-            'groups[]' => F::select('Import to groups', $groupOptions, ['multiple' => true])
+            'groups' => F::select('Import to groups', $groupOptions, ['multiple' => true])
                 ->addConstraint(new Constraints\NotBlank())
                 ->addConstraint(new Constraints\Choice([
                     'choices' => array_keys($groupOptions),
