@@ -35,31 +35,31 @@ class ImportCrudService
     private SubscriberImportBucket $bucket;
 
     /**
-     * @var StorageService
-     */
-    private StorageService $storageService;
-
-    /**
      * @var FileInfo
      */
     private FileInfo $fileInfo;
 
     /**
+     * @var StorageService
+     */
+    private StorageService $storageService;
+
+    /**
      * @param ORMInterface $orm
      * @param SubscriberImportBucket $bucket
-     * @param StorageService $storageService
      * @param FileInfo $fileInfo
+     * @param StorageService $storageService
      */
     public function __construct(
         ORMInterface $orm,
         SubscriberImportBucket $bucket,
-        StorageService $storageService,
-        FileInfo $fileInfo
+        FileInfo $fileInfo,
+        StorageService $storageService
     ) {
         $this->orm = $orm;
         $this->bucket = $bucket;
-        $this->storageService = $storageService;
         $this->fileInfo = $fileInfo;
+        $this->storageService = $storageService;
     }
 
     /**
@@ -124,10 +124,9 @@ class ImportCrudService
 
     /**
      * @param ImportValueObject $valueObject
-     * @param int $tryCount
      * @return File
      */
-    private function createFile(ImportValueObject $valueObject, int $tryCount = 0): File
+    private function createFile(ImportValueObject $valueObject): File
     {
         return $this->storageService->create(
             FileValueObject::fromUploadedFile($valueObject->getFile())
