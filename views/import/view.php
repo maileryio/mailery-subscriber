@@ -16,7 +16,7 @@ use Mailery\Widget\Dataview\GridView\LinkPager;
 /** @var string $csrf */
 /** @var bool $submitted */
 
-$this->setTitle($import->getFile()->getName());
+$this->setTitle($import->getFile()->getTitle());
 
 ?><div class="row">
     <div class="col-12">
@@ -45,7 +45,7 @@ $this->setTitle($import->getFile()->getName());
 <div class="row">
     <div class="col-12 grid-margin">
         <div>
-            <p>File name: <b><?= $import->getFile()->getName(); ?></b></p>
+            <p>File name: <b><?= $import->getFile()->getTitle(); ?></b></p>
             <p>File size:
                 <b><?php
                     $fileSize = $fileInfo->getFileSize();

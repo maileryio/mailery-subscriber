@@ -16,13 +16,12 @@ use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Mailery\Storage\Entity\File;
 use Mailery\Storage\Exception\FileAlreadyExistsException;
-use Mailery\Storage\Filesystem\FileStorageInterface;
 use Mailery\Storage\Service\StorageService;
-use Mailery\Storage\ValueObject\BucketValueObject;
 use Mailery\Storage\ValueObject\FileValueObject;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
-use Ramsey\Uuid\Rfc4122\UuidV5;
+use Mailery\Subscriber\Model\SubscriberImportBucket;
+use Mailery\Storage\Filesystem\FileInfo;
 
 class ImportCrudService
 {
@@ -32,18 +31,36 @@ class ImportCrudService
     private ORMInterface $orm;
 
     /**
+     * @var SubscriberImportBucket
+     */
+    private SubscriberImportBucket $bucket;
+
+    /**
      * @var StorageService
      */
     private StorageService $storageService;
 
     /**
-     * @param ORMInterface $orm
-     * @param StorageService $storageService
+     * @var FileInfo
      */
-    public function __construct(ORMInterface $orm, StorageService $storageService)
-    {
+    private FileInfo $fileInfo;
+
+    /**
+     * @param ORMInterface $orm
+     * @param SubscriberImportBucket $bucket
+     * @param StorageService $storageService
+     * @param FileInfo $fileInfo
+     */
+    public function __construct(
+        ORMInterface $orm,
+        SubscriberImportBucket $bucket,
+        StorageService $storageService,
+        FileInfo $fileInfo
+    ) {
         $this->orm = $orm;
+        $this->bucket = $bucket;
         $this->storageService = $storageService;
+        $this->fileInfo = $fileInfo;
     }
 
     /**
@@ -52,9 +69,9 @@ class ImportCrudService
      */
     public function create(ImportValueObject $valueObject): Import
     {
-        $file = $this->createFileUniquely($valueObject);
+        $file = $this->createFile($valueObject);
 
-        $fileInfo = $this->storageService->getFileInfo($file);
+        $fileInfo = $this->fileInfo->withFile($file);
 
         $import = (new Import())
             ->setBrand($valueObject->getBrand())
@@ -111,30 +128,20 @@ class ImportCrudService
      * @param int $tryCount
      * @return File
      */
-    private function createFileUniquely(ImportValueObject $valueObject, int $tryCount = 0): File
+    private function createFile(ImportValueObject $valueObject, int $tryCount = 0): File
     {
-        $brand = $valueObject->getBrand();
-        $uuid = UuidV5::fromDateTime(new \DateTimeImmutable('now'))->toString();
-        $location = sprintf('/%d/import/subscribers/%s.csv', (int) $brand->getId(), $uuid);
-
-        // TODO: need to use concurently strategy, e.g. mutex or lock file
         try {
             return $this->storageService->create(
                 FileValueObject::fromUploadedFile($valueObject->getFile())
-                    ->withBrand($brand)
-                    ->withLocation($location),
-                (new BucketValueObject())
-                    ->withBrand($brand)
-                    ->withName('subscriber-import')
-                    ->withTitle('Subscriber imports')
-                    ->withFilesystem(FileStorageInterface::class)
+                    ->withBrand($valueObject->getBrand())
+                    ->withBucket($this->bucket)
             );
         } catch (FileAlreadyExistsException $e) {
             if ($tryCount === 5) {
                 throw $e;
             }
 
-            return $this->createFileUniquely($valueObject, ++$tryCount);
+            return $this->createFile($valueObject, ++$tryCount);
         }
     }
 }

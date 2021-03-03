@@ -28,6 +28,7 @@ use Mailery\Subscriber\Filter\ImportFilter;
 use Mailery\Widget\Search\Form\SearchForm;
 use Mailery\Widget\Search\Model\SearchByList;
 use Mailery\Subscriber\Search\ImportSearchBy;
+use Mailery\Storage\Filesystem\FileInfo;
 
 class ImportController
 {
@@ -116,9 +117,10 @@ class ImportController
     /**
      * @param Request $request
      * @param ImportCounter $importCounter
+     * @param FileInfo $fileInfo
      * @return Response
      */
-    public function view(Request $request, ImportCounter $importCounter): Response
+    public function view(Request $request, ImportCounter $importCounter, FileInfo $fileInfo): Response
     {
         $importId = $request->getAttribute('id');
         $queryParams = $request->getQueryParams();
@@ -128,7 +130,7 @@ class ImportController
             return $this->responseFactory->createResponse(404);
         }
 
-        $fileInfo = $this->storageService->getFileInfo($import->getFile());
+        $fileInfo = $fileInfo->withFile($import->getFile());
 
         $query = $this->importErrorRepo
             ->withImport($import)

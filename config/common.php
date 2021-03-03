@@ -12,8 +12,17 @@ use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
+use Mailery\Subscriber\Model\SubscriberImportBucket;
+use Mailery\Storage\Filesystem\FileStorageInterface;
+use Yiisoft\Factory\Definitions\Reference;
 
 return [
+    SubscriberImportBucket::class => [
+        '__construct()' => [
+            'filesystem' => Reference::to(FileStorageInterface::class),
+        ],
+    ],
+
     GroupRepository::class => static function (ContainerInterface $container) {
         return $container
             ->get(ORMInterface::class)

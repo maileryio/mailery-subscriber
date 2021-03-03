@@ -73,7 +73,7 @@ $this->setTitle('Import lists');
                     ->header('File name')
                     ->content(function (Import $data, int $index) use ($urlGenerator) {
                         return Html::a(
-                            $data->getFile()->getName(),
+                            $data->getFile()->getTitle(),
                             $urlGenerator->generate('/storage/file/download', ['id' => $data->getFile()->getId()])
                         );
                     }),

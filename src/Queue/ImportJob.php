@@ -15,7 +15,7 @@ namespace Mailery\Subscriber\Queue;
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Ddeboer\DataImport\Reader\CsvReader;
-use Mailery\Storage\Provider\FilesystemProvider;
+use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
@@ -39,9 +39,9 @@ class ImportJob
     private Import $import;
 
     /**
-     * @var FilesystemProvider
+     * @var FileInfo
      */
-    private FilesystemProvider $filesystemProvider;
+    private FileInfo $fileInfo;
 
     /**
      * @var SubscriberInterpreter
@@ -51,14 +51,18 @@ class ImportJob
     /**
      * @param ORMInterface $orm
      * @param Queue $queue
-     * @param FilesystemProvider $filesystemProvider
+     * @param FileInfo $fileInfo
      * @param SubscriberInterpreter $subscriberInterpreter
      */
-    public function __construct(ORMInterface $orm, Queue $queue, FilesystemProvider $filesystemProvider, SubscriberInterpreter $subscriberInterpreter)
-    {
+    public function __construct(
+        ORMInterface $orm,
+        Queue $queue,
+        FileInfo $fileInfo,
+        SubscriberInterpreter $subscriberInterpreter
+    ) {
         $this->orm = $orm;
         $this->queue = $queue;
-        $this->filesystemProvider = $filesystemProvider;
+        $this->fileInfo = $fileInfo;
         $this->subscriberInterpreter = $subscriberInterpreter;
     }
 
@@ -128,8 +132,11 @@ class ImportJob
      */
     private function doExecute(): void
     {
-        $filesystem = $this->filesystemProvider->getFilesystem($this->import->getFile()->getFilesystem());
-        $metaData = stream_get_meta_data($filesystem->readStream($this->import->getFile()->getLocation()));
+        $stream = $this->fileInfo
+            ->withFile($this->import->getFile())
+            ->getStream();
+
+        $metaData = stream_get_meta_data($stream);
 
         $reader = new CsvReader(new \SplFileObject($metaData['uri']));
         $interpreter = $this->subscriberInterpreter
