@@ -136,9 +136,7 @@ class ImportJob
             ->withFile($this->import->getFile())
             ->getStream();
 
-        $metaData = stream_get_meta_data($stream);
-
-        $reader = new CsvReader(new \SplFileObject($metaData['uri']));
+        $reader = new CsvReader(new \SplFileObject($stream->getMetadata('uri')));
         $interpreter = $this->subscriberInterpreter
             ->withImport($this->import);
 

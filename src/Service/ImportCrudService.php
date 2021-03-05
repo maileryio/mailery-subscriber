@@ -70,13 +70,11 @@ class ImportCrudService
     {
         $file = $this->createFile($valueObject);
 
-        $fileInfo = $this->fileInfo->withFile($file);
-
         $import = (new Import())
             ->setBrand($valueObject->getBrand())
             ->setFile($file)
             ->setFieldsMap($valueObject->getFieldsMap())
-            ->setTotalCount($fileInfo->getLineCount())
+            ->setTotalCount($this->getLineCount($file))
             ->setIsPending()
         ;
 
@@ -133,5 +131,28 @@ class ImportCrudService
                 ->withBrand($valueObject->getBrand())
                 ->withBucket($this->bucket)
         );
+    }
+
+    /**
+     * @param File $file
+     * @return int
+     */
+    private function getLineCount(File $file): int
+    {
+        $stream = $this->fileInfo
+            ->withFile($file)
+            ->getStream()
+            ->detach();
+
+        $lineCount = 0;
+
+        while (!feof($stream)) {
+            if (($line = fgets($stream)) !== false) {
+                $lineCount = $lineCount + substr_count($line, PHP_EOL);
+            }
+        }
+        fclose($stream);
+
+        return $lineCount;
     }
 }
