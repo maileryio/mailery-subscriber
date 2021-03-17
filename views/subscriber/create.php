@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use Mailery\Widget\Form\FormRenderer;
-use Yiisoft\Yii\Bootstrap4\Nav;
+use Yiisoft\Yii\Bootstrap5\Nav;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */

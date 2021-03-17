@@ -39,6 +39,7 @@
         "symfony/http-foundation": "^5.1",
         "yiisoft/router": "^3.0@dev",
         "yiisoft/validator": "^3.0@dev",
+        "yiisoft/yii-bootstrap5": "^3.0@dev",
         "yiisoft/yii-cycle": "^3.0@dev"
     },
     "require-dev": {
