@@ -167,7 +167,7 @@ $this->setTitle($group->getName());
             ->options([
                 'class' => 'nav nav-tabs',
             ])
-            ->encodeLabels(false);
+            ->withoutEncodeLabels();
         ?>
 
         <div class="tab-content">
