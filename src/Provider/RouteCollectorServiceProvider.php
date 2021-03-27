@@ -20,44 +20,57 @@ final class RouteCollectorServiceProvider extends ServiceProvider
         $collector = $container->get(RouteCollectorInterface::class);
 
         $collector->addGroup(
-            Group::create(
-                '/brand/{brandId:\d+}',
-                [
+            Group::create('/brand/{brandId:\d+}')
+                ->middleware(AssetBundleMiddleware::class)
+                ->routes(
                     // Subscribers:
-                    Route::get('/subscribers', [SubscriberController::class, 'index'])
-                        ->name('/subscriber/subscriber/index'),
-                    Route::get('/subscriber/subscriber/view/{id:\d+}', [SubscriberController::class, 'view'])
-                        ->name('/subscriber/subscriber/view'),
-                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/create', [SubscriberController::class, 'create'])
-                        ->name('/subscriber/subscriber/create'),
-                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/edit/{id:\d+}', [SubscriberController::class, 'edit'])
-                        ->name('/subscriber/subscriber/edit'),
-                    Route::delete('/subscriber/subscriber/delete/{id:\d+}', [SubscriberController::class, 'delete'])
-                        ->name('/subscriber/subscriber/delete'),
-                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/import', [SubscriberController::class, 'import'])
-                        ->name('/subscriber/subscriber/import'),
+                    Route::get('/subscribers')
+                        ->name('/subscriber/subscriber/index')
+                        ->action([SubscriberController::class, 'index']),
+                    Route::get('/subscriber/subscriber/view/{id:\d+}')
+                        ->name('/subscriber/subscriber/view')
+                        ->action([SubscriberController::class, 'view']),
+                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/create')
+                        ->name('/subscriber/subscriber/create')
+                        ->action([SubscriberController::class, 'create']),
+                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/edit/{id:\d+}')
+                        ->name('/subscriber/subscriber/edit')
+                        ->action([SubscriberController::class, 'edit']),
+                    Route::delete('/subscriber/subscriber/delete/{id:\d+}')
+                        ->name('/subscriber/subscriber/delete')
+                        ->action([SubscriberController::class, 'delete']),
+                    Route::methods(['GET', 'POST'], '/subscriber/subscriber/import')
+                        ->name('/subscriber/subscriber/import')
+                        ->action([SubscriberController::class, 'import']),
 
                     // Imports:
-                    Route::get('/imports', [ImportController::class, 'index'])
-                        ->name('/subscriber/import/index'),
-                    Route::get('/import/view/{id:\d+}', [ImportController::class, 'view'])
-                        ->name('/subscriber/import/view'),
+                    Route::get('/imports')
+                        ->name('/subscriber/import/index')
+                        ->action([ImportController::class, 'index']),
+                    Route::get('/import/view/{id:\d+}')
+                        ->name('/subscriber/import/view')
+                        ->action([ImportController::class, 'view']),
 
                     // Groups:
-                    Route::get('/subscriber/groups', [GroupController::class, 'index'])
-                        ->name('/subscriber/group/index'),
-                    Route::get('/subscriber/group/view/{id:\d+}', [GroupController::class, 'view'])
-                        ->name('/subscriber/group/view'),
-                    Route::methods(['GET', 'POST'], '/subscriber/group/create', [GroupController::class, 'create'])
-                        ->name('/subscriber/group/create'),
-                    Route::methods(['GET', 'POST'], '/subscriber/group/edit/{id:\d+}', [GroupController::class, 'edit'])
-                        ->name('/subscriber/group/edit'),
-                    Route::delete('/subscriber/group/delete/{id:\d+}', [GroupController::class, 'delete'])
-                        ->name('/subscriber/group/delete'),
-                    Route::delete('/subscriber/group/delete-subscriber/{id:\d+}/{subscriberId:\d+}', [GroupController::class, 'deleteSubscriber'])
-                        ->name('/subscriber/group/delete-subscriber'),
-                ]
-            )->addMiddleware(AssetBundleMiddleware::class)
+                    Route::get('/subscriber/groups')
+                        ->name('/subscriber/group/index')
+                        ->action([GroupController::class, 'index']),
+                    Route::get('/subscriber/group/view/{id:\d+}')
+                        ->name('/subscriber/group/view')
+                        ->action([GroupController::class, 'view']),
+                    Route::methods(['GET', 'POST'], '/subscriber/group/create')
+                        ->name('/subscriber/group/create')
+                        ->action([GroupController::class, 'create']),
+                    Route::methods(['GET', 'POST'], '/subscriber/group/edit/{id:\d+}')
+                        ->name('/subscriber/group/edit')
+                        ->action([GroupController::class, 'edit']),
+                    Route::delete('/subscriber/group/delete/{id:\d+}')
+                        ->name('/subscriber/group/delete')
+                        ->action([GroupController::class, 'delete']),
+                    Route::delete('/subscriber/group/delete-subscriber/{id:\d+}/{subscriberId:\d+}')
+                        ->name('/subscriber/group/delete-subscriber')
+                        ->action([GroupController::class, 'deleteSubscriber']),
+            )
         );
     }
 }
