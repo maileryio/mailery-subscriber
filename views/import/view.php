@@ -43,7 +43,7 @@ $this->setTitle($import->getFile()->getTitle());
 </div>
 <div class="mb-2"></div>
 <div class="row">
-    <div class="col-12 grid-margin">
+    <div class="col-12">
         <div>
             <p>File name: <b><?= $import->getFile()->getTitle(); ?></b></p>
             <p>File size:

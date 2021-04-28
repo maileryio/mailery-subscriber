@@ -64,7 +64,7 @@ $this->setTitle($group->getName());
 </div>
 <div class="mb-2"></div>
 <div class="row">
-    <div class="col-12 grid-margin">
+    <div class="col-12">
         <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
             return GridView::widget()
                 ->paginator($paginator)
