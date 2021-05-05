@@ -112,23 +112,23 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getEditRouteName(): ?string
+    public function getIndexRouteName(): ?string
     {
-        return '/subscriber/group/edit';
+        return '/user/default/index';
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getEditRouteParams(): array
+    public function getIndexRouteParams(): array
     {
-        return ['id' => $this->getId()];
+        return [];
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getViewRouteName(): ?string
     {
@@ -136,9 +136,41 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getViewRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteName(): ?string
+    {
+        return '/subscriber/group/edit';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDeleteRouteName(): ?string
+    {
+        return '/subscriber/group/delete';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDeleteRouteParams(): array
     {
         return ['id' => $this->getId()];
     }

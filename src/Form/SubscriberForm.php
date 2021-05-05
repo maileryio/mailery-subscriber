@@ -169,7 +169,7 @@ class SubscriberForm extends Form
             },
         ]);
 
-        $groupOptions = $this->getGroupOptions();
+        $groupOptions = $this->getGroupListOptions();
 
         return [
             'groups' => F::select('Add to groups', $groupOptions, ['multiple' => true])
@@ -199,7 +199,7 @@ class SubscriberForm extends Form
     /**
      * @return array
      */
-    private function getGroupOptions(): array
+    private function getGroupListOptions(): array
     {
         $options = [];
         $groups = $this->groupRepo->findAll();

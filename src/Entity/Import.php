@@ -271,19 +271,19 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getEditRouteName(): ?string
+    public function getIndexRouteName(): ?string
     {
-        return '/subscriber/import/edit';
+        return '/subscriber/import/index';
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getEditRouteParams(): array
+    public function getIndexRouteParams(): array
     {
-        return ['id' => $this->getId()];
+        return [];
     }
 
     /**
@@ -300,6 +300,38 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     public function getViewRouteParams(): array
     {
         return ['id' => $this->getId()];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEditRouteName(): ?string
+    {
+        return '/subscriber/import/edit';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEditRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDeleteRouteName(): ?string
+    {
+        throw new \RuntimeException('Not implemented');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDeleteRouteParams(): array
+    {
+        throw new \RuntimeException('Not implemented');
     }
 
     /**

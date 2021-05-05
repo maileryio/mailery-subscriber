@@ -143,7 +143,7 @@ class ImportForm extends Form
      */
     private function inputs(): array
     {
-        $groupOptions = $this->getGroupOptions();
+        $groupOptions = $this->getGroupListOptions();
 
         $fileAttributes = [
             'map-fields' => json_encode($this->getFieldsMap()),
@@ -213,7 +213,7 @@ class ImportForm extends Form
     /**
      * @return array
      */
-    private function getGroupOptions(): array
+    private function getGroupListOptions(): array
     {
         $options = [];
         $groups = $this->groupRepo->findAll();
