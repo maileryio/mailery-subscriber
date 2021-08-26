@@ -114,12 +114,12 @@ class SubscriberInterpreter implements InterpreterInterface
                 $valueObject,
                 [
                     'email' => [
-                        new Required(),
-                        new Email(),
+                        Required::rule(),
+                        Email::rule(),
                     ],
                     'name' => [
-                        new Required(),
-                        (new HasLength())
+                        Required::rule(),
+                        HasLength::rule()
                             ->min(3)
                             ->max(255),
                     ],

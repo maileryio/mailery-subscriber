@@ -78,7 +78,7 @@ class GroupController
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
-            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views');
+            ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
         $this->responseFactory = $responseFactory;
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());

@@ -77,7 +77,7 @@ class ImportController
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
-            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views');
+            ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
         $this->responseFactory = $responseFactory;
         $this->importRepo = $importRepo->withBrand($brandLocator->getBrand());

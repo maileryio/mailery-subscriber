@@ -14,7 +14,7 @@ use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Model\SubscriberImportBucket;
 use Mailery\Storage\Filesystem\FileStorageInterface;
-use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Definition\Reference;
 
 return [
     SubscriberImportBucket::class => [
