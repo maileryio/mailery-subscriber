@@ -12,23 +12,25 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use FormManager\Factory as F;
 use FormManager\Form;
-use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Service\GroupCrudService;
-use Mailery\Subscriber\ValueObject\GroupValueObject;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
+use Yiisoft\Validator\Rule\Required;
+use Yiisoft\Form\HtmlOptions\HasLengthHtmlOptions;
+use Yiisoft\Validator\Rule\HasLength;
+use Yiisoft\Validator\Rule\Callback;
+use Yiisoft\Validator\Result;
+use Yiisoft\Form\FormModel;
 
-class GroupForm extends Form
+class GroupForm extends FormModel
 {
+
     /**
-     * @var Brand
+     * @var string|null
      */
-    private Brand $brand;
+    private ?string $name = null;
 
     /**
      * @var Group|null
@@ -39,103 +41,64 @@ class GroupForm extends Form
      * @var GroupRepository
      */
     private GroupRepository $groupRepo;
-    
-    /**
-     * @var GroupCrudService
-     */
-    private GroupCrudService $groupCrudService;
 
     /**
      * @param BrandLocator $brandLocator
      * @param GroupRepository $groupRepo
-     * @param GroupCrudService $groupCrudService
      */
     public function __construct(
         BrandLocator $brandLocator,
-        GroupRepository $groupRepo,
-        GroupCrudService $groupCrudService
+        GroupRepository $groupRepo
     ) {
-        $this->brand = $brandLocator->getBrand();
-        $this->groupRepo = $groupRepo->withBrand($this->brand);
-        $this->groupCrudService = $groupCrudService;
-        parent::__construct($this->inputs());
-    }
+        $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
 
-    /**
-     * @param string $csrf
-     * @return \self
-     */
-    public function withCsrf(string $value, string $name = '_csrf'): self
-    {
-        $this->offsetSet($name, F::hidden($value));
-
-        return $this;
+        parent::__construct();
     }
 
     /**
      * @param Group $group
      * @return self
      */
-    public function withGroup(Group $group): self
+    public function withEntity(Group $group): self
     {
-        $this->group = $group;
-        $this->offsetSet('', F::submit('Update'));
+        $new = clone $this;
+        $new->group = $group;
+        $new->name = $group->getName();
 
-        $this['name']->setValue($group->getName());
-
-        return $this;
-    }
-
-    /**
-     * @return Group|null
-     */
-    public function save(): ?Group
-    {
-        if (!$this->isValid()) {
-            return null;
-        }
-
-        $valueObject = GroupValueObject::fromForm($this)
-            ->withBrand($this->brand);
-
-        if (($group = $this->group) === null) {
-            $group = $this->groupCrudService->create($valueObject);
-        } else {
-            $this->groupCrudService->update($group, $valueObject);
-        }
-
-        return $group;
+        return $new;
     }
 
     /**
      * @return array
      */
-    private function inputs(): array
+    public function getAttributeLabels(): array
     {
-        $nameConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) {
-                if (empty($value)) {
-                    return;
-                }
-
-                $group = $this->groupRepo->findByName($value, $this->group);
-                if ($group !== null) {
-                    $context->buildViolation('Group with this name already exists.')
-                        ->atPath('name')
-                        ->addViolation();
-                }
-            },
-        ]);
-
         return [
-            'name' => F::text('Name')
-                ->addConstraint(new Constraints\NotBlank())
-                ->addConstraint(new Constraints\Length([
-                    'min' => 4,
-                ]))
-                ->addConstraint($nameConstraint),
-
-            '' => F::submit($this->group === null ? 'Create' : 'Update'),
+            'name' => 'Name',
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getRules(): array
+    {
+        return [
+            'name' => [
+                new RequiredHtmlOptions(Required::rule()),
+                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+                Callback::rule(function ($value) {
+                    $result = new Result();
+                    $record = $this->groupRepo->findByName($value, $this->group);
+
+                    if ($record !== null) {
+                        $result->addError('Group with this name already exists.');
+                    }
+
+                    return $result;
+                })
+            ],
+        ];
+    }
+
 }

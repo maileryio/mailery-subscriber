@@ -16,6 +16,8 @@ use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
+use Mailery\Brand\Entity\Brand;
+use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class GroupCrudService
 {
@@ -23,6 +25,11 @@ class GroupCrudService
      * @var ORMInterface
      */
     private ORMInterface $orm;
+
+    /**
+     * @var Brand
+     */
+    private Brand $brand;
 
     /**
      * @param ORMInterface $orm
@@ -33,19 +40,29 @@ class GroupCrudService
     }
 
     /**
+     * @param Brand $brand
+     * @return self
+     */
+    public function withBrand(Brand $brand): self
+    {
+        $new = clone $this;
+        $new->brand = $brand;
+
+        return $new;
+    }
+
+    /**
      * @param GroupValueObject $valueObject
      * @return Group
      */
     public function create(GroupValueObject $valueObject): Group
     {
         $group = (new Group())
+            ->setBrand($this->brand)
             ->setName($valueObject->getName())
-            ->setBrand($valueObject->getBrand())
         ;
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($group);
-        $tr->run();
+        (new EntityWriter($this->orm))->write([$group]);
 
         return $group;
     }
@@ -58,13 +75,11 @@ class GroupCrudService
     public function update(Group $group, GroupValueObject $valueObject): Group
     {
         $group = $group
+            ->setBrand($this->brand)
             ->setName($valueObject->getName())
-            ->setBrand($valueObject->getBrand())
         ;
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($group);
-        $tr->run();
+        (new EntityWriter($this->orm))->write([$group]);
 
         return $group;
     }
@@ -75,9 +90,7 @@ class GroupCrudService
      */
     public function delete(Group $group): bool
     {
-        $tr = new Transaction($this->orm);
-        $tr->delete($group);
-        $tr->run();
+        (new EntityWriter($this->orm))->delete([$group]);
 
         return true;
     }

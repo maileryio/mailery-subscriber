@@ -17,15 +17,11 @@ use Mailery\Subscriber\Form\GroupForm;
 
 class GroupValueObject
 {
+
     /**
      * @var string
      */
     private string $name;
-
-    /**
-     * @var Brand
-     */
-    private Brand $brand;
 
     /**
      * @param GroupForm $form
@@ -34,8 +30,7 @@ class GroupValueObject
     public static function fromForm(GroupForm $form): self
     {
         $new = new self();
-
-        $new->name = $form['name']->getValue();
+        $new->name = $form->getAttributeValue('name');
 
         return $new;
     }
@@ -48,23 +43,4 @@ class GroupValueObject
         return $this->name;
     }
 
-    /**
-     * @return Brand
-     */
-    public function getBrand(): Brand
-    {
-        return $this->brand;
-    }
-
-    /**
-     * @param Brand $brand
-     * @return self
-     */
-    public function withBrand(Brand $brand): self
-    {
-        $new = clone $this;
-        $new->brand = $brand;
-
-        return $new;
-    }
 }
