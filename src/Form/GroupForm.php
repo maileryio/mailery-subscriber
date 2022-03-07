@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use FormManager\Form;
 use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Repository\GroupRepository;
@@ -69,6 +68,14 @@ class GroupForm extends FormModel
     }
 
     /**
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
      * @return array
      */
     public function getAttributeLabels(): array
@@ -86,7 +93,7 @@ class GroupForm extends FormModel
         return [
             'name' => [
                 new RequiredHtmlOptions(Required::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+                new HasLengthHtmlOptions(HasLength::rule()->min(3)->max(255)),
                 Callback::rule(function ($value) {
                     $result = new Result();
                     $record = $this->groupRepo->findByName($value, $this->group);

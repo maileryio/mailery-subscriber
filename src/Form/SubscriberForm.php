@@ -117,6 +117,44 @@ class SubscriberForm extends FormModel
     }
 
     /**
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getConfirmed(): bool
+    {
+        return (bool) $this->confirmed;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups(): array
+    {
+        if (empty($this->groups)) {
+            return [];
+        }
+
+        return $this->groupRepo->findAll([
+            'id' => ['in' => new Parameter($this->groups, \PDO::PARAM_INT)],
+        ]);
+    }
+
+    /**
      * @return array
      */
     public function getAttributeLabels(): array
@@ -137,12 +175,12 @@ class SubscriberForm extends FormModel
         return [
             'name' => [
                 new RequiredHtmlOptions(Required::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+                new HasLengthHtmlOptions(HasLength::rule()->min(3)->max(255)),
             ],
             'email' => [
                 new RequiredHtmlOptions(Required::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
                 new EmailHtmlOptions(Email::rule()),
+                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
                 Callback::rule(function ($value) {
                     $result = new Result();
                     $record = $this->subscriberRepo->findByEmail($value, $this->subscriber);
@@ -152,7 +190,7 @@ class SubscriberForm extends FormModel
                     }
 
                     return $result;
-                })
+                }),
             ],
             'confirmed' => [
                 new RequiredHtmlOptions(Required::rule()),
@@ -161,23 +199,9 @@ class SubscriberForm extends FormModel
                 new RequiredHtmlOptions(Required::rule()),
                 Each::rule(new Rules([
                     InRange::rule(array_keys($this->getGroupListOptions())),
-                ]))->message('{error}')
+                ]))->message('{error}'),
             ],
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function getGroups(): array
-    {
-        if (empty($this->groups)) {
-            return [];
-        }
-
-        return $this->groupRepo->findAll([
-            'id' => ['in' => new Parameter($this->groups, \PDO::PARAM_INT)],
-        ]);
     }
 
     /**

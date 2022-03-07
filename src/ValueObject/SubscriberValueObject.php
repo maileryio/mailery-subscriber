@@ -66,9 +66,9 @@ class SubscriberValueObject implements DataSetInterface
     public static function fromForm(SubscriberForm $form): self
     {
         $new = new self();
-        $new->name = $form->getAttributeValue('name');
-        $new->email = $form->getAttributeValue('email');
-        $new->confirmed = (bool) $form->getAttributeValue('confirmed');
+        $new->name = $form->getName();
+        $new->email = $form->getEmail();
+        $new->confirmed = $form->getConfirmed();
         $new->groups = $form->getGroups();
 
         return $new;

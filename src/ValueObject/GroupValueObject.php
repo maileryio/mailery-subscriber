@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Form\GroupForm;
 
 class GroupValueObject
@@ -30,7 +29,7 @@ class GroupValueObject
     public static function fromForm(GroupForm $form): self
     {
         $new = new self();
-        $new->name = $form->getAttributeValue('name');
+        $new->name = $form->getName();
 
         return $new;
     }

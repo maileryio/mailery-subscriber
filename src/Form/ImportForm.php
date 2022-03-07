@@ -12,27 +12,13 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use FormManager\Factory as F;
-use FormManager\Form;
-use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\BrandLocatorInterface as BrandLocator;
-use Mailery\Subscriber\Entity\Import;
-use Mailery\Subscriber\Form\Inputs\CsvImport;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Mailery\Subscriber\Service\ImportCrudService;
-use Mailery\Subscriber\ValueObject\ImportValueObject;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Spiral\Database\Injection\Parameter;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Component\Validator\Validation;
 use Yiisoft\Form\FormModel;
 use HttpSoft\Message\UploadedFile;
-use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadedFile;
 use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
 use Yiisoft\Validator\Rule\Required;
-use Yiisoft\Validator\Rule\Callback;
-use Yiisoft\Form\Helper\HtmlForm;
 use Yiisoft\Validator\Rule\InRange;
 use Yiisoft\Validator\Rule\Each;
 use Yiisoft\Validator\Rules;
@@ -88,6 +74,47 @@ class ImportForm extends FormModel
     }
 
     /**
+     * @return UploadedFile|null
+     */
+    public function getFile(): ?UploadedFile
+    {
+        return $this->file;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups(): array
+    {
+        if (empty($this->groups)) {
+            return [];
+        }
+
+        return $this->groupRepo->findAll([
+            'id' => ['in' => new Parameter($this->groups, \PDO::PARAM_INT)],
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getFields(): array
+    {
+        return $this->fieldsMap;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldsMap(): array
+    {
+        return [
+            'name' => 'Name',
+            'email' => 'Email',
+        ];
+    }
+
+    /**
      * @return array
      */
     public function getAttributeLabels(): array
@@ -122,20 +149,6 @@ class ImportForm extends FormModel
     /**
      * @return array
      */
-    public function getGroups(): array
-    {
-        if (empty($this->groups)) {
-            return [];
-        }
-
-        return $this->groupRepo->findAll([
-            'id' => ['in' => new Parameter($this->groups, \PDO::PARAM_INT)],
-        ]);
-    }
-
-    /**
-     * @return array
-     */
     public function getGroupListOptions(): array
     {
         $options = [];
@@ -146,17 +159,6 @@ class ImportForm extends FormModel
         }
 
         return $options;
-    }
-
-    /**
-     * @return array
-     */
-    public function getFields(): array
-    {
-        return [
-            'name' => 'Name',
-            'email' => 'Email',
-        ];
     }
 
 //

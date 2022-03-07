@@ -39,8 +39,8 @@ class ImportError implements LoggableEntityInterface
     private $name;
 
     /**
-     * @Cycle\Annotated\Annotation\Column(type = "string(255)")
-     * @var string
+     * @Cycle\Annotated\Annotation\Column(type = "string(255)", nullable = true)
+     * @var string|null
      */
     private $value;
 
@@ -103,9 +103,9 @@ class ImportError implements LoggableEntityInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }

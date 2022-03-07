@@ -40,9 +40,9 @@ class ImportValueObject
     public static function fromForm(ImportForm $form): self
     {
         $new = new self();
-        $new->file = $form->getAttributeValue('file');
+        $new->file = $form->getFile();
         $new->groups = $form->getGroups();
-        $new->fieldsMap = $form->getAttributeValue('fieldsMap');
+        $new->fieldsMap = $form->getFieldsMap();
 
         return $new;
     }

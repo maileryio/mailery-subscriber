@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Importer\Interpreter;
 
 use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Counter\ImportCounter;
 use Mailery\Subscriber\Entity\Import;
@@ -29,6 +28,7 @@ use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Required;
 use Yiisoft\Validator\DataSetInterface;
 use Yiisoft\Validator\ResultSet;
+use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class SubscriberInterpreter implements InterpreterInterface
 {
@@ -77,7 +77,7 @@ class SubscriberInterpreter implements InterpreterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function interpret($line): void
     {
@@ -106,6 +106,10 @@ class SubscriberInterpreter implements InterpreterInterface
         $this->flushSubscriberValueObject($valueObject, $hasErrors);
     }
 
+    /**
+     * @param DataSetInterface $valueObject
+     * @return ResultSet
+     */
     private function validate(DataSetInterface $valueObject): ResultSet
     {
         return (new Validator())
@@ -115,12 +119,11 @@ class SubscriberInterpreter implements InterpreterInterface
                     'email' => [
                         Required::rule(),
                         Email::rule(),
+                        HasLength::rule()->max(255),
                     ],
                     'name' => [
                         Required::rule(),
-                        HasLength::rule()
-                            ->min(3)
-                            ->max(255),
+                        HasLength::rule()->min(3)->max(255),
                     ],
                 ]
             );
@@ -143,9 +146,7 @@ class SubscriberInterpreter implements InterpreterInterface
             $error->setValue($value);
         }
 
-        $transaction = new Transaction($this->orm);
-        $transaction->persist($error);
-        $transaction->run();
+        (new EntityWriter($this->orm))->write([$error]);
     }
 
     /**
@@ -160,15 +161,16 @@ class SubscriberInterpreter implements InterpreterInterface
 
         if ($hasErrors) {
             $counter->incrSkippedCount();
-
             return;
         }
 
+        $subscriberCrudService = $this->subscriberCrudService->withBrand($this->import->getBrand());
+
         if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
-            $this->subscriberCrudService->create($valueObject);
+            $subscriberCrudService->create($valueObject);
             $counter->incrInsertedCount();
         } else {
-            $this->subscriberCrudService->update($subscriber, $valueObject);
+            $subscriberCrudService->update($subscriber, $valueObject);
             $counter->incrUpdatedCount();
         }
     }
