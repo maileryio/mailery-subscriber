@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Form\ImportForm;
 use HttpSoft\Message\UploadedFile;
@@ -20,19 +19,14 @@ use HttpSoft\Message\UploadedFile;
 class ImportValueObject
 {
     /**
-     * @var Brand
+     * @var UploadedFile
      */
-    private Brand $brand;
+    private UploadedFile $file;
 
     /**
      * @var Group[]
      */
     private array $groups;
-
-    /**
-     * @var UploadedFile
-     */
-    private UploadedFile $file;
 
     /**
      * @var array
@@ -46,9 +40,9 @@ class ImportValueObject
     public static function fromForm(ImportForm $form): self
     {
         $new = new self();
-
-        $new->file = $form['file']->getValue();
-        $new->fieldsMap = $form['fields[]']->getValue();
+        $new->file = $form->getAttributeValue('file');
+        $new->groups = $form->getGroups();
+        $new->fieldsMap = $form->getAttributeValue('fieldsMap');
 
         return $new;
     }
@@ -59,14 +53,6 @@ class ImportValueObject
     public function getFile(): UploadedFile
     {
         return $this->file;
-    }
-
-    /**
-     * @return Brand
-     */
-    public function getBrand(): Brand
-    {
-        return $this->brand;
     }
 
     /**
@@ -85,27 +71,4 @@ class ImportValueObject
         return $this->fieldsMap;
     }
 
-    /**
-     * @param Brand $brand
-     * @return self
-     */
-    public function withBrand(Brand $brand): self
-    {
-        $new = clone $this;
-        $new->brand = $brand;
-
-        return $new;
-    }
-
-    /**
-     * @param Group[] $groups
-     * @return self
-     */
-    public function withGroups(array $groups): self
-    {
-        $new = clone $this;
-        $new->groups = $groups;
-
-        return $new;
-    }
 }

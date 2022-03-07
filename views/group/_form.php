@@ -14,7 +14,7 @@ use Yiisoft\Form\Widget\Form;
         <?= Form::widget()
             ->options(
                 [
-                    'id' => 'form-channel',
+                    'id' => 'form-group',
                     'csrf' => $csrf,
                     'enctype' => 'multipart/form-data',
                 ]

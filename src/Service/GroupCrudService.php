@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Service;
 
 use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
 use Mailery\Brand\Entity\Brand;

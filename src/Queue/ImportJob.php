@@ -13,13 +13,13 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Queue;
 
 use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
 use Ddeboer\DataImport\Reader\CsvReader;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
 use Yiisoft\Yii\Queue\Queue;
+use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class ImportJob
 {
@@ -98,9 +98,7 @@ class ImportJob
     {
         $this->import->setIsRunning();
 
-        $transaction = new Transaction($this->orm);
-        $transaction->persist($this->import);
-        $transaction->run();
+        (new EntityWriter($this->orm))->write([$this->import]);
     }
 
     /**
@@ -110,9 +108,7 @@ class ImportJob
     {
         $this->import->setIsCompleted();
 
-        $transaction = new Transaction($this->orm);
-        $transaction->persist($this->import);
-        $transaction->run();
+        (new EntityWriter($this->orm))->write([$this->import]);
     }
 
     /**
@@ -122,9 +118,7 @@ class ImportJob
     {
         $this->import->setIsErrored();
 
-        $transaction = new Transaction($this->orm);
-        $transaction->persist($this->import);
-        $transaction->run();
+        (new EntityWriter($this->orm))->write([$this->import]);
     }
 
     /**

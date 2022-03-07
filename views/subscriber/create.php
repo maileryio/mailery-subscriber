@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-use Mailery\Widget\Form\FormRenderer;
+use Mailery\Subscriber\Form\SubscriberForm;
+use Mailery\Subscriber\Form\ImportForm;
 use Yiisoft\Yii\Bootstrap5\Nav;
 
+/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
-/** @var FormManager\Form $subscriberForm */
-/** @var FormManager\Form $importForm */
+/** @var Mailery\Subscriber\Form\SubscriberForm|Mailery\Subscriber\Form\ImportForm $form */
 /** @var string $csrf */
-/** @var bool $submitted */
 
 $this->setTitle('Add subscribers');
 
@@ -37,12 +37,12 @@ $this->setTitle('Add subscribers');
                 [
                     'label' => 'Add single subscriber',
                     'url' => $urlGenerator->generate('/subscriber/subscriber/create', $routeParams),
-                    'active' => !empty($subscriberForm),
+                    'active' => $form instanceof SubscriberForm,
                 ],
                 [
                     'label' => 'Import from file',
                     'url' => $urlGenerator->generate('/subscriber/subscriber/import', $routeParams),
-                    'active' => !empty($importForm),
+                    'active' => $form instanceof ImportForm,
                 ],
             ])
             ->options([
@@ -54,16 +54,14 @@ $this->setTitle('Add subscribers');
         <div class="tab-content">
             <div class="tab-pane fade show active" role="tabpanel">
                 <div class="row"><?php
-                    if (!empty($subscriberForm)) {
+                    if ($form instanceof SubscriberForm) {
                         ?><div class="col-6">
-                            <?= (new FormRenderer($subscriberForm->withCsrf($csrf)))($submitted); ?>
+                            <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
                         </div><?php
-                    } else {
-                        if (!empty($importForm)) {
-                            ?><div class="col-6">
-                            <?= (new FormRenderer($importForm->withCsrf($csrf)))($submitted); ?>
+                    } else if ($form instanceof ImportForm) {
+                        ?><div class="col-6">
+                            <?= $this->render('_import', compact('csrf', 'field', 'form')) ?>
                         </div><?php
-                        }
                     }
                 ?></div>
             </div>

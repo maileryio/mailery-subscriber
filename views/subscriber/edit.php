@@ -1,18 +1,15 @@
 <?php declare(strict_types=1);
 
 use Mailery\Icon\Icon;
-use Mailery\Widget\Form\FormRenderer;
 
+/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
-/** @var Mailery\Subscriber\Form\SubscriberForm $subscriberForm */
+/** @var Mailery\Subscriber\Form\SubscriberForm $form */
 /** @var string $csrf */
-/** @var bool $submitted */
 
 $this->setTitle('Edit subscriber #' . $subscriber->getId());
-
-$subscriberForm = $subscriberForm->withCsrf($csrf);
 
 ?><div class="row">
     <div class="col-12">
@@ -33,6 +30,6 @@ $subscriberForm = $subscriberForm->withCsrf($csrf);
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-6">
-        <?= (new FormRenderer($subscriberForm))($submitted); ?>
+        <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
     </div>
 </div>

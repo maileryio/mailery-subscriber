@@ -88,7 +88,6 @@ class SubscriberInterpreter implements InterpreterInterface
         }
 
         $valueObject = SubscriberValueObject::fromArray($attributes)
-            ->withBrand($this->import->getBrand())
             ->withGroups($this->import->getGroups()->toArray());
 
         $hasErrors = false;
@@ -156,7 +155,7 @@ class SubscriberInterpreter implements InterpreterInterface
      */
     private function flushSubscriberValueObject(SubscriberValueObject $valueObject, bool $hasErrors): void
     {
-        $repo = $this->getSubscriberRepository($valueObject->getBrand());
+        $repo = $this->getSubscriberRepository($this->import->getBrand());
         $counter = $this->importCounter->withImport($this->import);
 
         if ($hasErrors) {

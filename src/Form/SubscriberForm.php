@@ -12,28 +12,46 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Form;
 
-use FormManager\Factory as F;
-use FormManager\Form;
-use Mailery\Brand\Entity\Brand;
 use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
-use Mailery\Subscriber\Service\SubscriberCrudService;
-use Mailery\Subscriber\ValueObject\SubscriberValueObject;
-use Mailery\Widget\Form\Groups\RadioGroup;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Yiisoft\Form\FormModel;
+use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
+use Yiisoft\Validator\Rule\Required;
+use Yiisoft\Form\HtmlOptions\HasLengthHtmlOptions;
+use Yiisoft\Validator\Rule\HasLength;
+use Yiisoft\Validator\Rule\Callback;
+use Yiisoft\Validator\Result;
+use Yiisoft\Validator\Rule\Email;
+use Yiisoft\Form\HtmlOptions\EmailHtmlOptions;
 use Spiral\Database\Injection\Parameter;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Yiisoft\Validator\Rule\InRange;
+use Yiisoft\Validator\Rule\Each;
+use Yiisoft\Validator\Rules;
 
-class SubscriberForm extends Form
+class SubscriberForm extends FormModel
 {
     /**
-     * @var Brand
+     * @var string|null
      */
-    private Brand $brand;
+    private ?string $name = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $email = null;
+
+    /**
+     * @var int
+     */
+    private int $confirmed = 0;
+
+    /**
+     * @var array
+     */
+    private array $groups = [];
 
     /**
      * @var Subscriber|null
@@ -51,155 +69,121 @@ class SubscriberForm extends Form
     private SubscriberRepository $subscriberRepo;
 
     /**
-     * @var SubscriberCrudService
-     */
-    private SubscriberCrudService $subscriberCrudService;
-
-    /**
      * @param BrandLocator $brandLocator
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
-     * @param SubscriberCrudService $subscriberCrudService
      */
     public function __construct(
         BrandLocator $brandLocator,
         GroupRepository $groupRepo,
-        SubscriberRepository $subscriberRepo,
-        SubscriberCrudService $subscriberCrudService
+        SubscriberRepository $subscriberRepo
     ) {
-        $this->brand = $brandLocator->getBrand();
-        $this->groupRepo = $groupRepo->withBrand($this->brand);
-        $this->subscriberRepo = $subscriberRepo->withBrand($this->brand);
-        $this->subscriberCrudService = $subscriberCrudService;
+        $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
+        $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
 
-        parent::__construct($this->inputs());
-    }
-
-    /**
-     * @param string $csrf
-     * @return \self
-     */
-    public function withCsrf(string $value, string $name = '_csrf'): self
-    {
-        $this->offsetSet($name, F::hidden($value));
-
-        return $this;
+        parent::__construct();
     }
 
     /**
      * @param Subscriber $subscriber
      * @return self
      */
-    public function withSubscriber(Subscriber $subscriber): self
+    public function withEntity(Subscriber $subscriber): self
     {
-        $this->subscriber = $subscriber;
-        $this->offsetSet('', F::submit('Update'));
+        $new = clone $this;
+        $new->subscriber = $subscriber;
+        $new->name = $subscriber->getName();
+        $new->email = $subscriber->getEmail();
+        $new->confirmed = (int) $subscriber->getConfirmed();
+        $new->groups = $subscriber->getGroups()->map(
+            fn (Group $group) => $group->getId()
+        )->toArray();
 
-        $this['name']->setValue($subscriber->getName());
-        $this['email']->setValue($subscriber->getEmail());
-        $this['groups']->setValue(array_map(
-            function (Group $group) {
-                return $group->getId();
-            },
-            $subscriber->getGroups()->toArray()
-        ));
-        $this['confirmed']->setValue($subscriber->getConfirmed() ? 'yes' : 'no');
-
-        return $this;
+        return $new;
     }
 
     /**
-     * @return Subscriber|null
+     * @inheritdoc
      */
-    public function save(): ?Subscriber
+    public function load(array $data, ?string $formName = null): bool
     {
-        if (!$this->isValid()) {
-            return null;
+        $scope = $formName ?? $this->getFormName();
+
+        if (isset($data[$scope]['groups'])) {
+            $data[$scope]['groups'] = array_filter((array) $data[$scope]['groups']);
         }
 
-        $groupIds = $this['groups']->getValue();
-
-        $groups = $this->groupRepo->findAll([
-            'id' => ['in' => new Parameter($groupIds)],
-        ]);
-
-        $valueObject = SubscriberValueObject::fromForm($this)
-            ->withBrand($this->brand)
-            ->withGroups((array) $groups);
-
-        if (($subscriber = $this->subscriber) === null) {
-            $subscriber = $this->subscriberCrudService->create($valueObject);
-        } else {
-            $this->subscriberCrudService->update($subscriber, $valueObject);
-        }
-
-        return $subscriber;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function loadFromServerRequest(Request $request): Form
-    {
-        parent::loadFromServerRequest($request);
-
-        $parsedBody = (array) $request->getParsedBody();
-        $this['groups']->setValue($parsedBody['groups'] ?? []);
-
-        return $this;
+        return parent::load($data, $formName);
     }
 
     /**
      * @return array
      */
-    private function inputs(): array
+    public function getAttributeLabels(): array
     {
-        $uniqueEmailConstraint = new Constraints\Callback([
-            'callback' => function ($value, ExecutionContextInterface $context) {
-                if (empty($value)) {
-                    return;
-                }
-
-                $subscriber = $this->subscriberRepo->findByEmail($value, $this->subscriber);
-                if ($subscriber !== null) {
-                    $context->buildViolation('Subscriber with this email already exists.')
-                        ->atPath('email')
-                        ->addViolation();
-                }
-            },
-        ]);
-
-        $groupOptions = $this->getGroupListOptions();
-
         return [
-            'groups' => F::select('Add to groups', $groupOptions, ['multiple' => true])
-                ->addConstraint(new Constraints\NotBlank())
-                ->addConstraint(new Constraints\Choice([
-                    'choices' => array_keys($groupOptions),
-                    'multiple' => true,
-                ])),
-            'name' => F::text('Name')
-                ->addConstraint(new Constraints\NotBlank()),
-            'email' => F::text('Email')
-                ->addConstraint(new Constraints\NotBlank())
-                ->addConstraint(new Constraints\Email())
-                ->addConstraint($uniqueEmailConstraint),
-            'confirmed' => (new RadioGroup(
-                'Confirmed',
-                [
-                    'yes' => F::radio('Yes'),
-                    'no' => F::radio('No'),
-                ]
-            ))->setValue('yes'),
-
-            '' => F::submit($this->subscriber === null ? 'Create' : 'Update'),
+            'name' => 'Name',
+            'email' => 'Email',
+            'groups' => 'Add to groups',
+            'confirmed' => 'Confirmed',
         ];
     }
 
     /**
      * @return array
      */
-    private function getGroupListOptions(): array
+    public function getRules(): array
+    {
+        return [
+            'name' => [
+                new RequiredHtmlOptions(Required::rule()),
+                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+            ],
+            'email' => [
+                new RequiredHtmlOptions(Required::rule()),
+                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+                new EmailHtmlOptions(Email::rule()),
+                Callback::rule(function ($value) {
+                    $result = new Result();
+                    $record = $this->subscriberRepo->findByEmail($value, $this->subscriber);
+
+                    if ($record !== null) {
+                        $result->addError('Subscriber with this email already exists.');
+                    }
+
+                    return $result;
+                })
+            ],
+            'confirmed' => [
+                new RequiredHtmlOptions(Required::rule()),
+            ],
+            'groups' => [
+                new RequiredHtmlOptions(Required::rule()),
+                Each::rule(new Rules([
+                    InRange::rule(array_keys($this->getGroupListOptions())),
+                ]))->message('{error}')
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups(): array
+    {
+        if (empty($this->groups)) {
+            return [];
+        }
+
+        return $this->groupRepo->findAll([
+            'id' => ['in' => new Parameter($this->groups, \PDO::PARAM_INT)],
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupListOptions(): array
     {
         $options = [];
         $groups = $this->groupRepo->findAll();
@@ -210,4 +194,16 @@ class SubscriberForm extends Form
 
         return $options;
     }
+
+    /**
+     * @return array
+     */
+    public function getConfirmedListOptions(): array
+    {
+        return [
+            0 => 'No',
+            1 => 'Yes',
+        ];
+    }
+
 }

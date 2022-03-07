@@ -18,6 +18,8 @@ use Mailery\Subscriber\Counter\SubscriberCounter;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
+use Mailery\Brand\Entity\Brand;
+use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class SubscriberCrudService
 {
@@ -32,13 +34,30 @@ class SubscriberCrudService
     private SubscriberCounter $counter;
 
     /**
-     * @param SubscriberCounter $counter
-     * @param ORMInterface $orm
+     * @var Brand
      */
-    public function __construct(SubscriberCounter $counter, ORMInterface $orm)
+    private Brand $brand;
+
+    /**
+     * @param ORMInterface $orm
+     * @param SubscriberCounter $counter
+     */
+    public function __construct(ORMInterface $orm, SubscriberCounter $counter)
     {
-        $this->counter = $counter;
         $this->orm = $orm;
+        $this->counter = $counter;
+    }
+
+    /**
+     * @param Brand $brand
+     * @return self
+     */
+    public function withBrand(Brand $brand): self
+    {
+        $new = clone $this;
+        $new->brand = $brand;
+
+        return $new;
     }
 
     /**
@@ -48,9 +67,9 @@ class SubscriberCrudService
     public function create(SubscriberValueObject $valueObject): Subscriber
     {
         $subscriber = (new Subscriber())
+            ->setBrand($this->brand)
             ->setName($valueObject->getName())
             ->setEmail($valueObject->getEmail())
-            ->setBrand($valueObject->getBrand())
             ->setConfirmed($valueObject->getConfirmed())
             ->setUnsubscribed($valueObject->getUnsubscribed())
             ->setBounced($valueObject->getBounced())
@@ -65,9 +84,7 @@ class SubscriberCrudService
 
         $counters[] = $this->counter->withBrand($subscriber->getBrand());
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-        $tr->run();
+        (new EntityWriter($this->orm))->write([$subscriber]);
 
         $this->incrCounters($subscriber, $counters);
 
@@ -82,9 +99,9 @@ class SubscriberCrudService
     public function update(Subscriber $subscriber, SubscriberValueObject $valueObject): Subscriber
     {
         $subscriber = $subscriber
+            ->setBrand($this->brand)
             ->setName($valueObject->getName())
             ->setEmail($valueObject->getEmail())
-            ->setBrand($valueObject->getBrand())
             ->setConfirmed($valueObject->getConfirmed())
             ->setUnsubscribed($valueObject->getUnsubscribed())
             ->setBounced($valueObject->getBounced())
@@ -102,15 +119,13 @@ class SubscriberCrudService
         }
 
         foreach ($valueObject->getGroups() as $group) {
-            if (!$subscriber->getGroups()->hasPivot($group)) {
+            if (!$subscriber->getGroups()->contains($group)) {
                 $subscriber->getGroups()->add($group);
                 $counters['incr'][] = $this->counter->withGroup($group);
             }
         }
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($subscriber);
-        $tr->run();
+        (new EntityWriter($this->orm))->write([$subscriber]);
 
         $this->decrCounters($subscriber, $counters['decr']);
         $this->incrCounters($subscriber, $counters['incr']);
@@ -125,7 +140,7 @@ class SubscriberCrudService
      */
     public function delete(Subscriber $subscriber, Group $group = null): bool
     {
-        $tr = new Transaction($this->orm);
+        $transaction = new Transaction($this->orm);
 
         $counters = [];
 
@@ -137,13 +152,13 @@ class SubscriberCrudService
         }
 
         if ($subscriber->getGroups()->count() > 0) {
-            $tr->persist($subscriber);
+            $transaction->persist($subscriber);
         } else {
             $counters[] = $this->counter->withBrand($subscriber->getBrand());
-            $tr->delete($subscriber);
+            $transaction->delete($subscriber);
         }
 
-        $tr->run();
+        $transaction->run();
 
         $this->decrCounters($subscriber, $counters);
 

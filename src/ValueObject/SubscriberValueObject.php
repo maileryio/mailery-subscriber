@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\ValueObject;
 
-use Mailery\Brand\Entity\Brand;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\SubscriberForm;
@@ -51,11 +50,6 @@ class SubscriberValueObject implements DataSetInterface
     private bool $complaint = false;
 
     /**
-     * @var Brand
-     */
-    private Brand $brand;
-
-    /**
      * @var Group[]
      */
     private array $groups;
@@ -72,10 +66,10 @@ class SubscriberValueObject implements DataSetInterface
     public static function fromForm(SubscriberForm $form): self
     {
         $new = new self();
-
-        $new->name = $form['name']->getValue();
-        $new->email = $form['email']->getValue();
-        $new->confirmed = filter_var($form['confirmed']->getValue(), FILTER_VALIDATE_BOOLEAN);
+        $new->name = $form->getAttributeValue('name');
+        $new->email = $form->getAttributeValue('email');
+        $new->confirmed = (bool) $form->getAttributeValue('confirmed');
+        $new->groups = $form->getGroups();
 
         return $new;
     }
@@ -87,7 +81,6 @@ class SubscriberValueObject implements DataSetInterface
     public static function fromArray(array $array): self
     {
         $new = new self();
-
         $new->name = $array['name'] ?? '';
         $new->email = $array['email'] ?? '';
 
@@ -143,14 +136,6 @@ class SubscriberValueObject implements DataSetInterface
     }
 
     /**
-     * @return Brand
-     */
-    public function getBrand(): Brand
-    {
-        return $this->brand;
-    }
-
-    /**
      * @return Group[]
      */
     public function getGroups(): array
@@ -164,18 +149,6 @@ class SubscriberValueObject implements DataSetInterface
     public function getImport(): ?Import
     {
         return $this->import;
-    }
-
-    /**
-     * @param Brand $brand
-     * @return self
-     */
-    public function withBrand(Brand $brand): self
-    {
-        $new = clone $this;
-        $new->brand = $brand;
-
-        return $new;
     }
 
     /**

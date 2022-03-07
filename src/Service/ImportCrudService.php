@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Service;
 
 use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
 use Mailery\Storage\Entity\File;
 use Mailery\Storage\Service\StorageService;
 use Mailery\Storage\ValueObject\FileValueObject;
@@ -21,6 +20,8 @@ use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Mailery\Subscriber\Model\SubscriberImportBucket;
 use Mailery\Storage\Filesystem\FileInfo;
+use Mailery\Brand\Entity\Brand;
+use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class ImportCrudService
 {
@@ -45,6 +46,11 @@ class ImportCrudService
     private StorageService $storageService;
 
     /**
+     * @var Brand
+     */
+    private Brand $brand;
+
+    /**
      * @param ORMInterface $orm
      * @param SubscriberImportBucket $bucket
      * @param FileInfo $fileInfo
@@ -63,6 +69,18 @@ class ImportCrudService
     }
 
     /**
+     * @param Brand $brand
+     * @return self
+     */
+    public function withBrand(Brand $brand): self
+    {
+        $new = clone $this;
+        $new->brand = $brand;
+
+        return $new;
+    }
+
+    /**
      * @param ImportValueObject $valueObject
      * @return Import
      */
@@ -71,7 +89,7 @@ class ImportCrudService
         $file = $this->createFile($valueObject);
 
         $import = (new Import())
-            ->setBrand($valueObject->getBrand())
+            ->setBrand($this->brand)
             ->setFile($file)
             ->setFieldsMap($valueObject->getFieldsMap())
             ->setTotalCount($this->getLineCount($file))
@@ -82,27 +100,7 @@ class ImportCrudService
             $import->getGroups()->add($group);
         }
 
-        $tr = new Transaction($this->orm);
-        $tr->persist($import);
-        $tr->run();
-
-        return $import;
-    }
-
-    /**
-     * @param Import $import
-     * @param ImportValueObject $valueObject
-     * @return Import
-     */
-    public function update(Import $import, ImportValueObject $valueObject): Import
-    {
-        $import = $import
-            ->setBrand($valueObject->getBrand())
-        ;
-
-        $tr = new Transaction($this->orm);
-        $tr->persist($import);
-        $tr->run();
+        (new EntityWriter($this->orm))->write([$import]);
 
         return $import;
     }
@@ -113,9 +111,7 @@ class ImportCrudService
      */
     public function delete(Import $import): bool
     {
-        $tr = new Transaction($this->orm);
-        $tr->delete($import);
-        $tr->run();
+        (new EntityWriter($this->orm))->delete([$import]);
 
         return true;
     }
@@ -126,11 +122,12 @@ class ImportCrudService
      */
     private function createFile(ImportValueObject $valueObject): File
     {
-        return $this->storageService->create(
-            FileValueObject::fromUploadedFile($valueObject->getFile())
-                ->withBrand($valueObject->getBrand())
-                ->withBucket($this->bucket)
-        );
+        return $this->storageService
+            ->withBrand($this->brand)
+            ->create(
+                FileValueObject::fromUploadedFile($valueObject->getFile())
+                    ->withBucket($this->bucket)
+            );
     }
 
     /**

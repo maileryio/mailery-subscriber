@@ -21,6 +21,8 @@ use Mailery\Subscriber\Service\SubscriberCrudService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Http\Method;
+use Yiisoft\Http\Status;
+use Yiisoft\Http\Header;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
@@ -29,6 +31,11 @@ use Mailery\Subscriber\Filter\SubscriberFilter;
 use Mailery\Widget\Search\Form\SearchForm;
 use Mailery\Widget\Search\Model\SearchByList;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
+use Yiisoft\Validator\ValidatorInterface;
+use Mailery\Subscriber\ValueObject\SubscriberValueObject;
+use Yiisoft\Session\Flash\FlashInterface;
+use Mailery\Subscriber\Service\ImportCrudService;
+use Mailery\Subscriber\ValueObject\ImportValueObject;
 
 class SubscriberController
 {
@@ -45,6 +52,11 @@ class SubscriberController
     private ResponseFactory $responseFactory;
 
     /**
+     * @var UrlGenerator
+     */
+    private UrlGenerator $urlGenerator;
+
+    /**
      * @var GroupRepository
      */
     private GroupRepository $groupRepo;
@@ -55,26 +67,45 @@ class SubscriberController
     private SubscriberRepository $subscriberRepo;
 
     /**
+     * @var SubscriberCrudService
+     */
+    private SubscriberCrudService $subscriberCrudService;
+
+    /**
+     * @var ImportCrudService
+     */
+    private ImportCrudService $importCrudService;
+
+    /**
      * @param ViewRenderer $viewRenderer
      * @param ResponseFactory $responseFactory
+     * @param UrlGenerator $urlGenerator
      * @param BrandLocatorInterface $brandLocator
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
+     * @param SubscriberCrudService $subscriberCrudService
+     * @param ImportCrudService $importCrudService
      */
     public function __construct(
         ViewRenderer $viewRenderer,
         ResponseFactory $responseFactory,
+        UrlGenerator $urlGenerator,
         BrandLocatorInterface $brandLocator,
         GroupRepository $groupRepo,
-        SubscriberRepository $subscriberRepo
+        SubscriberRepository $subscriberRepo,
+        SubscriberCrudService $subscriberCrudService,
+        ImportCrudService $importCrudService
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
             ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
         $this->responseFactory = $responseFactory;
+        $this->urlGenerator = $urlGenerator;
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
         $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
+        $this->subscriberCrudService = $subscriberCrudService->withBrand($brandLocator->getBrand());
+        $this->importCrudService = $importCrudService->withBrand($brandLocator->getBrand());
     }
 
     /**
@@ -121,135 +152,109 @@ class SubscriberController
 
     /**
      * @param Request $request
-     * @param SubscriberForm $subscriberForm
-     * @param UrlGenerator $urlGenerator
+     * @param ValidatorInterface $validator
+     * @param SubscriberForm $form
      * @return Response
      */
-    public function create(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
+    public function create(Request $request, ValidatorInterface $validator, SubscriberForm $form): Response
     {
+        $body = $request->getParsedBody();
         $groupId = $request->getQueryParams()['groupId'] ?? null;
-        $submitted = $request->getMethod() === Method::POST;
+        $group = $groupId ? $this->groupRepo->findByPK($groupId) : null;
 
-        $group = null;
-        if (!empty($groupId)) {
-            $group = $this->groupRepo->findByPK($groupId);
+        if (($request->getMethod() === Method::POST) && $form->load($body) && $validator->validate($form)->isValid()) {
+            $valueObject = SubscriberValueObject::fromForm($form);
+            $subscriber = $this->subscriberCrudService->create($valueObject);
+
+            return $this->responseFactory
+                ->createResponse(Status::FOUND)
+                ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
         }
 
-        $subscriberForm
-            ->setAttributes([
-                'action' => $request->getUri()->getPath(),
-                'method' => 'post',
-                'enctype' => 'multipart/form-data',
-            ])
-        ;
-
-        if ($submitted) {
-            $subscriberForm->loadFromServerRequest($request);
-
-            if (($subscriber = $subscriberForm->save()) !== null) {
-                return $this->responseFactory
-                    ->createResponse(302)
-                    ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
-            }
-        }
-
-        return $this->viewRenderer->render('create', compact('subscriberForm', 'submitted', 'group'));
+        return $this->viewRenderer->render('create', compact('form', 'group'));
     }
 
     /**
      * @param Request $request
-     * @param ImportForm $importForm
-     * @param UrlGenerator $urlGenerator
-     * @param ImportJob $importJob
+     * @param ValidatorInterface $validator
+     * @param FlashInterface $flash
+     * @param SubscriberForm $form
      * @return Response
      */
-    public function import(Request $request, ImportForm $importForm, UrlGenerator $urlGenerator, ImportJob $importJob): Response
+    public function edit(Request $request, ValidatorInterface $validator, FlashInterface $flash, SubscriberForm $form): Response
     {
-        $groupId = $request->getQueryParams()['groupId'] ?? null;
-        $submitted = $request->getMethod() === Method::POST;
-
-        $group = null;
-        if (!empty($groupId)) {
-            $group = $this->groupRepo->findByPK($groupId);
+        $body = $request->getParsedBody();
+        $subscriberId = $request->getAttribute('id');
+        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
+            return $this->responseFactory->createResponse(404);
         }
 
-        $importForm
-            ->setAttributes([
-                'action' => $request->getUri()->getPath(),
-                'method' => 'post',
-                'enctype' => 'multipart/form-data',
-            ])
-        ;
+        $form = $form->withEntity($subscriber);
 
-        if ($submitted) {
-            $importForm->loadFromServerRequest($request);
+        if ($request->getMethod() === Method::POST && $form->load($body) && $validator->validate($form)->isValid()) {
+            $valueObject = SubscriberValueObject::fromForm($form);
+            $this->subscriberCrudService->update($subscriber, $valueObject);
 
-            if (($import = $importForm->import()) !== null) {
-                $importJob->push($import);
+            $flash->add(
+                'success',
+                [
+                    'body' => 'Data have been saved!',
+                ],
+                true
+            );
 
-                return $this->responseFactory
-                    ->createResponse(302)
-                    ->withHeader('Location', $urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
-            }
+            return $this->responseFactory
+                ->createResponse(302)
+                ->withHeader('Location', $this->urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
         }
 
-        return $this->viewRenderer->render('create', compact('importForm', 'submitted', 'group'));
+        return $this->viewRenderer->render('edit', compact('form', 'subscriber'));
     }
 
     /**
      * @param Request $request
-     * @param SubscriberForm $subscriberForm
-     * @param UrlGenerator $urlGenerator
      * @return Response
      */
-    public function edit(Request $request, SubscriberForm $subscriberForm, UrlGenerator $urlGenerator): Response
+    public function delete(Request $request): Response
     {
         $subscriberId = $request->getAttribute('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
             return $this->responseFactory->createResponse(404);
         }
 
-        $subscriberForm
-            ->withSubscriber($subscriber)
-            ->setAttributes([
-                'action' => $request->getUri()->getPath(),
-                'method' => 'post',
-                'enctype' => 'multipart/form-data',
-            ])
-        ;
-
-        $submitted = $request->getMethod() === Method::POST;
-
-        if ($submitted) {
-            $subscriberForm->loadFromServerRequest($request);
-
-            if ($subscriberForm->save() !== null) {
-                return $this->responseFactory
-                    ->createResponse(302)
-                    ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
-            }
-        }
-
-        return $this->viewRenderer->render('edit', compact('subscriber', 'subscriberForm', 'submitted'));
-    }
-
-    /**
-     * @param Request $request
-     * @param SubscriberCrudService $subscriberCrudService
-     * @param UrlGenerator $urlGenerator
-     * @return Response
-     */
-    public function delete(Request $request, SubscriberCrudService $subscriberCrudService, UrlGenerator $urlGenerator): Response
-    {
-        $subscriberId = $request->getAttribute('id');
-        if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
-            return $this->responseFactory->createResponse(404);
-        }
-
-        $subscriberCrudService->delete($subscriber);
+        $this->subscriberCrudService->delete($subscriber);
 
         return $this->responseFactory
             ->createResponse(302)
-            ->withHeader('Location', $urlGenerator->generate('/subscriber/subscriber/index'));
+            ->withHeader('Location', $this->urlGenerator->generate('/subscriber/subscriber/index'));
+    }
+
+    /**
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @param ImportForm $form
+     * @param ImportJob $job
+     * @return Response
+     */
+    public function import(Request $request, ValidatorInterface $validator, ImportForm $form, ImportJob $job): Response
+    {
+        $body = $request->getParsedBody();
+        $files = $request->getUploadedFiles();
+
+        $groupId = $request->getQueryParams()['groupId'] ?? null;
+        $group = $groupId ? $this->groupRepo->findByPK($groupId) : null;
+
+        if (($request->getMethod() === Method::POST) && $form->load($body) && $form->load($files) && $validator->validate($form)->isValid()) {
+            $valueObject = ImportValueObject::fromForm($form);
+            $import = $this->importCrudService->create($valueObject);
+
+            $job->push($import);
+
+            return $this->responseFactory
+                ->createResponse(Status::FOUND)
+                ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/import/view', ['id' => $import->getId()]));
+        }
+
+        return $this->viewRenderer->render('create', compact('form', 'group'));
     }
 }
