@@ -18,9 +18,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4",
-        "cycle/orm": "^1.2",
         "ddeboer/data-import": "^0.20.0",
-        "form-manager/form-manager": "^6.0",
         "foxy/foxy": "^1.0",
         "gabrielelana/byte-units": "^0.5.0",
         "httpsoft/http-message": "^1.0.5",
@@ -32,7 +30,6 @@
         "maileryio/mailery-storage": "dev-master",
         "maileryio/mailery-web": "dev-master",
         "maileryio/widget-dataview": "dev-master",
-        "maileryio/widget-form": "dev-master",
         "maileryio/widget-link": "dev-master",
         "maileryio/widget-search": "dev-master",
         "ramsey/uuid": "^4.0",

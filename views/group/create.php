@@ -4,7 +4,7 @@
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
-/** @var \Mailery\Subscriber\Form\GroupForm $form */
+/** @var Mailery\Subscriber\Form\GroupForm $form */
 /** @var string $csrf */
 
 $this->setTitle('New group');

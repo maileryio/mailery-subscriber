@@ -139,7 +139,7 @@ class GroupController
     {
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $queryParams = $request->getQueryParams();
@@ -213,7 +213,7 @@ class GroupController
         $body = $request->getParsedBody();
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $form = $form->withEntity($group);
@@ -231,8 +231,8 @@ class GroupController
             );
 
             return $this->responseFactory
-                ->createResponse(302)
-                ->withHeader('Location', $this->urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
+                ->createResponse(Status::FOUND)
+                ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]));
         }
 
         return $this->viewRenderer->render('edit', compact('form', 'group'));
@@ -246,14 +246,14 @@ class GroupController
     {
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $this->groupCrudService->delete($group);
 
         return $this->responseFactory
-            ->createResponse(302)
-            ->withHeader('Location', $this->urlGenerator->generate('/subscriber/group/index'));
+            ->createResponse(Status::SEE_OTHER)
+            ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/group/index'));
     }
 
     /**
@@ -265,18 +265,18 @@ class GroupController
     {
         $groupId = $request->getAttribute('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $subscriberId = $request->getAttribute('subscriberId');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $subscriberCrudService->delete($subscriber, $group);
 
         return $this->responseFactory
-            ->createResponse(302)
-            ->withHeader('Location', $this->urlGenerator->generate('/subscriber/subscriber/index'));
+            ->createResponse(Status::SEE_OTHER)
+            ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/subscriber/index'));
     }
 }

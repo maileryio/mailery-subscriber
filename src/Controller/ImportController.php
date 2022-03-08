@@ -127,7 +127,7 @@ class ImportController
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
         if (empty($importId) || ($import = $this->importRepo->findByPK($importId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $fileInfo = $fileInfo->withFile($import->getFile());

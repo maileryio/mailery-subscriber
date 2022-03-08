@@ -103,7 +103,7 @@ class GroupForm extends FormModel
                     }
 
                     return $result;
-                })
+                }),
             ],
         ];
     }

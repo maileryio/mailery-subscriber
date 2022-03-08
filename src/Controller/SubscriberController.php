@@ -144,7 +144,7 @@ class SubscriberController
     {
         $subscriberId = $request->getAttribute('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         return $this->viewRenderer->render('view', compact('subscriber'));
@@ -186,7 +186,7 @@ class SubscriberController
         $body = $request->getParsedBody();
         $subscriberId = $request->getAttribute('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $form = $form->withEntity($subscriber);
@@ -204,8 +204,8 @@ class SubscriberController
             );
 
             return $this->responseFactory
-                ->createResponse(302)
-                ->withHeader('Location', $this->urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
+                ->createResponse(Status::FOUND)
+                ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]));
         }
 
         return $this->viewRenderer->render('edit', compact('form', 'subscriber'));
@@ -219,14 +219,14 @@ class SubscriberController
     {
         $subscriberId = $request->getAttribute('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         $this->subscriberCrudService->delete($subscriber);
 
         return $this->responseFactory
-            ->createResponse(302)
-            ->withHeader('Location', $this->urlGenerator->generate('/subscriber/subscriber/index'));
+            ->createResponse(Status::SEE_OTHER)
+            ->withHeader(Header::LOCATION, $this->urlGenerator->generate('/subscriber/subscriber/index'));
     }
 
     /**
