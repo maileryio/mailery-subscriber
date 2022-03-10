@@ -11,12 +11,12 @@ declare(strict_types=1);
  */
 
 use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Definitions\Reference;
 use Mailery\Subscriber\Model\SubscriberImportBucket;
 
 return [
     'yiisoft/yii-cycle' => [
-        'annotated-entity-paths' => [
+        'entity-paths' => [
             '@vendor/maileryio/mailery-subscriber/src/Entity',
         ],
     ],

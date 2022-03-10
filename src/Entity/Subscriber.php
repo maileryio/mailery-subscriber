@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Entity;
 
-use Cycle\ORM\Relation\Pivoted\PivotedCollection;
-use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
+use Cycle\ORM\Collection\Pivoted\PivotedCollection;
+use Cycle\ORM\Collection\Pivoted\PivotedCollectionInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
