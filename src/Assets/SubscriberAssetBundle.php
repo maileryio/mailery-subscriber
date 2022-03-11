@@ -25,7 +25,7 @@ class SubscriberAssetBundle extends AssetBundle
     /**
      * {@inheritdoc}
      */
-    public ?string $baseUrl = '@web/@maileryio/mailery-subscriber-assets';
+    public ?string $baseUrl = '@assetsUrl/@maileryio/mailery-subscriber-assets';
 
     /**
      * {@inheritdoc}
