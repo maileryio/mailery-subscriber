@@ -18,18 +18,15 @@ use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Yiisoft\Form\FormModel;
-use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
 use Yiisoft\Validator\Rule\Required;
-use Yiisoft\Form\HtmlOptions\HasLengthHtmlOptions;
 use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Callback;
 use Yiisoft\Validator\Result;
 use Yiisoft\Validator\Rule\Email;
-use Yiisoft\Form\HtmlOptions\EmailHtmlOptions;
 use Spiral\Database\Injection\Parameter;
 use Yiisoft\Validator\Rule\InRange;
 use Yiisoft\Validator\Rule\Each;
-use Yiisoft\Validator\Rules;
+use Yiisoft\Validator\RuleSet;
 
 class SubscriberForm extends FormModel
 {
@@ -174,13 +171,13 @@ class SubscriberForm extends FormModel
     {
         return [
             'name' => [
-                new RequiredHtmlOptions(Required::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->min(3)->max(255)),
+                Required::rule(),
+                HasLength::rule()->min(3)->max(255),
             ],
             'email' => [
-                new RequiredHtmlOptions(Required::rule()),
-                new EmailHtmlOptions(Email::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->max(255)),
+                Required::rule(),
+                Email::rule(),
+                HasLength::rule()->max(255),
                 Callback::rule(function ($value) {
                     $result = new Result();
                     $record = $this->subscriberRepo->findByEmail($value, $this->subscriber);
@@ -193,11 +190,11 @@ class SubscriberForm extends FormModel
                 }),
             ],
             'confirmed' => [
-                new RequiredHtmlOptions(Required::rule()),
+                Required::rule(),
             ],
             'groups' => [
-                new RequiredHtmlOptions(Required::rule()),
-                Each::rule(new Rules([
+                Required::rule(),
+                Each::rule(new RuleSet([
                     InRange::rule(array_keys($this->getGroupListOptions())),
                 ]))->message('{error}'),
             ],

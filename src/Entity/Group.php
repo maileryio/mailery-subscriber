@@ -55,11 +55,11 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @return string|null
+     * @return int
      */
-    public function getId(): ?string
+    public function getId(): int
     {
-        return $this->id ? (string) $this->id : null;
+        return $this->id;
     }
 
     /**

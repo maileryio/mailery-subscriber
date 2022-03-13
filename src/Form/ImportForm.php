@@ -17,11 +17,10 @@ use Mailery\Subscriber\Repository\GroupRepository;
 use Spiral\Database\Injection\Parameter;
 use Yiisoft\Form\FormModel;
 use HttpSoft\Message\UploadedFile;
-use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
 use Yiisoft\Validator\Rule\Required;
 use Yiisoft\Validator\Rule\InRange;
 use Yiisoft\Validator\Rule\Each;
-use Yiisoft\Validator\Rules;
+use Yiisoft\Validator\RuleSet;
 
 class ImportForm extends FormModel
 {
@@ -132,16 +131,16 @@ class ImportForm extends FormModel
     {
         return [
             'file' => [
-                new RequiredHtmlOptions(Required::rule()),
+                Required::rule(),
             ],
             'groups' => [
-                new RequiredHtmlOptions(Required::rule()),
-                Each::rule(new Rules([
+                Required::rule(),
+                Each::rule(new RuleSet([
                     InRange::rule(array_keys($this->getGroupListOptions())),
                 ]))->message('{error}')
             ],
             'fieldsMap' => [
-                new RequiredHtmlOptions(Required::rule()),
+                Required::rule(),
             ],
         ];
     }
