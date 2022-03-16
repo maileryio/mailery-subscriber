@@ -7,7 +7,7 @@ use Yiisoft\Form\Helper\HtmlForm;
 /** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\View\WebView $this */
 /** @var Mailery\Subscriber\Form\ImportForm $form */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 ?>
 

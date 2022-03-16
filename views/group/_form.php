@@ -6,7 +6,7 @@ use Yiisoft\Form\Widget\Form;
 /** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\View\WebView $this */
 /** @var Mailery\Subscriber\Form\GroupForm $form */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 ?>
 <div class="row">

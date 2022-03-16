@@ -13,7 +13,7 @@ use Mailery\Widget\Dataview\GridView\LinkPager;
 /** @var Mailery\Subscriber\Entity\Import $import */
 /** @var Mailery\Subscriber\Counter\ImportCounter $importCounter */
 /** @var Mailery\Storage\Filesystem\FileInfo $fileInfo */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 /** @var bool $submitted */
 
 $this->setTitle($import->getFile()->getTitle());

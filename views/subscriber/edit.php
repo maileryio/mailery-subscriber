@@ -7,7 +7,7 @@ use Mailery\Icon\Icon;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
 /** @var Mailery\Subscriber\Form\SubscriberForm $form */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 $this->setTitle('Edit subscriber #' . $subscriber->getId());
 

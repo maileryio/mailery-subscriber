@@ -8,7 +8,7 @@ use Yiisoft\Yii\Bootstrap5\Nav;
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Form\SubscriberForm|Mailery\Subscriber\Form\ImportForm $form */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 $this->setTitle('Add subscribers');
 

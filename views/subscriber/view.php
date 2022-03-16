@@ -9,7 +9,7 @@ use Mailery\Widget\Link\Link;
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 /** @var bool $submitted */
 
 $this->setTitle($subscriber->getName());

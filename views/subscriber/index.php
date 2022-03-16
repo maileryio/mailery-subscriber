@@ -17,7 +17,7 @@ use Yiisoft\Html\Html;
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 /** @var Yiisoft\Data\Reader\DataReaderInterface $dataReader*/
 /** @var Yiisoft\Data\Paginator\PaginatorInterface $paginator */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 $this->setTitle('All subscribers');
 

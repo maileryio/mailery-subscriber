@@ -7,7 +7,7 @@ use Mailery\Icon\Icon;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
 /** @var Mailery\Subscriber\Form\GroupForm $form */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 
 $this->setTitle('Edit Group #' . $group->getId());
 

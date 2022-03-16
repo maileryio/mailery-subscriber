@@ -18,7 +18,7 @@ use Yiisoft\Yii\Bootstrap5\Nav;
 /** @var Mailery\Subscriber\Counter\SubscriberCounter $subscriberCounter */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
-/** @var string $csrf */
+/** @var Yiisoft\Yii\View\Csrf $csrf */
 /** @var bool $submitted */
 
 $this->setTitle($group->getName());
