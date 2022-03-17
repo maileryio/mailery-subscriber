@@ -118,8 +118,9 @@ $this->setTitle('Subscriber groups');
                     ->header('Delete')
                     ->view('')
                     ->update('')
-                    ->delete(function (Group $data, int $index) use ($urlGenerator) {
+                    ->delete(function (Group $data, int $index) use ($csrf, $urlGenerator) {
                         return Link::widget()
+                            ->csrf($csrf)
                             ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render())
                             ->method('delete')
                             ->href($urlGenerator->generate('/subscriber/group/delete', ['id' => $data->getId()]))

@@ -39,15 +39,17 @@ $this->setTitle($group->getName());
                         ->label('Activity log')
                         ->entity($group); ?>
                     <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-text variant="danger" class="dropdown-item-custom-link"><?= Link::widget()
-                        ->label('Delete group')
-                        ->method('delete')
-                        ->href($urlGenerator->generate('/subscriber/group/delete', ['id' => $group->getId()]))
-                        ->confirm('Are you sure?')
-                        ->options([
-                            'class' => 'btn btn-link text-decoration-none text-danger',
-                        ]);
-                    ?></b-dropdown-text>
+                    <b-dropdown-text variant="danger" class="dropdown-item-custom-link">
+                        <?= Link::widget()
+                            ->csrf($csrf)
+                            ->label('Delete group')
+                            ->method('delete')
+                            ->href($urlGenerator->generate('/subscriber/group/delete', ['id' => $group->getId()]))
+                            ->confirm('Are you sure?')
+                            ->options([
+                                'class' => 'btn btn-link text-decoration-none text-danger',
+                            ]); ?>
+                    </b-dropdown-text>
                 </b-dropdown>
                 <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>

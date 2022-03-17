@@ -97,8 +97,9 @@ $this->setTitle('All subscribers');
                     ->header('Delete')
                     ->view('')
                     ->update('')
-                    ->delete(function (Subscriber $data, int $index) use ($urlGenerator) {
+                    ->delete(function (Subscriber $data, int $index) use ($csrf, $urlGenerator) {
                         return Link::widget()
+                            ->csrf($csrf)
                             ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render())
                             ->method('delete')
                             ->href($urlGenerator->generate('/subscriber/subscriber/delete', ['id' => $data->getId()]))
