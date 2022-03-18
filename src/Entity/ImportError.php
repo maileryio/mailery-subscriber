@@ -14,6 +14,12 @@ namespace Mailery\Subscriber\Entity;
 
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
+use Mailery\Subscriber\Repository\ImportErrorRepository;
+use Mailery\Activity\Log\Mapper\LoggableMapper;
+use Cycle\ORM\Entity\Behavior;
+use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Column;
+use Cycle\Annotated\Annotation\Relation\BelongsTo;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
@@ -22,39 +28,43 @@ use Mailery\Activity\Log\Entity\LoggableEntityTrait;
  *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
  * )
  */
+#[Entity(
+    table: 'subscriber_import_errors',
+    repository: ImportErrorRepository::class,
+    mapper: LoggableMapper::class
+)]
+#[Behavior\CreatedAt(
+    field: 'createdAt',
+    column: 'created_at',
+)]
+#[Behavior\UpdatedAt(
+    field: 'updatedAt',
+    column: 'updated_at',
+)]
 class ImportError implements LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "primary")
-     * @var int|null
-     */
-    private $id;
+    #[Column(type: 'primary')]
+    private int $id;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "string(255)")
-     * @var string
-     */
-    private $name;
+    #[Column(type: 'string(255)')]
+    private string $name;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "string(255)", nullable = true)
-     * @var string|null
-     */
-    private $value;
+    #[Column(type: 'string(255)')]
+    private string $value;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "string(255)")
-     * @var string
-     */
-    private $error;
+    #[Column(type: 'string(255)')]
+    private string $error;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Subscriber\Entity\Import", innerKey = "subscriber_import_id", nullable = false)
-     * @var Import
-     */
+    #[BelongsTo(target: Import::class, innerKey: 'subscriber_import_id')]
     private $import;
+
+    #[Column(type: 'datetime')]
+    private \DateTimeImmutable $createdAt;
+
+    #[Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @return string

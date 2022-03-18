@@ -13,78 +13,68 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\Entity;
 
 use Cycle\ORM\Collection\Pivoted\PivotedCollection;
-use Cycle\ORM\Collection\Pivoted\PivotedCollectionInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Mailery\Activity\Log\Entity\LoggableEntityTrait;
 use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
 use Mailery\Storage\Entity\File;
 use Mailery\Subscriber\Enum\ImportStatus;
+use Mailery\Subscriber\Repository\ImportRepository;
+use Mailery\Activity\Log\Mapper\LoggableMapper;
+use Cycle\ORM\Collection\DoctrineCollectionFactory;
+use Cycle\ORM\Entity\Behavior;
+use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Column;
+use Cycle\Annotated\Annotation\Relation\ManyToMany;
+use Cycle\Annotated\Annotation\Relation\HasMany;
+use Cycle\Annotated\Annotation\Relation\BelongsTo;
 
-/**
- * @Cycle\Annotated\Annotation\Entity(
- *      table = "subscriber_imports",
- *      repository = "Mailery\Subscriber\Repository\ImportRepository",
- *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
- * )
- */
+#[Entity(
+    table: 'subscriber_imports',
+    repository: ImportRepository::class,
+    mapper: LoggableMapper::class
+)]
+#[Behavior\CreatedAt(
+    field: 'createdAt',
+    column: 'created_at',
+)]
+#[Behavior\UpdatedAt(
+    field: 'updatedAt',
+    column: 'updated_at',
+)]
 class Import implements RoutableEntityInterface, LoggableEntityInterface
 {
     use LoggableEntityTrait;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "primary")
-     * @var int|null
-     */
-    private $id;
+    #[Column(type: 'primary')]
+    private int $id;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = false)
-     * @var Brand
-     */
-    private $brand;
+    #[BelongsTo(target: Brand::class)]
+    private Brand $brand;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\ManyToMany(target = "Group", though = "ImportGroup", thoughInnerKey = "subscriber_import_id", nullable = false)
-     * @var PivotedCollectionInterface
-     */
-    private $groups;
+    #[ManyToMany(target: Group::class, though: ImportGroup::class, thoughInnerKey: 'subscriber_import_id', collection: DoctrineCollectionFactory::class)]
+    private PivotedCollection $groups;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\HasMany(target = "ImportError", outerKey = "subscriber_import_id", nullable = false)
-     * @var PivotedCollectionInterface
-     */
-    private $errors;
+    #[HasMany(target: ImportError::class, outerKey: 'subscriber_import_id', collection: DoctrineCollectionFactory::class)]
+    private PivotedCollection $errors;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Storage\Entity\File", nullable = true)
-     * @var File
-     */
-    private $file;
+    #[BelongsTo(target: File::class)]
+    private File $file;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "integer")
-     * @var int
-     */
-    private $status;
+    #[Column(type: 'integer')]
+    private int $status;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "integer")
-     * @var int
-     */
-    private $totalCount;
+    #[Column(type: 'integer')]
+    private int $totalCount;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "json")
-     * @var string
-     */
-    private $fieldsMap;
+    #[Column(type: 'json')]
+    private string $fieldsMap;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type = "datetime")
-     * @var \DateTimeImmutable
-     */
-    private $createdAt;
+    #[Column(type: 'datetime')]
+    private \DateTimeImmutable $createdAt;
+
+    #[Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
@@ -139,18 +129,18 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @return PivotedCollectionInterface
+     * @return PivotedCollection
      */
-    public function getGroups(): PivotedCollectionInterface
+    public function getGroups(): PivotedCollection
     {
         return $this->groups;
     }
 
     /**
-     * @param PivotedCollectionInterface $groups
+     * @param PivotedCollection $groups
      * @return self
      */
-    public function setGroups(PivotedCollectionInterface $groups): self
+    public function setGroups(PivotedCollection $groups): self
     {
         $this->groups = $groups;
 
@@ -158,18 +148,18 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
-     * @return PivotedCollectionInterface
+     * @return PivotedCollection
      */
-    public function getErrors(): PivotedCollectionInterface
+    public function getErrors(): PivotedCollection
     {
         return $this->errors;
     }
 
     /**
-     * @param PivotedCollectionInterface $errors
+     * @param PivotedCollection $errors
      * @return self
      */
-    public function setErrors(PivotedCollectionInterface $errors): self
+    public function setErrors(PivotedCollection $errors): self
     {
         $this->errors = $errors;
 

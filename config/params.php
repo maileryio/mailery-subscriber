@@ -13,11 +13,34 @@ declare(strict_types=1);
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Definitions\Reference;
 use Mailery\Subscriber\Model\SubscriberImportBucket;
+use Yiisoft\Definitions\DynamicReference;
+use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Entity\Import;
+use Mailery\Subscriber\Entity\ImportError;
+use Mailery\Subscriber\Entity\ImportGroup;
+use Mailery\Subscriber\Entity\Subscriber;
+use Mailery\Subscriber\Entity\SubscriberGroup;
 
 return [
     'yiisoft/yii-cycle' => [
         'entity-paths' => [
             '@vendor/maileryio/mailery-subscriber/src/Entity',
+        ],
+    ],
+
+    'maileryio/mailery-activity-log' => [
+        'entity-groups' => [
+            'subscriber' => [
+                'label' => DynamicReference::to(static fn () => 'Subscriber'),
+                'entities' => [
+                    Group::class,
+                    Import::class,
+                    ImportError::class,
+                    ImportGroup::class,
+                    Subscriber::class,
+                    SubscriberGroup::class,
+                ],
+            ],
         ],
     ],
 

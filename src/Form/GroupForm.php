@@ -15,9 +15,7 @@ namespace Mailery\Subscriber\Form;
 use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Repository\GroupRepository;
-use Yiisoft\Form\HtmlOptions\RequiredHtmlOptions;
 use Yiisoft\Validator\Rule\Required;
-use Yiisoft\Form\HtmlOptions\HasLengthHtmlOptions;
 use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Callback;
 use Yiisoft\Validator\Result;
@@ -92,8 +90,8 @@ class GroupForm extends FormModel
     {
         return [
             'name' => [
-                new RequiredHtmlOptions(Required::rule()),
-                new HasLengthHtmlOptions(HasLength::rule()->min(3)->max(255)),
+                Required::rule(),
+                HasLength::rule()->min(3)->max(255),
                 Callback::rule(function ($value) {
                     $result = new Result();
                     $record = $this->groupRepo->findByName($value, $this->group);
