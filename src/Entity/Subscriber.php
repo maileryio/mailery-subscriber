@@ -55,7 +55,7 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     #[BelongsTo(target: Brand::class)]
     private Brand $brand;
 
-    #[ManyToMany(target: Group::class, though: SubscriberGroup::class, collection: DoctrineCollectionFactory::class)]
+    #[ManyToMany(target: Group::class, though: SubscriberGroup::class, thoughInnerKey: 'subscriber_id', thoughOuterKey: 'subscriber_group_id', collection: DoctrineCollectionFactory::class)]
     private PivotedCollection $groups;
 
     #[Column(type: 'boolean')]

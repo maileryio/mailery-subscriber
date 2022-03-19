@@ -26,7 +26,7 @@ use Yiisoft\Http\Header;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
-use Mailery\Brand\BrandLocatorInterface;
+use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Filter\SubscriberFilter;
 use Mailery\Widget\Search\Form\SearchForm;
 use Mailery\Widget\Search\Model\SearchByList;
@@ -36,72 +36,36 @@ use Mailery\Subscriber\ValueObject\SubscriberValueObject;
 use Yiisoft\Session\Flash\FlashInterface;
 use Mailery\Subscriber\Service\ImportCrudService;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
+use Yiisoft\Router\CurrentRoute;
 
 class SubscriberController
 {
     private const PAGINATION_INDEX = 10;
 
     /**
-     * @var ViewRenderer
-     */
-    private ViewRenderer $viewRenderer;
-
-    /**
-     * @var ResponseFactory
-     */
-    private ResponseFactory $responseFactory;
-
-    /**
-     * @var UrlGenerator
-     */
-    private UrlGenerator $urlGenerator;
-
-    /**
-     * @var GroupRepository
-     */
-    private GroupRepository $groupRepo;
-
-    /**
-     * @var SubscriberRepository
-     */
-    private SubscriberRepository $subscriberRepo;
-
-    /**
-     * @var SubscriberCrudService
-     */
-    private SubscriberCrudService $subscriberCrudService;
-
-    /**
-     * @var ImportCrudService
-     */
-    private ImportCrudService $importCrudService;
-
-    /**
      * @param ViewRenderer $viewRenderer
      * @param ResponseFactory $responseFactory
      * @param UrlGenerator $urlGenerator
-     * @param BrandLocatorInterface $brandLocator
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
      * @param SubscriberCrudService $subscriberCrudService
      * @param ImportCrudService $importCrudService
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        ViewRenderer $viewRenderer,
-        ResponseFactory $responseFactory,
-        UrlGenerator $urlGenerator,
-        BrandLocatorInterface $brandLocator,
-        GroupRepository $groupRepo,
-        SubscriberRepository $subscriberRepo,
-        SubscriberCrudService $subscriberCrudService,
-        ImportCrudService $importCrudService
+        private ViewRenderer $viewRenderer,
+        private ResponseFactory $responseFactory,
+        private UrlGenerator $urlGenerator,
+        private GroupRepository $groupRepo,
+        private SubscriberRepository $subscriberRepo,
+        private SubscriberCrudService $subscriberCrudService,
+        private ImportCrudService $importCrudService,
+        BrandLocator $brandLocator
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
             ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
-        $this->responseFactory = $responseFactory;
-        $this->urlGenerator = $urlGenerator;
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
         $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
         $this->subscriberCrudService = $subscriberCrudService->withBrand($brandLocator->getBrand());
@@ -137,12 +101,12 @@ class SubscriberController
     }
 
     /**
-     * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @return Response
      */
-    public function view(Request $request): Response
+    public function view(CurrentRoute $currentRoute): Response
     {
-        $subscriberId = $request->getAttribute('id');
+        $subscriberId = $currentRoute->getArgument('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
@@ -176,15 +140,16 @@ class SubscriberController
 
     /**
      * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @param ValidatorInterface $validator
      * @param FlashInterface $flash
      * @param SubscriberForm $form
      * @return Response
      */
-    public function edit(Request $request, ValidatorInterface $validator, FlashInterface $flash, SubscriberForm $form): Response
+    public function edit(Request $request, CurrentRoute $currentRoute, ValidatorInterface $validator, FlashInterface $flash, SubscriberForm $form): Response
     {
         $body = $request->getParsedBody();
-        $subscriberId = $request->getAttribute('id');
+        $subscriberId = $currentRoute->getArgument('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
@@ -212,12 +177,12 @@ class SubscriberController
     }
 
     /**
-     * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @return Response
      */
-    public function delete(Request $request): Response
+    public function delete(CurrentRoute $currentRoute): Response
     {
-        $subscriberId = $request->getAttribute('id');
+        $subscriberId = $currentRoute->getArgument('id');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }

@@ -56,28 +56,17 @@ class SubscriberForm extends FormModel
     private ?Subscriber $subscriber = null;
 
     /**
-     * @var GroupRepository
-     */
-    private GroupRepository $groupRepo;
-
-    /**
-     * @var SubscriberRepository
-     */
-    private SubscriberRepository $subscriberRepo;
-
-    /**
-     * @param BrandLocator $brandLocator
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
+        private GroupRepository $groupRepo,
+        private SubscriberRepository $subscriberRepo,
         BrandLocator $brandLocator,
-        GroupRepository $groupRepo,
-        SubscriberRepository $subscriberRepo
     ) {
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
         $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
-
         parent::__construct();
     }
 

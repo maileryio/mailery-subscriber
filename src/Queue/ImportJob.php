@@ -18,53 +18,21 @@ use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
-use Yiisoft\Yii\Queue\Queue;
 use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
+use Mailery\Subscriber\Fields\ImportStatus;
 
 class ImportJob
 {
     /**
-     * @var ORMInterface $orm
-     */
-    private ORMInterface $orm;
-
-    /**
-     * @var Queue
-     */
-    private Queue $queue;
-
-    /**
-     * @var Import
-     */
-    private Import $import;
-
-    /**
-     * @var FileInfo
-     */
-    private FileInfo $fileInfo;
-
-    /**
-     * @var SubscriberInterpreter
-     */
-    private SubscriberInterpreter $subscriberInterpreter;
-
-    /**
      * @param ORMInterface $orm
-     * @param Queue $queue
      * @param FileInfo $fileInfo
-     * @param SubscriberInterpreter $subscriberInterpreter
+     * @param SubscriberInterpreter $interpreter
      */
     public function __construct(
-        ORMInterface $orm,
-        Queue $queue,
-        FileInfo $fileInfo,
-        SubscriberInterpreter $subscriberInterpreter
-    ) {
-        $this->orm = $orm;
-        $this->queue = $queue;
-        $this->fileInfo = $fileInfo;
-        $this->subscriberInterpreter = $subscriberInterpreter;
-    }
+        private ORMInterface $orm,
+        private FileInfo $fileInfo,
+        private SubscriberInterpreter $interpreter
+    ) {}
 
     /**
      * @param Import $import
@@ -96,7 +64,7 @@ class ImportJob
      */
     private function beforeExecute(): void
     {
-        $this->import->setIsRunning();
+        $this->import->setStatus(ImportStatus::asRunning());
 
         (new EntityWriter($this->orm))->write([$this->import]);
     }
@@ -106,7 +74,7 @@ class ImportJob
      */
     private function afterExecute(): void
     {
-        $this->import->setIsCompleted();
+        $this->import->setStatus(ImportStatus::asCompleted());
 
         (new EntityWriter($this->orm))->write([$this->import]);
     }
@@ -116,7 +84,7 @@ class ImportJob
      */
     private function thrownExecute(): void
     {
-        $this->import->setIsErrored();
+        $this->import->setStatus(ImportStatus::asErrored());
 
         (new EntityWriter($this->orm))->write([$this->import]);
     }
@@ -131,7 +99,7 @@ class ImportJob
             ->getStream();
 
         $reader = new CsvReader(new \SplFileObject($stream->getMetadata('uri')));
-        $interpreter = $this->subscriberInterpreter
+        $interpreter = $this->interpreter
             ->withImport($this->import);
 
         (new Importer($reader))->import($interpreter);

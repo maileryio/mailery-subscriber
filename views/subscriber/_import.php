@@ -12,17 +12,11 @@ use Yiisoft\Form\Helper\HtmlForm;
 ?>
 
 <?= Form::widget()
-    ->options(
-        [
-            'id' => 'form-import',
-            'csrf' => $csrf,
-            'enctype' => 'multipart/form-data',
-        ]
-    )
-    ->begin(); ?>
+        ->csrf($csrf)
+        ->id('subscriber-import-form')
+        ->begin(); ?>
 
-<?= $field->config($form, 'file')
-        ->fileInput()
+<?= $field->file($form, 'file')
         ->template(strtr(
             "{label}\n{input}\n{hint}\n{error}",
             [
@@ -31,29 +25,18 @@ use Yiisoft\Form\Helper\HtmlForm;
                     '',
                     [
                         'name' => HtmlForm::getInputName($form, 'file'),
-                        'map-fields' => $form->getFields(),
-                        'map-fields-name' => HtmlForm::getInputName($form, 'fieldsMap'),
+                        'map-fields' => $form->getFieldLabels(),
+                        'map-fields-name' => HtmlForm::getInputName($form, 'fields'),
                     ]
                 ),
             ]
         ));
 ?>
 
-<?= $field->config($form, 'groups')
-        ->listBox(
-            $form->getGroupListOptions(),
-            [
-                'class' => 'form-control',
-                'multiple' => true,
-            ]
-        );
-?>
+<?= $field->select($form, 'groups', ['items()' => [$form->getGroupListOptions()], 'multiple()' => [true]]); ?>
 
-<?= Html::submitButton(
-    'Save',
-    [
-        'class' => 'btn btn-primary float-right mt-2',
-    ]
-); ?>
+<?= $field->submitButton()
+        ->class('btn btn-primary float-right mt-2')
+        ->value('Save'); ?>
 
 <?= Form::end(); ?>

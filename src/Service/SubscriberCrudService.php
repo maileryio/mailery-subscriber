@@ -24,16 +24,6 @@ use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 class SubscriberCrudService
 {
     /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
-     * @var SubscriberCounter
-     */
-    private SubscriberCounter $counter;
-
-    /**
      * @var Brand
      */
     private Brand $brand;
@@ -42,11 +32,10 @@ class SubscriberCrudService
      * @param ORMInterface $orm
      * @param SubscriberCounter $counter
      */
-    public function __construct(ORMInterface $orm, SubscriberCounter $counter)
-    {
-        $this->orm = $orm;
-        $this->counter = $counter;
-    }
+    public function __construct(
+        private ORMInterface $orm,
+        private SubscriberCounter $counter
+    ) {}
 
     /**
      * @param Brand $brand

@@ -26,7 +26,7 @@ use Yiisoft\Http\Header;
 use Yiisoft\Router\UrlGeneratorInterface as UrlGenerator;
 use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
-use Mailery\Brand\BrandLocatorInterface;
+use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Filter\GroupFilter;
 use Mailery\Subscriber\Filter\SubscriberFilter;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
@@ -36,6 +36,7 @@ use Mailery\Subscriber\Search\GroupSearchBy;
 use Mailery\Subscriber\Search\SubscriberSearchBy;
 use Yiisoft\Validator\ValidatorInterface;
 use Yiisoft\Session\Flash\FlashInterface;
+use Yiisoft\Router\CurrentRoute;
 
 class GroupController
 {
@@ -48,54 +49,27 @@ class GroupController
     private const PAGINATION_INDEX = 10;
 
     /**
-     * @var ViewRenderer
-     */
-    private ViewRenderer $viewRenderer;
-
-    /**
-     * @var ResponseFactory
-     */
-    private ResponseFactory $responseFactory;
-
-    /**
-     * @var GroupRepository
-     */
-    private GroupRepository $groupRepo;
-
-    /**
-     * @var SubscriberRepository
-     */
-    private SubscriberRepository $subscriberRepo;
-
-    /**
-     * @var GroupCrudService
-     */
-    private GroupCrudService $groupCrudService;
-
-    /**
      * @param ViewRenderer $viewRenderer
      * @param ResponseFactory $responseFactory
      * @param UrlGenerator $urlGenerator
-     * @param BrandLocatorInterface $brandLocator
      * @param GroupRepository $groupRepo
      * @param SubscriberRepository $subscriberRepo
      * @param GroupCrudService $groupCrudService
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        ViewRenderer $viewRenderer,
-        ResponseFactory $responseFactory,
-        UrlGenerator $urlGenerator,
-        BrandLocatorInterface $brandLocator,
-        GroupRepository $groupRepo,
-        SubscriberRepository $subscriberRepo,
-        GroupCrudService $groupCrudService
+        private ViewRenderer $viewRenderer,
+        private ResponseFactory $responseFactory,
+        private UrlGenerator $urlGenerator,
+        private GroupRepository $groupRepo,
+        private SubscriberRepository $subscriberRepo,
+        private GroupCrudService $groupCrudService,
+        BrandLocator $brandLocator
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
             ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
-        $this->responseFactory = $responseFactory;
-        $this->urlGenerator = $urlGenerator;
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
         $this->subscriberRepo = $subscriberRepo->withBrand($brandLocator->getBrand());
         $this->groupCrudService = $groupCrudService->withBrand($brandLocator->getBrand());
@@ -132,12 +106,13 @@ class GroupController
 
     /**
      * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @param SubscriberCounter $subscriberCounter
      * @return Response
      */
-    public function view(Request $request, SubscriberCounter $subscriberCounter): Response
+    public function view(Request $request, CurrentRoute $currentRoute, SubscriberCounter $subscriberCounter): Response
     {
-        $groupId = $request->getAttribute('id');
+        $groupId = $currentRoute->getArgument('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
@@ -203,15 +178,16 @@ class GroupController
 
     /**
      * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @param ValidatorInterface $validator
      * @param FlashInterface $flash
      * @param GroupForm $form
      * @return Response
      */
-    public function edit(Request $request, ValidatorInterface $validator, FlashInterface $flash, GroupForm $form): Response
+    public function edit(Request $request, CurrentRoute $currentRoute, ValidatorInterface $validator, FlashInterface $flash, GroupForm $form): Response
     {
         $body = $request->getParsedBody();
-        $groupId = $request->getAttribute('id');
+        $groupId = $currentRoute->getArgument('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
@@ -239,12 +215,12 @@ class GroupController
     }
 
     /**
-     * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @return Response
      */
-    public function delete(Request $request): Response
+    public function delete(CurrentRoute $currentRoute): Response
     {
-        $groupId = $request->getAttribute('id');
+        $groupId = $currentRoute->getArgument('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
@@ -257,18 +233,18 @@ class GroupController
     }
 
     /**
-     * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @param SubscriberCrudService $subscriberCrudService
      * @return Response
      */
-    public function deleteSubscriber(Request $request, SubscriberCrudService $subscriberCrudService): Response
+    public function deleteSubscriber(CurrentRoute $currentRoute, SubscriberCrudService $subscriberCrudService): Response
     {
-        $groupId = $request->getAttribute('id');
+        $groupId = $currentRoute->getArgument('id');
         if (empty($groupId) || ($group = $this->groupRepo->findByPK($groupId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
-        $subscriberId = $request->getAttribute('subscriberId');
+        $subscriberId = $currentRoute->getArgument('subscriberId');
         if (empty($subscriberId) || ($subscriber = $this->subscriberRepo->findByPK($subscriberId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }

@@ -36,11 +36,6 @@ class SubscriberCounter
     private ?Group $group = null;
 
     /**
-     * @var CounterFactory
-     */
-    private CounterFactory $counterFactory;
-
-    /**
      * @var array
      */
     private array $totalCounter = [];
@@ -68,10 +63,9 @@ class SubscriberCounter
     /**
      * @param CounterFactory $counterFactory
      */
-    public function __construct(CounterFactory $counterFactory)
-    {
-        $this->counterFactory = $counterFactory;
-    }
+    public function __construct(
+        private CounterFactory $counterFactory
+    ) {}
 
     /**
      * @param Brand $brand

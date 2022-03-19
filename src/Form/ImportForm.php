@@ -38,23 +38,17 @@ class ImportForm extends FormModel
     /**
      * @var array
      */
-    private array $fieldsMap = [];
+    private array $fields = [];
 
     /**
-     * @var GroupRepository
-     */
-    private GroupRepository $groupRepo;
-
-    /**
-     * @param BrandLocator $brandLocator
      * @param GroupRepository $groupRepo
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        BrandLocator $brandLocator,
-        GroupRepository $groupRepo
+        private GroupRepository $groupRepo,
+        BrandLocator $brandLocator
     ) {
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
-
         parent::__construct();
     }
 
@@ -99,13 +93,13 @@ class ImportForm extends FormModel
      */
     public function getFields(): array
     {
-        return $this->fieldsMap;
+        return $this->fields;
     }
 
     /**
      * @return array
      */
-    public function getFieldsMap(): array
+    public function getFieldLabels(): array
     {
         return [
             'name' => 'Name',
@@ -139,7 +133,7 @@ class ImportForm extends FormModel
                     InRange::rule(array_keys($this->getGroupListOptions())),
                 ]))->message('{error}')
             ],
-            'fieldsMap' => [
+            'fields' => [
                 Required::rule(),
             ],
         ];
@@ -159,121 +153,4 @@ class ImportForm extends FormModel
 
         return $options;
     }
-
-//
-
-//
-//    /**
-//     * @return Import|null
-//     */
-//    public function import(): ?Import
-//    {
-//        if (!$this->isValid()) {
-//            return null;
-//        }
-//
-//        $groupIds = $this['groups']->getValue();
-//
-//        $groups = $this->groupRepo->findAll([
-//            'id' => ['in' => new Parameter($groupIds)],
-//        ]);
-//
-//        $valueObject = ImportValueObject::fromForm($this)
-//            ->withBrand($this->brand)
-//            ->withGroups((array) $groups);
-//
-//        if (($import = $this->import) === null) {
-//            $import = $this->importCrudService->create($valueObject);
-//        } else {
-//            $this->importCrudService->update($import, $valueObject);
-//        }
-//
-//        return $import;
-//    }
-//
-//    /**
-//     * {@inheritdoc}
-//     */
-//    public function loadFromServerRequest(Request $request): Form
-//    {
-//        parent::loadFromServerRequest($request);
-//
-//        $parsedBody = (array) $request->getParsedBody();
-//        $this['groups']->setValue(array_map('intval', $parsedBody['groups'] ?? []));
-//
-//        $fieldsMap = [];
-//        foreach (array_keys($this->getFieldsMap()) as $field) {
-//            if (isset($parsedBody['fields'][$field])) {
-//                $fieldsMap[$field] = (int) $parsedBody['fields'][$field];
-//            }
-//        }
-//
-//        $this['fields[]']->setValue($fieldsMap);
-//
-//        return $this;
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    private function inputs(): array
-//    {
-//        $groupOptions = $this->getGroupListOptions();
-//
-//        $fileAttributes = [
-//            'map-fields' => json_encode($this->getFieldsMap()),
-//        ];
-//
-//        return [
-//            'groups' => F::select('Import to groups', $groupOptions, ['multiple' => true])
-//                ->addConstraint(new Constraints\NotBlank())
-//                ->addConstraint(new Constraints\Choice([
-//                    'choices' => array_keys($groupOptions),
-//                    'multiple' => true,
-//                ])),
-//            'file' => (new CsvImport('File in CSV format', $fileAttributes))
-//                ->addConstraint(new Constraints\Required())
-//                ->addConstraint(new Constraints\Callback([
-//                    'callback' => function ($value, ExecutionContextInterface $context) {
-//                        if (empty($value) || !isset($_FILES['file'])) {
-//                            return;
-//                        }
-//
-//                        $file = $_FILES['file'];
-//
-//                        $validator = Validation::createValidator();
-//                        $violations = $validator->validate(
-//                            new UploadedFile(
-//                                (string) $file['tmp_name'],
-//                                (string) $file['name'],
-//                                (string) $file['type'],
-//                                (int) $file['error']
-//                            ),
-//                            [
-//                                new Constraints\File([
-//                                    'maxSize' => '5M',
-//                                    'mimeTypes' => [
-//                                        'text/csv',
-//                                        'text/plain',
-//                                    ],
-//                                    'mimeTypesMessage' => 'Please upload a valid CSV file.',
-//                                ]),
-//                            ]
-//                        );
-//
-//                        foreach ($violations as $violation) {
-//                            $context->buildViolation($violation->getMessage())
-//                                ->atPath('file')
-//                                ->addViolation();
-//                        }
-//                    },
-//                ])),
-//            'fields[]' => F::hidden(),
-//
-//            '' => F::submit('Import'),
-//        ];
-//    }
-//
-
-//
 }

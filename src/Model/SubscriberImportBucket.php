@@ -9,24 +9,13 @@ use Mailery\Brand\BrandLocator;
 class SubscriberImportBucket implements BucketInterface
 {
     /**
-     * @var FilesystemInterface
-     */
-    private FilesystemInterface $filesystem;
-
-    /**
-     * @var BrandLocator
-     */
-    private BrandLocator $brandLocator;
-
-    /**
      * @param FilesystemInterface $filesystem
      * @param BrandLocator $brandLocator
      */
-    public function __construct(FilesystemInterface $filesystem, BrandLocator $brandLocator)
-    {
-        $this->filesystem = $filesystem;
-        $this->brandLocator = $brandLocator;
-    }
+    public function __construct(
+        private FilesystemInterface $filesystem,
+        private BrandLocator $brandLocator
+    ) {}
 
     /**
      * @return string

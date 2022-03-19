@@ -23,66 +23,38 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Yiisoft\Data\Reader\Sort;
 use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
-use Mailery\Brand\BrandLocatorInterface;
+use Mailery\Brand\BrandLocatorInterface as BrandLocator;
 use Mailery\Subscriber\Filter\ImportFilter;
 use Mailery\Widget\Search\Form\SearchForm;
 use Mailery\Widget\Search\Model\SearchByList;
 use Mailery\Subscriber\Search\ImportSearchBy;
 use Mailery\Storage\Filesystem\FileInfo;
+use Yiisoft\Router\CurrentRoute;
 
 class ImportController
 {
     private const PAGINATION_INDEX = 10;
 
     /**
-     * @var ViewRenderer
-     */
-    private ViewRenderer $viewRenderer;
-
-    /**
-     * @var ResponseFactory
-     */
-    private ResponseFactory $responseFactory;
-
-    /**
-     * @var ImportRepository
-     */
-    private ImportRepository $importRepo;
-
-    /**
-     * @var ImportErrorRepository
-     */
-    private ImportErrorRepository $importErrorRepo;
-
-    /**
-     * @var StorageService
-     */
-    private StorageService $storageService;
-
-    /**
      * @param ViewRenderer $viewRenderer
      * @param ResponseFactory $responseFactory
-     * @param BrandLocatorInterface $brandLocator
      * @param ImportRepository $importRepo
      * @param ImportErrorRepository $importErrorRepo
      * @param StorageService $storageService
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        ViewRenderer $viewRenderer,
-        ResponseFactory $responseFactory,
-        BrandLocatorInterface $brandLocator,
-        ImportRepository $importRepo,
-        ImportErrorRepository $importErrorRepo,
-        StorageService $storageService
+        private ViewRenderer $viewRenderer,
+        private ResponseFactory $responseFactory,
+        private ImportRepository $importRepo,
+        private ImportErrorRepository $importErrorRepo,
+        BrandLocator $brandLocator
     ) {
         $this->viewRenderer = $viewRenderer
             ->withController($this)
             ->withViewPath(dirname(dirname(__DIR__)) . '/views');
 
-        $this->responseFactory = $responseFactory;
         $this->importRepo = $importRepo->withBrand($brandLocator->getBrand());
-        $this->importErrorRepo = $importErrorRepo;
-        $this->storageService = $storageService;
     }
 
     /**
@@ -116,13 +88,14 @@ class ImportController
 
     /**
      * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @param ImportCounter $importCounter
      * @param FileInfo $fileInfo
      * @return Response
      */
-    public function view(Request $request, ImportCounter $importCounter, FileInfo $fileInfo): Response
+    public function view(Request $request, CurrentRoute $currentRoute, ImportCounter $importCounter, FileInfo $fileInfo): Response
     {
-        $importId = $request->getAttribute('id');
+        $importId = $currentRoute->getArgument('id');
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 

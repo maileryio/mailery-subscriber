@@ -31,7 +31,7 @@ class ImportValueObject
     /**
      * @var array
      */
-    private array $fieldsMap;
+    private array $fields;
 
     /**
      * @param ImportForm $form
@@ -42,7 +42,7 @@ class ImportValueObject
         $new = new self();
         $new->file = $form->getFile();
         $new->groups = $form->getGroups();
-        $new->fieldsMap = $form->getFieldsMap();
+        $new->fields = $form->getFields();
 
         return $new;
     }
@@ -66,9 +66,9 @@ class ImportValueObject
     /**
      * @return array
      */
-    public function getFieldsMap(): array
+    public function getFields(): array
     {
-        return $this->fieldsMap;
+        return $this->fields;
     }
 
 }

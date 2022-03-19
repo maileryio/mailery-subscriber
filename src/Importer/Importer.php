@@ -17,17 +17,11 @@ use Ddeboer\DataImport\Reader;
 class Importer implements ImporterInterface
 {
     /**
-     * @var Reader
-     */
-    private Reader $reader;
-
-    /**
      * @param Reader $reader
      */
-    public function __construct(Reader $reader)
-    {
-        $this->reader = $reader;
-    }
+    public function __construct(
+        private Reader $reader
+    ) {}
 
     /**
      * @param InterpreterInterface $interpreter

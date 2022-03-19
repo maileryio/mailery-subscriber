@@ -34,11 +34,6 @@ class ImportCounter
     private ?Import $import = null;
 
     /**
-     * @var CounterFactory
-     */
-    private CounterFactory $counterFactory;
-
-    /**
      * @var array
      */
     private array $insertedCounter = [];
@@ -56,10 +51,9 @@ class ImportCounter
     /**
      * @param CounterFactory $counterFactory
      */
-    public function __construct(CounterFactory $counterFactory)
-    {
-        $this->counterFactory = $counterFactory;
-    }
+    public function __construct(
+        private CounterFactory $counterFactory
+    ) {}
 
     /**
      * @param Brand $brand

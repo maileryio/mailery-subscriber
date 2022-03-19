@@ -24,7 +24,7 @@ use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
 
 #[Entity(
-    table: 'groups',
+    table: 'subscriber_groups',
     repository: GroupRepository::class,
     mapper: LoggableMapper::class
 )]

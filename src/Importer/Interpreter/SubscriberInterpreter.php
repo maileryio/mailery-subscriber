@@ -27,7 +27,7 @@ use Yiisoft\Validator\Rule\Email;
 use Yiisoft\Validator\Rule\HasLength;
 use Yiisoft\Validator\Rule\Required;
 use Yiisoft\Validator\DataSetInterface;
-use Yiisoft\Validator\ResultSet;
+use Yiisoft\Validator\Result;
 use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
 
 class SubscriberInterpreter implements InterpreterInterface
@@ -38,31 +38,15 @@ class SubscriberInterpreter implements InterpreterInterface
     private Import $import;
 
     /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
-     * @var SubscriberCrudService
-     */
-    private SubscriberCrudService $subscriberCrudService;
-
-    /**
-     * @var ImportCounter
-     */
-    private ImportCounter $importCounter;
-
-    /**
      * @param ORMInterface $orm
      * @param SubscriberCrudService $subscriberCrudService
      * @param ImportCounter $importCounter
      */
-    public function __construct(ORMInterface $orm, SubscriberCrudService $subscriberCrudService, ImportCounter $importCounter)
-    {
-        $this->orm = $orm;
-        $this->subscriberCrudService = $subscriberCrudService;
-        $this->importCounter = $importCounter;
-    }
+    public function __construct(
+        private ORMInterface $orm,
+        private SubscriberCrudService $subscriberCrudService,
+        private ImportCounter $importCounter
+    ) {}
 
     /**
      * @param Import $import
@@ -83,7 +67,7 @@ class SubscriberInterpreter implements InterpreterInterface
     {
         $attributes = [];
 
-        foreach ($this->import->getFieldsMap() as $field => $column) {
+        foreach ($this->import->getFields() as $field => $column) {
             $attributes[$field] = $line[$column] ?? null;
         }
 
@@ -91,16 +75,14 @@ class SubscriberInterpreter implements InterpreterInterface
             ->withGroups($this->import->getGroups()->toArray());
 
         $hasErrors = false;
-        foreach ($this->validate($valueObject) as $attribute => $result) {
-            if (is_string($attribute) && $result->isValid() === false) {
-                $hasErrors = true;
+        foreach ($this->validate($valueObject)->getErrorMessagesIndexedByAttribute() as $attribute => $errors) {
+            $hasErrors = true;
 
-                $this->flushError(
-                    $attribute,
-                    $valueObject->getAttributeValue($attribute),
-                    $result->getErrors()[0] ?? 'Unknown error'
-                );
-            }
+            $this->flushError(
+                $attribute,
+                $valueObject->getAttributeValue($attribute),
+                $errors[0] ?? 'Unknown error'
+            );
         }
 
         $this->flushSubscriberValueObject($valueObject, $hasErrors);
@@ -108,9 +90,9 @@ class SubscriberInterpreter implements InterpreterInterface
 
     /**
      * @param DataSetInterface $valueObject
-     * @return ResultSet
+     * @return Result
      */
-    private function validate(DataSetInterface $valueObject): ResultSet
+    private function validate(DataSetInterface $valueObject): Result
     {
         return (new Validator())
             ->validate(

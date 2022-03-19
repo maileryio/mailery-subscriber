@@ -22,29 +22,10 @@ use Mailery\Subscriber\Model\SubscriberImportBucket;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Brand\Entity\Brand;
 use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
+use Mailery\Subscriber\Fields\ImportStatus;
 
 class ImportCrudService
 {
-    /**
-     * @var ORMInterface
-     */
-    private ORMInterface $orm;
-
-    /**
-     * @var SubscriberImportBucket
-     */
-    private SubscriberImportBucket $bucket;
-
-    /**
-     * @var FileInfo
-     */
-    private FileInfo $fileInfo;
-
-    /**
-     * @var StorageService
-     */
-    private StorageService $storageService;
-
     /**
      * @var Brand
      */
@@ -57,16 +38,11 @@ class ImportCrudService
      * @param StorageService $storageService
      */
     public function __construct(
-        ORMInterface $orm,
-        SubscriberImportBucket $bucket,
-        FileInfo $fileInfo,
-        StorageService $storageService
-    ) {
-        $this->orm = $orm;
-        $this->bucket = $bucket;
-        $this->fileInfo = $fileInfo;
-        $this->storageService = $storageService;
-    }
+        private ORMInterface $orm,
+        private SubscriberImportBucket $bucket,
+        private FileInfo $fileInfo,
+        private StorageService $storageService
+    ) {}
 
     /**
      * @param Brand $brand
@@ -91,9 +67,9 @@ class ImportCrudService
         $import = (new Import())
             ->setBrand($this->brand)
             ->setFile($file)
-            ->setFieldsMap($valueObject->getFieldsMap())
+            ->setFields($valueObject->getFields())
             ->setTotalCount($this->getLineCount($file))
-            ->setIsPending()
+            ->setStatus(ImportStatus::asPending())
         ;
 
         foreach ($valueObject->getGroups() as $group) {

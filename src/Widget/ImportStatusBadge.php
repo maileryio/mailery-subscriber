@@ -73,35 +73,12 @@ class ImportStatusBadge extends Widget
     {
         $options = $this->options;
 
-        if ($this->import->getIsPending()) {
-            $label = 'Pending';
-            Html::addCssClass($options, 'badge badge-secondary');
-        } else {
-            if ($this->import->getIsRunning()) {
-                $label = 'Running';
-                Html::addCssClass($options, 'badge badge-info');
-            } else {
-                if ($this->import->getIsPaused()) {
-                    $label = 'Paused';
-                    Html::addCssClass($options, 'badge badge-warning');
-                } else {
-                    if ($this->import->getIsCompleted()) {
-                        $label = 'Completed';
-                        Html::addCssClass($options, 'badge badge-success');
-                    } else {
-                        if ($this->import->getIsErrored()) {
-                            $label = 'Completed';
-                            Html::addCssClass($options, 'badge badge-danger');
-                        } else {
-                            $label = 'Unknown';
-                            Html::addCssClass($options, 'badge badge-light');
-                        }
-                    }
-                }
-            }
-        }
+        Html::addCssClass($options, 'badge ' . $this->import->getStatus()->getCssClass());
 
-        return Html::tag($this->tag, $label, $options)
-            ->render();
+        return Html::tag(
+                $this->tag,
+                $this->import->getStatus()->getLabel(),
+                $options
+            )->render();
     }
 }

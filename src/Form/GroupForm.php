@@ -35,20 +35,14 @@ class GroupForm extends FormModel
     private ?Group $group = null;
 
     /**
-     * @var GroupRepository
-     */
-    private GroupRepository $groupRepo;
-
-    /**
-     * @param BrandLocator $brandLocator
      * @param GroupRepository $groupRepo
+     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        BrandLocator $brandLocator,
-        GroupRepository $groupRepo
+        private GroupRepository $groupRepo,
+        BrandLocator $brandLocator
     ) {
         $this->groupRepo = $groupRepo->withBrand($brandLocator->getBrand());
-
         parent::__construct();
     }
 

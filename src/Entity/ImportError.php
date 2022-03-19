@@ -21,13 +21,6 @@ use Cycle\Annotated\Annotation\Entity;
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
 
-/**
- * @Cycle\Annotated\Annotation\Entity(
- *      table = "subscriber_import_errors",
- *      repository = "Mailery\Subscriber\Repository\ImportErrorRepository",
- *      mapper = "Mailery\Subscriber\Mapper\DefaultMapper"
- * )
- */
 #[Entity(
     table: 'subscriber_import_errors',
     repository: ImportErrorRepository::class,
@@ -58,7 +51,7 @@ class ImportError implements LoggableEntityInterface
     private string $error;
 
     #[BelongsTo(target: Import::class, innerKey: 'subscriber_import_id')]
-    private $import;
+    private Import $import;
 
     #[Column(type: 'datetime')]
     private \DateTimeImmutable $createdAt;
@@ -71,7 +64,7 @@ class ImportError implements LoggableEntityInterface
      */
     public function __toString(): string
     {
-        return 'Import error #' . $this->getId();
+        return 'Import error #' . $this->getObjectId();
     }
 
     /**
