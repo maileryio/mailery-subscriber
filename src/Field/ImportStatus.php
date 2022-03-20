@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-namespace Mailery\Subscriber\Fields;
+namespace Mailery\Subscriber\Field;
 
 use Yiisoft\Translator\TranslatorInterface;
 

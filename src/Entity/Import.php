@@ -19,7 +19,7 @@ use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
 use Mailery\Storage\Entity\File;
 use Mailery\Subscriber\Repository\ImportRepository;
-use Mailery\Subscriber\Fields\ImportStatus;
+use Mailery\Subscriber\Field\ImportStatus;
 use Mailery\Activity\Log\Mapper\LoggableMapper;
 use Cycle\ORM\Collection\DoctrineCollectionFactory;
 use Cycle\ORM\Entity\Behavior;

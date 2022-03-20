@@ -22,7 +22,7 @@ use Mailery\Subscriber\Model\SubscriberImportBucket;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Brand\Entity\Brand;
 use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
-use Mailery\Subscriber\Fields\ImportStatus;
+use Mailery\Subscriber\Field\ImportStatus;
 
 class ImportCrudService
 {

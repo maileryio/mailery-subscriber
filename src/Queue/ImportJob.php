@@ -19,7 +19,7 @@ use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
 use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
-use Mailery\Subscriber\Fields\ImportStatus;
+use Mailery\Subscriber\Field\ImportStatus;
 
 class ImportJob
 {
