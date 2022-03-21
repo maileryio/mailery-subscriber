@@ -70,7 +70,6 @@ return [
                             '/subscriber/subscriber/view',
                             '/subscriber/subscriber/create',
                             '/subscriber/subscriber/edit',
-                            '/subscriber/subscriber/delete',
                             '/subscriber/subscriber/import',
                         ],
                     ],
@@ -86,7 +85,6 @@ return [
                             '/subscriber/group/view',
                             '/subscriber/group/create',
                             '/subscriber/group/edit',
-                            '/subscriber/group/delete',
                         ],
                     ],
                     'imports' => [
