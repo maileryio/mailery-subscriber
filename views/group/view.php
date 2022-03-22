@@ -33,7 +33,7 @@ $this->setTitle($group->getName());
                     <template v-slot:button-content>
                         <?= Icon::widget()->name('settings'); ?>
                     </template>
-                    <b-dropdown-item href="<?= $urlGenerator->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">Edit</b-dropdown-item>
+                    <b-dropdown-item href="<?= $url->generate('/subscriber/group/edit', ['id' => $group->getId()]); ?>">Edit</b-dropdown-item>
                     <?= ActivityLogLink::widget()
                         ->tag('b-dropdown-item')
                         ->label('Activity log')
@@ -44,19 +44,19 @@ $this->setTitle($group->getName());
                             ->csrf($csrf)
                             ->label('Delete group')
                             ->method('delete')
-                            ->href($urlGenerator->generate('/subscriber/group/delete', ['id' => $group->getId()]))
+                            ->href($url->generate('/subscriber/group/delete', ['id' => $group->getId()]))
                             ->confirm('Are you sure?')
                             ->options([
                                 'class' => 'btn btn-link text-decoration-none text-danger',
                             ]); ?>
                     </b-dropdown-text>
                 </b-dropdown>
-                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
+                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/create', ['groupId' => $group->getId()]); ?>">
                     <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
                     Add subscribers
                 </a>
                 <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/group/index'); ?>">
+                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/group/index'); ?>">
                         Back
                     </a>
                 </div>
@@ -67,7 +67,7 @@ $this->setTitle($group->getName());
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
-        <?php $dataRenderer = function ($paginator) use ($group, $urlGenerator) {
+        <?php $dataRenderer = function ($paginator) use ($group, $url) {
             return GridView::widget()
                 ->paginator($paginator)
                 ->options([
@@ -83,15 +83,15 @@ $this->setTitle($group->getName());
                 ->columns([
                     (new DataColumn())
                         ->header('Email')
-                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                        ->content(function (Subscriber $data, int $index) use ($url) {
                             return Html::a(
                                 $data->getEmail(),
-                                $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
+                                $url->generate('/subscriber/subscriber/view', ['id' => $data->getId()])
                             );
                         }),
                     (new DataColumn())
                         ->header('Name')
-                        ->content(function (Subscriber $data, int $index) use ($urlGenerator) {
+                        ->content(function (Subscriber $data, int $index) use ($url) {
                             return $data->getName();
                         }),
                     (new ActionColumn())
@@ -100,10 +100,10 @@ $this->setTitle($group->getName());
                         ])
                         ->header('Edit')
                         ->view('')
-                        ->update(function (Subscriber $data, int $index) use ($urlGenerator) {
+                        ->update(function (Subscriber $data, int $index) use ($url) {
                             return Html::a(
                                 Icon::widget()->name('pencil')->render(),
-                                $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
+                                $url->generate('/subscriber/subscriber/edit', ['id' => $data->getId()]),
                                 [
                                     'class' => 'text-decoration-none mr-3',
                                 ]
@@ -118,11 +118,11 @@ $this->setTitle($group->getName());
                         ->header('Delete')
                         ->view('')
                         ->update('')
-                        ->delete(function (Subscriber $data, int $index) use ($group, $urlGenerator) {
+                        ->delete(function (Subscriber $data, int $index) use ($group, $url) {
                             return Link::widget()
                                 ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render())
                                 ->method('delete')
-                                ->href($urlGenerator->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
+                                ->href($url->generate('/subscriber/group/delete-subscriber', ['id' => $group->getId(), 'subscriberId' => $data->getId()]))
                                 ->confirm('Are you sure?')
                                 ->options([
                                     'class' => 'text-decoration-none text-danger',
@@ -137,32 +137,32 @@ $this->setTitle($group->getName());
             ->items([
                 [
                     'label' => 'All <b-badge pill variant="info">' . $subscriberCounter->withGroup($group)->getTotalCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId()]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId()]),
                     'active' => empty($tab),
                 ],
                 [
                     'label' => 'Active <b-badge pill variant="success">' . $subscriberCounter->withGroup($group)->getActiveCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_ACTIVE]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_ACTIVE]),
                     'active' => $tab === GroupController::TAB_ACTIVE,
                 ],
                 [
                     'label' => 'Unconfirmed <b-badge pill variant="secondary">' . $subscriberCounter->withGroup($group)->getUnconfirmedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNCONFIRMED]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNCONFIRMED]),
                     'active' => $tab === GroupController::TAB_UNCONFIRMED,
                 ],
                 [
                     'label' => 'Unsubscribed <b-badge pill variant="warning">' . $subscriberCounter->withGroup($group)->getUnsubscribedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNSUBSCRIBED]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_UNSUBSCRIBED]),
                     'active' => $tab === GroupController::TAB_UNSUBSCRIBED,
                 ],
                 [
                     'label' => 'Bounced <b-badge pill variant="dark">' . $subscriberCounter->withGroup($group)->getBouncedCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_BOUNCED]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_BOUNCED]),
                     'active' => $tab === GroupController::TAB_BOUNCED,
                 ],
                 [
                     'label' => 'Marked as spam <b-badge pill variant="danger">' . $subscriberCounter->withGroup($group)->getComplaintCount() . '</b-badge>',
-                    'url' => $urlGenerator->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_COMPLAINT]),
+                    'url' => $url->generate('/subscriber/group/view', ['id' => $group->getId(), 'tab' => GroupController::TAB_COMPLAINT]),
                     'active' => $tab === GroupController::TAB_COMPLAINT,
                 ],
             ])
@@ -192,8 +192,8 @@ $this->setTitle($group->getName());
                                     ])
                                     ->prevPageLabel('Previous')
                                     ->nextPageLabel('Next')
-                                    ->urlGenerator(function (int $page) use ($urlGenerator, $tab) {
-                                        $url = $urlGenerator->generate('/subscriber/group/index');
+                                    ->urlGenerator(function (int $page) use ($url, $tab) {
+                                        $url = $url->generate('/subscriber/group/index');
                                         $params = array_filter([
                                             'tab' => $tab,
                                             'page' => $page > 1 ? $page : null,

@@ -16,11 +16,11 @@ $this->setTitle('Edit subscriber #' . $subscriber->getId());
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
             <h1 class="h3">Edit subscriber #<?= $subscriber->getId(); ?></h1>
             <div class="btn-toolbar float-right">
-                <a class="btn btn-sm btn-info mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]); ?>">
+                <a class="btn btn-sm btn-info mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/view', ['id' => $subscriber->getId()]); ?>">
                     <?= Icon::widget()->name('eye')->options(['class' => 'mr-1']); ?>
                     View
                 </a>
-                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/index'); ?>">
+                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/index'); ?>">
                     Back
                 </a>
             </div>

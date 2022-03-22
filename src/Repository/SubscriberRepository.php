@@ -49,7 +49,7 @@ class SubscriberRepository extends Repository
 
         return new OffsetPaginator(
             $dataReader->withSort(
-                Sort::only(['id'])->withOrder(['id' => 'DESC'])
+                Sort::only(['id'])->withOrder(['id' => 'desc'])
             )
         );
     }

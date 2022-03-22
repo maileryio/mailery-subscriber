@@ -17,7 +17,7 @@ $this->setTitle('Add subscribers');
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
             <h1 class="h3">Add subscribers</h1>
             <div class="btn-toolbar float-right">
-                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/index'); ?>">
+                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/index'); ?>">
                     Back
                 </a>
             </div>
@@ -36,12 +36,12 @@ $this->setTitle('Add subscribers');
             ->items([
                 [
                     'label' => 'Add single subscriber',
-                    'url' => $urlGenerator->generate('/subscriber/subscriber/create', $routeParams),
+                    'url' => $url->generate('/subscriber/subscriber/create', $routeParams),
                     'active' => $form instanceof SubscriberForm,
                 ],
                 [
                     'label' => 'Import from file',
-                    'url' => $urlGenerator->generate('/subscriber/subscriber/import', $routeParams),
+                    'url' => $url->generate('/subscriber/subscriber/import', $routeParams),
                     'active' => $form instanceof ImportForm,
                 ],
             ])

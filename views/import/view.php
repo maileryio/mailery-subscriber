@@ -4,9 +4,7 @@ use Mailery\Activity\Log\Widget\ActivityLogLink;
 use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Widget\ImportStatusBadge;
-use Mailery\Widget\Dataview\Columns\DataColumn;
-use Mailery\Widget\Dataview\GridView;
-use Mailery\Widget\Dataview\GridView\LinkPager;
+use Yiisoft\Yii\DataView\GridView;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -33,7 +31,7 @@ $this->setTitle($import->getFile()->getTitle());
                         ->entity($import); ?>
                 </b-dropdown>
                 <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/import/index'); ?>">
+                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/import/index'); ?>">
                         Back
                     </a>
                 </div>
@@ -58,9 +56,6 @@ $this->setTitle($import->getFile()->getTitle());
             </p>
             <p>Status: <?= ImportStatusBadge::widget()->import($import); ?></p>
         </div>
-<!--        <div>
-            <p class="text-muted text-right"><?= Icon::widget()->name('clock-outline')->options(['class' => 'mr-1']); ?> Time elapsed: <b>00:00:37</b> / 00:00:00 (approximate)</p>
-        </div>-->
         <div class="progress">
             <?php
                 $total = $import->getTotalCount();
@@ -110,7 +105,7 @@ $this->setTitle($import->getFile()->getTitle());
     <div class="col-12">
         <h3 class="h3">Import log</h3>
         <?= GridView::widget()
-            ->paginator($paginator)
+            ->layout("{items}\n<div class=\"mb-4\"></div>\n{summary}\n<div class=\"float-right\">{pager}</div>")
             ->options([
                 'class' => 'table-responsive',
             ])
@@ -121,50 +116,22 @@ $this->setTitle($import->getFile()->getTitle());
             ->emptyTextOptions([
                 'class' => 'text-center text-muted mt-4 mb-4',
             ])
+            ->paginator($paginator)
+            ->currentPage($paginator->getCurrentPage())
             ->columns([
-                (new DataColumn())
-                    ->header('Error message')
-                    ->content(function (ImportError $data, int $index) {
-                        return $data->getError();
-                    }),
-                (new DataColumn())
-                    ->header('Field')
-                    ->content(function (ImportError $data, int $index) {
-                        return $data->getName();
-                    }),
-                (new DataColumn())
-                    ->header('Value')
-                    ->content(function (ImportError $data, int $index) {
-                        return $data->getValue();
-                    }),
+                [
+                    'label()' => ['Error message'],
+                    'value()' => [fn (ImportError $model) => $model->getError()],
+                ],
+                [
+                    'label()' => ['Field'],
+                    'value()' => [fn (ImportError $model) => $model->getName()],
+                ],
+                [
+                    'label()' => ['Value'],
+                    'value()' => [fn (ImportError $model) => $model->getValue()],
+                ],
             ]);
         ?>
     </div>
-</div><?php
-if ($paginator->getTotalItems() > 0) {
-            ?><div class="mb-4"></div>
-    <div class="row">
-        <div class="col-6">
-            <?= GridView\OffsetSummary::widget()
-                ->paginator($paginator); ?>
-        </div>
-        <div class="col-6">
-            <?= LinkPager::widget()
-                ->paginator($paginator)
-                ->options([
-                    'class' => 'float-right',
-                ])
-                ->prevPageLabel('Previous')
-                ->nextPageLabel('Next')
-                ->urlGenerator(function (int $page) use ($urlGenerator) {
-                    $url = $urlGenerator->generate('/subscriber/import/index');
-                    if ($page > 1) {
-                        $url = $url . '?page=' . $page;
-                    }
-
-                    return $url;
-                }); ?>
-        </div>
-    </div><?php
-        }
-?>
+</div>

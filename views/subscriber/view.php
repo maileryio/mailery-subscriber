@@ -23,14 +23,14 @@ $this->setTitle($subscriber->getName());
                     ->csrf($csrf)
                     ->label(Icon::widget()->name('delete')->options(['class' => 'mr-1'])->render() . ' Delete')
                     ->method('delete')
-                    ->href($urlGenerator->generate('/subscriber/subscriber/delete', ['id' => $subscriber->getId()]))
+                    ->href($url->generate('/subscriber/subscriber/delete', ['id' => $subscriber->getId()]))
                     ->confirm('Are you sure?')
                     ->options([
                         'class' => 'btn btn-sm btn-danger mx-sm-1 mb-2',
                     ])
                     ->encode(false);
                 ?>
-                <a class="btn btn-sm btn-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/edit', ['id' => $subscriber->getId()]); ?>">
+                <a class="btn btn-sm btn-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/edit', ['id' => $subscriber->getId()]); ?>">
                     <?= Icon::widget()->name('pencil')->options(['class' => 'mr-1']); ?>
                     Update
                 </a>
@@ -44,7 +44,7 @@ $this->setTitle($subscriber->getName());
                         ->entity($subscriber); ?>
                 </b-dropdown>
                 <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/subscriber/subscriber/index'); ?>">
+                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/index'); ?>">
                         Back
                     </a>
                 </div>
