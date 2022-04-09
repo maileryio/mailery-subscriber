@@ -26,7 +26,7 @@ use Cycle\Annotated\Annotation\Relation\BelongsTo;
 #[Entity(
     table: 'subscriber_groups',
     repository: GroupRepository::class,
-    mapper: LoggableMapper::class
+    mapper: LoggableMapper::class,
 )]
 #[Behavior\CreatedAt(
     field: 'createdAt',

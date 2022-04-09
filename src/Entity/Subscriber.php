@@ -29,7 +29,7 @@ use Cycle\Annotated\Annotation\Relation\BelongsTo;
 #[Entity(
     table: 'subscribers',
     repository: SubscriberRepository::class,
-    mapper: LoggableMapper::class
+    mapper: LoggableMapper::class,
 )]
 #[Behavior\CreatedAt(
     field: 'createdAt',

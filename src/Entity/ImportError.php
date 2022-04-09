@@ -24,7 +24,7 @@ use Cycle\Annotated\Annotation\Relation\BelongsTo;
 #[Entity(
     table: 'subscriber_import_errors',
     repository: ImportErrorRepository::class,
-    mapper: LoggableMapper::class
+    mapper: LoggableMapper::class,
 )]
 #[Behavior\CreatedAt(
     field: 'createdAt',

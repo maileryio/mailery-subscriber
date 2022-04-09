@@ -21,7 +21,7 @@ use Cycle\Annotated\Annotation\Column;
 
 #[Entity(
     table: 'subscriber_imports_subscriber_groups',
-    mapper: LoggableMapper::class
+    mapper: LoggableMapper::class,
 )]
 #[Behavior\CreatedAt(
     field: 'createdAt',
