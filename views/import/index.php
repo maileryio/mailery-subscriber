@@ -7,6 +7,7 @@ use Mailery\Subscriber\Widget\ImportStatusBadge;
 use Mailery\Widget\Search\Widget\SearchWidget;
 use Yiisoft\Html\Html;
 use Yiisoft\Yii\DataView\GridView;
+use Mailery\Web\Widget\DateTimeFormat;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
@@ -63,7 +64,7 @@ $this->setTitle('Import lists');
                     'label()' => ['Date'],
                     'value()' => [static function (Import $model) use ($url) {
                         return Html::a(
-                            $model->getCreatedAt()->format('Y-m-d H:i:s'),
+                            DateTimeFormat::widget()->dateTime($model->getCreatedAt())->run(),
                             $url->generate('/subscriber/import/view', ['id' => $model->getId()])
                         );
                     }],
