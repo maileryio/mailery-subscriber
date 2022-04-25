@@ -1,5 +1,6 @@
 <?php
 
+use Mailery\Widget\Select\Select;
 use Yiisoft\Html\Html;
 use Yiisoft\Form\Widget\Form;
 use Yiisoft\Form\Helper\HtmlForm;
@@ -33,7 +34,17 @@ use Yiisoft\Form\Helper\HtmlForm;
         ));
 ?>
 
-<?= $field->select($form, 'groups', ['items()' => [$form->getGroupListOptions()], 'multiple()' => [true]]); ?>
+<?= $field->select(
+        $form,
+        'groups',
+        [
+            'class' => Select::class,
+            'items()' => [$form->getGroupListOptions()],
+            'multiple()' => [true],
+            'taggable()' => [true],
+            'deselectFromDropdown()' => [true],
+        ]
+    ); ?>
 
 <?= $field->submitButton()
         ->class('btn btn-primary float-right mt-2')

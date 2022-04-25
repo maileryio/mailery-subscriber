@@ -32,6 +32,7 @@
         "maileryio/widget-dataview": "dev-master",
         "maileryio/widget-link": "dev-master",
         "maileryio/widget-search": "dev-master",
+        "maileryio/widget-select": "dev-master",
         "ramsey/uuid": "^4.0",
         "symfony/http-foundation": "^5.1"
     },

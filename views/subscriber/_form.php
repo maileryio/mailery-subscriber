@@ -1,5 +1,6 @@
 <?php
 
+use Mailery\Widget\Select\Select;
 use Yiisoft\Form\Widget\Form;
 
 /** @var Yiisoft\Form\Widget\Field $field */
@@ -18,9 +19,28 @@ use Yiisoft\Form\Widget\Form;
 
 <?= $field->text($form, 'email'); ?>
 
-<?= $field->select($form, 'groups', ['items()' => [$form->getGroupListOptions()], 'multiple()' => [true]]); ?>
+<?= $field->select(
+        $form,
+        'groups',
+        [
+            'class' => Select::class,
+            'items()' => [$form->getGroupListOptions()],
+            'multiple()' => [true],
+            'taggable()' => [true],
+            'deselectFromDropdown()' => [true],
+        ]
+    ); ?>
 
-<?= $field->select($form, 'confirmed', ['items()' => [$form->getConfirmedListOptions()]]); ?>
+<?= $field->select(
+        $form,
+        'confirmed',
+        [
+            'class' => Select::class,
+            'items()' => [$form->getConfirmedListOptions()],
+            'clearable()' => [false],
+            'searchable()' => [false],
+        ]
+    ); ?>
 
 <?= $field->submitButton()
         ->class('btn btn-primary float-right mt-2')
