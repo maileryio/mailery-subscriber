@@ -19,7 +19,6 @@ use Yiisoft\Yii\Bootstrap5\Nav;
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
-/** @var bool $submitted */
 
 $this->setTitle($group->getName());
 

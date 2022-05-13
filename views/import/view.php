@@ -12,7 +12,6 @@ use Yiisoft\Yii\DataView\GridView;
 /** @var Mailery\Subscriber\Counter\ImportCounter $importCounter */
 /** @var Mailery\Storage\Filesystem\FileInfo $fileInfo */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
-/** @var bool $submitted */
 
 $this->setTitle($import->getFile()->getTitle());
 
