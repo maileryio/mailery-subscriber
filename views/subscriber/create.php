@@ -14,56 +14,70 @@ $this->setTitle('Add subscribers');
 
 ?><div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h3">Add subscribers</h1>
-            <div class="btn-toolbar float-right">
-                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/index'); ?>">
-                    Back
-                </a>
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md">
+                        <h4 class="mb-0">Add subscribers</h4>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-toolbar float-right">
+                            <a class="btn btn-sm btn-outline-secondary mx-sm-1" href="<?= $url->generate('/subscriber/subscriber/index'); ?>">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
-        <?php
-            $routeParams = array_filter([
-                'groupId' => $group !== null ? $group->getId() : null,
-            ]);
-        ?>
-        <?= Nav::widget()
-            ->items([
-                [
-                    'label' => 'Add single subscriber',
-                    'url' => $url->generate('/subscriber/subscriber/create', $routeParams),
-                    'active' => $form instanceof SubscriberForm,
-                ],
-                [
-                    'label' => 'Import from file',
-                    'url' => $url->generate('/subscriber/subscriber/import', $routeParams),
-                    'active' => $form instanceof ImportForm,
-                ],
-            ])
-            ->options([
-                'class' => 'nav nav-tabs',
-            ]);
-        ?>
+        <div class="card mb-3">
+            <div class="card-body">
+                <?php
+                    $routeParams = array_filter([
+                        'groupId' => $group !== null ? $group->getId() : null,
+                    ]);
+                ?>
+                <?= Nav::widget()
+                    ->items([
+                        [
+                            'label' => 'Add single subscriber',
+                            'url' => $url->generate('/subscriber/subscriber/create', $routeParams),
+                            'active' => $form instanceof SubscriberForm,
+                        ],
+                        [
+                            'label' => 'Import from file',
+                            'url' => $url->generate('/subscriber/subscriber/import', $routeParams),
+                            'active' => $form instanceof ImportForm,
+                        ],
+                    ])
+                    ->options([
+                        'class' => 'nav nav-tabs nav-tabs-bordered font-weight-bold',
+                    ])
+                    ->withoutEncodeLabels();
+                ?>
 
-        <div class="mb-4"></div>
-        <div class="tab-content">
-            <div class="tab-pane fade show active" role="tabpanel">
-                <div class="row"><?php
-                    if ($form instanceof SubscriberForm) {
-                        ?><div class="col-6">
-                            <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
-                        </div><?php
-                    } else if ($form instanceof ImportForm) {
-                        ?><div class="col-6">
-                            <?= $this->render('_import', compact('csrf', 'field', 'form')) ?>
-                        </div><?php
-                    }
-                ?></div>
+                <div class="mb-4"></div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" role="tabpanel">
+                        <div class="row"><?php
+                            if ($form instanceof SubscriberForm) {
+                                ?><div class="col-6">
+                                    <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+                                </div><?php
+                            } else if ($form instanceof ImportForm) {
+                                ?><div class="col-6">
+                                    <?= $this->render('_import', compact('csrf', 'field', 'form')) ?>
+                                </div><?php
+                            }
+                        ?></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -21,80 +21,93 @@ $this->setTitle('Import lists');
 
 ?><div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h3">Import lists</h1>
-            <div class="btn-toolbar float-right">
-                <?= SearchWidget::widget()->form($searchForm); ?>
-                <b-dropdown right size="sm" variant="secondary" class="mb-2">
-                    <template v-slot:button-content>
-                        <?= Icon::widget()->name('settings'); ?>
-                    </template>
-                    <?= ActivityLogLink::widget()
-                        ->tag('b-dropdown-item')
-                        ->label('Activity log')
-                        ->group('subscriber'); ?>
-                </b-dropdown>
-                    <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/import'); ?>">
-                    <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
-                    Import subscribers
-                </a>
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md">
+                        <h4 class="mb-0">Import lists</h4>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-toolbar float-right">
+                            <?= SearchWidget::widget()->form($searchForm); ?>
+                            <b-dropdown right size="sm" variant="secondary" class="mb-2">
+                                <template v-slot:button-content>
+                                    <?= Icon::widget()->name('settings'); ?>
+                                </template>
+                                <?= ActivityLogLink::widget()
+                                    ->tag('b-dropdown-item')
+                                    ->label('Activity log')
+                                    ->group('subscriber'); ?>
+                            </b-dropdown>
+                                <a class="btn btn-sm btn-primary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/subscriber/import'); ?>">
+                                <?= Icon::widget()->name('plus')->options(['class' => 'mr-1']); ?>
+                                Import subscribers
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
-        <?= GridView::widget()
-            ->layout("{items}\n<div class=\"mb-4\"></div>\n{summary}\n<div class=\"float-right\">{pager}</div>")
-            ->options([
-                'class' => 'table-responsive',
-            ])
-            ->tableOptions([
-                'class' => 'table table-hover',
-            ])
-            ->emptyText('No data')
-            ->emptyTextOptions([
-                'class' => 'text-center text-muted mt-4 mb-4',
-            ])
-            ->paginator($paginator)
-            ->currentPage($paginator->getCurrentPage())
-            ->columns([
-                [
-                    'label()' => ['Date'],
-                    'value()' => [static function (Import $model) use ($url) {
-                        return Html::a(
-                            DateTimeFormat::widget()->dateTime($model->getCreatedAt())->run(),
-                            $url->generate('/subscriber/import/view', ['id' => $model->getId()])
-                        );
-                    }],
-                ],
-                [
-                    'label()' => ['File name'],
-                    'value()' => [static function (Import $model) use ($url) {
-                        return Html::a(
-                            $model->getFile()->getTitle(),
-                            $url->generate('/storage/file/download', ['id' => $model->getFile()->getId()])
-                        );
-                    }],
-                ],
-                [
-                    'label()' => ['Inserted'],
-                    'value()' => [fn (Import $model) => $importCounter->withImport($model)->getInsertedCount()],
-                ],
-                [
-                    'label()' => ['Updated'],
-                    'value()' => [fn (Import $model) => $importCounter->withImport($model)->getUpdatedCount()],
-                ],
-                [
-                    'label()' => ['Skiped'],
-                    'value()' => [fn (Import $model) => $importCounter->withImport($model)->getSkippedCount()],
-                ],
-                [
-                    'label()' => ['Status'],
-                    'value()' => [fn (Import $model) => ImportStatusBadge::widget()->import($model)],
-                ],
-            ]);
-        ?>
+        <div class="card mb-3">
+            <div class="card-body">
+                <?= GridView::widget()
+                    ->layout("{items}\n<div class=\"mb-4\"></div>\n{summary}\n<div class=\"float-right\">{pager}</div>")
+                    ->options([
+                        'class' => 'table-responsive',
+                    ])
+                    ->tableOptions([
+                        'class' => 'table table-hover',
+                    ])
+                    ->emptyText('No data')
+                    ->emptyTextOptions([
+                        'class' => 'text-center text-muted mt-4 mb-4',
+                    ])
+                    ->paginator($paginator)
+                    ->currentPage($paginator->getCurrentPage())
+                    ->columns([
+                        [
+                            'label()' => ['Date'],
+                            'value()' => [static function (Import $model) use ($url) {
+                                return Html::a(
+                                    DateTimeFormat::widget()->dateTime($model->getCreatedAt())->run(),
+                                    $url->generate('/subscriber/import/view', ['id' => $model->getId()])
+                                );
+                            }],
+                        ],
+                        [
+                            'label()' => ['File name'],
+                            'value()' => [static function (Import $model) use ($url) {
+                                return Html::a(
+                                    $model->getFile()->getTitle(),
+                                    $url->generate('/storage/file/download', ['id' => $model->getFile()->getId()])
+                                );
+                            }],
+                        ],
+                        [
+                            'label()' => ['Inserted'],
+                            'value()' => [fn (Import $model) => $importCounter->withImport($model)->getInsertedCount()],
+                        ],
+                        [
+                            'label()' => ['Updated'],
+                            'value()' => [fn (Import $model) => $importCounter->withImport($model)->getUpdatedCount()],
+                        ],
+                        [
+                            'label()' => ['Skiped'],
+                            'value()' => [fn (Import $model) => $importCounter->withImport($model)->getSkippedCount()],
+                        ],
+                        [
+                            'label()' => ['Status'],
+                            'value()' => [fn (Import $model) => ImportStatusBadge::widget()->import($model)],
+                        ],
+                    ]);
+                ?>
+            </div>
+        </div>
     </div>
 </div>
