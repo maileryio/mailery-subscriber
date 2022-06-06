@@ -121,6 +121,14 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     }
 
     /**
+     * @return \DateTimeImmutable
+     */
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getIndexRouteName(): ?string
