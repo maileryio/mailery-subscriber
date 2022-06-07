@@ -4,6 +4,7 @@ use Mailery\Activity\Log\Widget\ActivityLogLink;
 use Mailery\Icon\Icon;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Widget\ImportStatusBadge;
+use Mailery\Web\Widget\ByteUnitsFormat;
 use Mailery\Web\Widget\DateTimeFormat;
 use Yiisoft\Yii\DataView\GridView;
 
@@ -52,21 +53,12 @@ $this->setTitle($import->getFile()->getTitle());
                     <div class="col-12">
                         <div>
                             <p>File name: <b><?= $import->getFile()->getTitle(); ?></b></p>
-                            <p>File size:
-                                <b><?php
-                                    $fileSize = $fileInfo->getFileSize();
-                                    if ($fileSize > 1000000) {
-                                        echo ByteUnits\bytes($fileSize)->format('MB', ' ');
-                                    } else {
-                                        echo ByteUnits\bytes($fileSize)->format('kB', ' ');
-                                    }
-                                ?></b>
-                            </p>
+                            <p>File size: <b><?= ByteUnitsFormat::widget()->bytes($fileInfo->getFileSize()) ?></b></p>
                             <p>Status: <?= ImportStatusBadge::widget()->import($import); ?></p>
                         </div>
                         <div class="progress">
                             <?php
-                                $total = $import->getTotalCount();
+                                $total = $importCounter->getTotalCount();
                                 $processed = $importCounter->getProcessedCount();
                                 $progress = $processed > 0 ? round(($processed / $total) * 100, 2) : 0;
                                 $percent = $progress > 100 ? 100 : $progress;
@@ -87,7 +79,7 @@ $this->setTitle($import->getFile()->getTitle());
             <div class="card-body text-center">
                 <h4 class="h6">New subscribers added</h4>
                 <span class="badge badge-pill badge-success" style="font-size: 20px">
-                    <?= $importCounter->getInsertedCount(); ?>
+                    <?= $importCounter->getCreatedCount(); ?>
                 </span>
             </div>
         </div>

@@ -14,14 +14,15 @@ namespace Mailery\Subscriber\Importer\Interpreter;
 
 use Cycle\ORM\ORMInterface;
 use Mailery\Brand\Entity\Brand;
-use Mailery\Subscriber\Counter\ImportCounter;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Importer\InterpreterInterface;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Service\SubscriberCrudService;
+use Mailery\Subscriber\Service\ImportCrudService;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
+use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Yiisoft\Validator\Validator;
 use Yiisoft\Validator\Rule\Email;
 use Yiisoft\Validator\Rule\HasLength;
@@ -40,12 +41,12 @@ class SubscriberInterpreter implements InterpreterInterface
     /**
      * @param ORMInterface $orm
      * @param SubscriberCrudService $subscriberCrudService
-     * @param ImportCounter $importCounter
+     * @param ImportCrudService $importCrudService
      */
     public function __construct(
         private ORMInterface $orm,
         private SubscriberCrudService $subscriberCrudService,
-        private ImportCounter $importCounter
+        private ImportCrudService $importCrudService
     ) {}
 
     /**
@@ -122,11 +123,8 @@ class SubscriberInterpreter implements InterpreterInterface
         $error = (new ImportError())
             ->setImport($this->import)
             ->setName($attribute)
-            ->setError($message);
-
-        if ($value) {
-            $error->setValue($value);
-        }
+            ->setError($message)
+            ->setValue((string) $value);
 
         (new EntityWriter($this->orm))->write([$error]);
     }
@@ -139,21 +137,29 @@ class SubscriberInterpreter implements InterpreterInterface
     private function flushSubscriberValueObject(SubscriberValueObject $valueObject, bool $hasErrors): void
     {
         $repo = $this->getSubscriberRepository($this->import->getBrand());
-        $counter = $this->importCounter->withImport($this->import);
-
-        if ($hasErrors) {
-            $counter->incrSkippedCount();
-            return;
-        }
-
         $subscriberCrudService = $this->subscriberCrudService->withBrand($this->import->getBrand());
 
-        if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
-            $subscriberCrudService->create($valueObject);
-            $counter->incrInsertedCount();
+        if (!$hasErrors) {
+            if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
+                $subscriberCrudService->create($valueObject);
+
+                $this->importCrudService->update(
+                    $this->import,
+                    ImportValueObject::fromEntity($this->import)->incrCreatedCount()
+                );
+            } else {
+                $subscriberCrudService->update($subscriber, $valueObject);
+
+                $this->importCrudService->update(
+                    $this->import,
+                    ImportValueObject::fromEntity($this->import)->incrUpdatedCount()
+                );
+            }
         } else {
-            $subscriberCrudService->update($subscriber, $valueObject);
-            $counter->incrUpdatedCount();
+            $this->importCrudService->update(
+                $this->import,
+                ImportValueObject::fromEntity($this->import)->incrSkippedCount()
+            );
         }
     }
 

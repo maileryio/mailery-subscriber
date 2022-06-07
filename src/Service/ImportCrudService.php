@@ -68,6 +68,9 @@ class ImportCrudService
             ->setBrand($this->brand)
             ->setFile($file)
             ->setFields($valueObject->getFields())
+            ->setCreatedCount(0)
+            ->setUpdatedCount(0)
+            ->setSkippedCount(0)
             ->setTotalCount($this->getLineCount($file))
             ->setStatus(ImportStatus::asPending())
         ;
@@ -75,6 +78,25 @@ class ImportCrudService
         foreach ($valueObject->getGroups() as $group) {
             $import->getGroups()->add($group);
         }
+
+        (new EntityWriter($this->orm))->write([$import]);
+
+        return $import;
+    }
+
+    /**
+     * @param Import $import
+     * @param ImportValueObject $valueObject
+     * @return Import
+     */
+    public function update(Import $import, ImportValueObject $valueObject): Import
+    {
+        $import = $import
+            ->setCreatedCount($valueObject->getCreatedCount())
+            ->setUpdatedCount($valueObject->getUpdatedCount())
+            ->setSkippedCount($valueObject->getSkippedCount())
+            ->setStatus($valueObject->getStatus())
+        ;
 
         (new EntityWriter($this->orm))->write([$import]);
 

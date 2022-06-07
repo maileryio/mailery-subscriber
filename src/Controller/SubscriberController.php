@@ -208,8 +208,10 @@ class SubscriberController
 
         $groupId = $request->getQueryParams()['groupId'] ?? null;
         $group = $groupId ? $this->groupRepo->findByPK($groupId) : null;
+        $form->load($files);
+        $form->load($body);
 
-        if (($request->getMethod() === Method::POST) && $form->load($body) && $form->load($files) && $validator->validate($form)->isValid()) {
+        if (($request->getMethod() === Method::POST) && $form->load($files) && $form->load($body) && $validator->validate($form)->isValid()) {
             $valueObject = ImportValueObject::fromForm($form);
             $import = $this->importCrudService->create($valueObject);
 

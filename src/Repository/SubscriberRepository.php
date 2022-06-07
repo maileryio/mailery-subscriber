@@ -14,6 +14,7 @@ namespace Mailery\Subscriber\Repository;
 
 use Cycle\ORM\Select\QueryBuilder;
 use Cycle\ORM\Select\Repository;
+use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Yiisoft\Yii\Cycle\Data\Reader\EntityReader;
 use Mailery\Brand\Entity\Brand;
@@ -55,6 +56,66 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @param bool $confirmed
+     * @return self
+     */
+    public function asConfirmed(bool $confirmed): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'confirmed' => $confirmed,
+            ]);
+
+        return $repo;
+    }
+
+    /**
+     * @param bool $unsubscribed
+     * @return self
+     */
+    public function asUnsubscribed(bool $unsubscribed): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'unsubscribed' => $unsubscribed,
+            ]);
+
+        return $repo;
+    }
+
+    /**
+     * @param bool $bounced
+     * @return self
+     */
+    public function asBounced(bool $bounced): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'bounced' => $bounced,
+            ]);
+
+        return $repo;
+    }
+
+    /**
+     * @param bool $complaint
+     * @return self
+     */
+    public function asComplaint(bool $complaint): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'complaint' => $complaint,
+            ]);
+
+        return $repo;
+    }
+
+    /**
      * @param Brand $brand
      * @return self
      */
@@ -64,6 +125,22 @@ class SubscriberRepository extends Repository
         $repo->select
             ->andWhere([
                 'brand_id' => $brand->getId(),
+            ]);
+
+        return $repo;
+    }
+
+    /**
+     * @param Group $group
+     * @return self
+     */
+    public function withGroup(Group $group): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->with('groups')
+            ->where([
+                'groups.id' => $group->getId(),
             ]);
 
         return $repo;

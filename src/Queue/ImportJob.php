@@ -12,26 +12,25 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Queue;
 
-use Cycle\ORM\ORMInterface;
 use Ddeboer\DataImport\Reader\CsvReader;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
-use Yiisoft\Yii\Cycle\Data\Writer\EntityWriter;
-use Mailery\Subscriber\Field\ImportStatus;
+use Mailery\Subscriber\Service\ImportCrudService;
+use Mailery\Subscriber\ValueObject\ImportValueObject;
 
 class ImportJob
 {
     /**
-     * @param ORMInterface $orm
      * @param FileInfo $fileInfo
      * @param SubscriberInterpreter $interpreter
+     * @param ImportCrudService $importCrudService
      */
     public function __construct(
-        private ORMInterface $orm,
         private FileInfo $fileInfo,
-        private SubscriberInterpreter $interpreter
+        private SubscriberInterpreter $interpreter,
+        private ImportCrudService $importCrudService
     ) {}
 
     /**
@@ -64,9 +63,10 @@ class ImportJob
      */
     private function beforeExecute(): void
     {
-        $this->import->setStatus(ImportStatus::asRunning());
-
-        (new EntityWriter($this->orm))->write([$this->import]);
+        $this->importCrudService->update(
+            $this->import,
+            ImportValueObject::fromEntity($this->import)->asRunning()
+        );
     }
 
     /**
@@ -74,9 +74,10 @@ class ImportJob
      */
     private function afterExecute(): void
     {
-        $this->import->setStatus(ImportStatus::asCompleted());
-
-        (new EntityWriter($this->orm))->write([$this->import]);
+        $this->importCrudService->update(
+            $this->import,
+            ImportValueObject::fromEntity($this->import)->asCompleted()
+        );
     }
 
     /**
@@ -84,9 +85,10 @@ class ImportJob
      */
     private function thrownExecute(): void
     {
-        $this->import->setStatus(ImportStatus::asErrored());
-
-        (new EntityWriter($this->orm))->write([$this->import]);
+        $this->importCrudService->update(
+            $this->import,
+            ImportValueObject::fromEntity($this->import)->asErrored()
+        );
     }
 
     /**

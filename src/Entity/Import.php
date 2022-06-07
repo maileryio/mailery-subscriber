@@ -65,6 +65,15 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     private ImportStatus $status;
 
     #[Column(type: 'integer')]
+    private int $createdCount;
+
+    #[Column(type: 'integer')]
+    private int $updatedCount;
+
+    #[Column(type: 'integer')]
+    private int $skippedCount;
+
+    #[Column(type: 'integer')]
     private int $totalCount;
 
     #[Column(type: 'json')]
@@ -200,6 +209,63 @@ class Import implements RoutableEntityInterface, LoggableEntityInterface
     public function setStatus(ImportStatus $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCreatedCount(): int
+    {
+        return $this->createdCount;
+    }
+
+    /**
+     * @param int $createdCount
+     * @return self
+     */
+    public function setCreatedCount(int $createdCount): self
+    {
+        $this->createdCount = $createdCount;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUpdatedCount(): int
+    {
+        return $this->updatedCount;
+    }
+
+    /**
+     * @param int $updatedCount
+     * @return self
+     */
+    public function setUpdatedCount(int $updatedCount): self
+    {
+        $this->updatedCount = $updatedCount;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSkippedCount(): int
+    {
+        return $this->skippedCount;
+    }
+
+    /**
+     * @param int $skippedCount
+     * @return self
+     */
+    public function setSkippedCount(int $skippedCount): self
+    {
+        $this->skippedCount = $skippedCount;
 
         return $this;
     }

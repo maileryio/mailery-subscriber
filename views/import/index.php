@@ -90,16 +90,19 @@ $this->setTitle('Import lists');
                             }],
                         ],
                         [
-                            'label()' => ['Inserted'],
-                            'value()' => [fn (Import $model) => $importCounter->withImport($model)->getInsertedCount()],
+                            'label()' => ['Created'],
+                            'value()' => [fn (Import $model) => $importCounter->withImport($model)->getCreatedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Updated'],
                             'value()' => [fn (Import $model) => $importCounter->withImport($model)->getUpdatedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
-                            'label()' => ['Skiped'],
+                            'label()' => ['Skipped'],
                             'value()' => [fn (Import $model) => $importCounter->withImport($model)->getSkippedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Status'],
