@@ -147,6 +147,26 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @param Group[] $groups
+     * @return self
+     */
+    public function withGroups(Group ...$groups): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->with('groups')
+            ->where(function(\Cycle\ORM\Select\QueryBuilder $select) use($groups) {
+                foreach($groups as $group) {
+                    $select->orWhere([
+                        'groups.id' => $group->getId(),
+                    ]);
+                }
+            });
+
+        return $repo;
+    }
+
+    /**
      * @param string $email
      * @param Subscriber|null $exclude
      * @return Subscriber|null

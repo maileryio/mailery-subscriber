@@ -51,6 +51,18 @@ class SubscriberCounter
     }
 
     /**
+     * @param Group $group
+     * @return self
+     */
+    public function withGroups(Group ...$groups): self
+    {
+        $new = clone $this;
+        $new->repo = $new->repo->withGroups(...$groups);
+
+        return $new;
+    }
+
+    /**
      * @return int
      */
     public function getTotalCount(): int
