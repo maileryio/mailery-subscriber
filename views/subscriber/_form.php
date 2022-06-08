@@ -36,7 +36,7 @@ use Yiisoft\Form\Widget\Form;
         'confirmed',
         [
             'class' => Select::class,
-            'items()' => [$form->getConfirmedListOptions()],
+            'items()' => [$form->getBooleanListOptions()],
             'clearable()' => [false],
             'searchable()' => [false],
         ]

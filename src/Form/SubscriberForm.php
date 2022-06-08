@@ -41,9 +41,9 @@ class SubscriberForm extends FormModel
     private ?string $email = null;
 
     /**
-     * @var int
+     * @var bool
      */
-    private int $confirmed = 0;
+    private bool $confirmed = false;
 
     /**
      * @var array
@@ -80,7 +80,7 @@ class SubscriberForm extends FormModel
         $new->subscriber = $subscriber;
         $new->name = $subscriber->getName();
         $new->email = $subscriber->getEmail();
-        $new->confirmed = (int) $subscriber->getConfirmed();
+        $new->confirmed = $subscriber->getConfirmed();
         $new->groups = $subscriber->getGroups()->map(
             fn (Group $group) => $group->getId()
         )->toArray();
@@ -125,7 +125,7 @@ class SubscriberForm extends FormModel
      */
     public function getConfirmed(): bool
     {
-        return (bool) $this->confirmed;
+        return $this->confirmed;
     }
 
     /**
@@ -150,7 +150,7 @@ class SubscriberForm extends FormModel
         return [
             'name' => 'Name',
             'email' => 'Email',
-            'groups' => 'Add to groups',
+            'groups' => 'Groups',
             'confirmed' => 'Confirmed',
         ];
     }
@@ -210,7 +210,7 @@ class SubscriberForm extends FormModel
     /**
      * @return array
      */
-    public function getConfirmedListOptions(): array
+    public function getBooleanListOptions(): array
     {
         return [
             0 => 'No',
