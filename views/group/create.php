@@ -11,15 +11,32 @@ $this->setTitle('New group');
 
 ?><div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h3">New group</h1>
-            <div class="btn-toolbar float-right">
-                <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/group/index'); ?>">
-                    Back
-                </a>
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md">
+                        <h4 class="mb-0">New group</h4>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-toolbar float-right">
+                            <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/subscriber/group/index'); ?>">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <div class="mb-2"></div>
-<?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+            </div>
+        </div>
+    </div>
+</div>
