@@ -61,8 +61,6 @@ class ImportForm extends FormModel
 
         if (isset($data[$scope]['groups'])) {
             $data[$scope]['groups'] = array_filter((array) $data[$scope]['groups']);
-        } else {
-            $data[$scope]['groups'] = [];
         }
 
         return parent::load($data, $formName);

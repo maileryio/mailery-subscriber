@@ -8,7 +8,7 @@ use Yiisoft\Yii\Bootstrap5\Nav;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
-/** @var \Mailery\Subscriber\Entity\Subscriber $subscriber */
+/** @var Mailery\Subscriber\Entity\Subscriber $subscriber */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
 
 $this->setTitle($subscriber->getName());
