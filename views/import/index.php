@@ -75,7 +75,7 @@ $this->setTitle('Import lists');
                             'label()' => ['Date'],
                             'value()' => [static function (Import $model) use ($url) {
                                 return Html::a(
-                                    DateTimeFormat::widget()->dateTime($model->getCreatedAt())->run(),
+                                    DateTimeFormat::widget()->dateTime($model->getCreatedAt()),
                                     $url->generate('/subscriber/import/view', ['id' => $model->getId()])
                                 );
                             }],

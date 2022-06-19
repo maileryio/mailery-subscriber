@@ -25,7 +25,7 @@ $this->setTitle($import->getFile()->getTitle());
                     <div class="col-md">
                         <h4 class="mb-0">Import #<?= $import->getId(); ?></h4>
                         <p class="mt-1 mb-0 small">
-                            Changed at <?= DateTimeFormat::widget()->dateTime($import->getUpdatedAt())->run() ?>
+                            Changed at <?= DateTimeFormat::widget()->dateTime($import->getUpdatedAt()) ?>
                         </p>
                     </div>
                     <div class="col-auto">

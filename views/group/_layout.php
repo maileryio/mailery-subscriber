@@ -25,7 +25,7 @@ $this->setTitle($group->getName());
                     <div class="col-md">
                         <h4 class="mb-0"><?= $group->getName(); ?></h4>
                         <p class="mt-1 mb-0 small">
-                            Changed at <?= DateTimeFormat::widget()->dateTime($group->getUpdatedAt())->run() ?>
+                            Changed at <?= DateTimeFormat::widget()->dateTime($group->getUpdatedAt()) ?>
                         </p>
                     </div>
                     <div class="col-auto">

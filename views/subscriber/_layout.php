@@ -21,7 +21,7 @@ $this->setTitle($subscriber->getName());
                     <div class="col-md">
                         <h4 class="mb-0">Subscriber #<?= $subscriber->getId(); ?></h4>
                         <p class="mt-1 mb-0 small">
-                            Changed at <?= DateTimeFormat::widget()->dateTime($subscriber->getUpdatedAt())->run() ?>
+                            Changed at <?= DateTimeFormat::widget()->dateTime($subscriber->getUpdatedAt()) ?>
                         </p>
                     </div>
                     <div class="col-auto">
