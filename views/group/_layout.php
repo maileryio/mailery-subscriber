@@ -48,6 +48,12 @@ $this->setTitle($group->getName());
                                         ->method('delete')
                                         ->href($url->generate('/subscriber/group/delete', ['id' => $group->getId()]))
                                         ->confirm('Are you sure?')
+                                        ->afterRequest(<<<JS
+                                            (res) => {
+                                                res.redirected && res.url && (window.location.href = res.url);
+                                            }
+                                            JS
+                                        )
                                         ->options([
                                             'class' => 'btn btn-link text-decoration-none text-danger',
                                         ]); ?>
