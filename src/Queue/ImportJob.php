@@ -23,6 +23,11 @@ use Mailery\Subscriber\ValueObject\ImportValueObject;
 class ImportJob
 {
     /**
+     * @var Import
+     */
+    private Import $import;
+
+    /**
      * @param FileInfo $fileInfo
      * @param SubscriberInterpreter $interpreter
      * @param ImportCrudService $importCrudService

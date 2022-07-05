@@ -18,10 +18,13 @@ use Mailery\Brand\Entity\Brand;
 use Mailery\Common\Entity\RoutableEntityInterface;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Activity\Log\Mapper\LoggableMapper;
+use Cycle\ORM\Collection\DoctrineCollectionFactory;
+use Cycle\ORM\Collection\Pivoted\PivotedCollection;
 use Cycle\ORM\Entity\Behavior;
 use Cycle\Annotated\Annotation\Entity;
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
+use Cycle\Annotated\Annotation\Relation\ManyToMany;
 
 #[Entity(
     table: 'subscriber_groups',
@@ -49,11 +52,19 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     #[Column(type: 'string(255)')]
     private string $name;
 
+    #[ManyToMany(target: Subscriber::class, though: SubscriberGroup::class, thoughInnerKey: 'subscriber_group_id', thoughOuterKey: 'subscriber_id', collection: DoctrineCollectionFactory::class)]
+    private PivotedCollection $subscribers;
+
     #[Column(type: 'datetime')]
     private \DateTimeImmutable $createdAt;
 
     #[Column(type: 'datetime', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    public function __construct()
+    {
+        $this->subscribers = new PivotedCollection();
+    }
 
     /**
      * @return string
@@ -116,6 +127,25 @@ class Group implements RoutableEntityInterface, LoggableEntityInterface
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return PivotedCollection
+     */
+    public function getSubscribers(): PivotedCollection
+    {
+        return $this->subscribers;
+    }
+
+    /**
+     * @param PivotedCollection $subscribers
+     * @return self
+     */
+    public function setSubscribers(PivotedCollection $subscribers): self
+    {
+        $this->subscribers = $subscribers;
 
         return $this;
     }
