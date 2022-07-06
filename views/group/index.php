@@ -77,22 +77,27 @@ $this->setTitle('Subscriber groups');
                         [
                             'label()' => ['Active'],
                             'value()' => [fn (Group $model) => $subscriberCounter->withGroup($model)->getActiveCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Unconfirmed'],
                             'value()' => [fn (Group $model) => $subscriberCounter->withGroup($model)->getUnconfirmedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Unsubscribed'],
                             'value()' => [fn (Group $model) => $subscriberCounter->withGroup($model)->getUnsubscribedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Bounced'],
                             'value()' => [fn (Group $model) => $subscriberCounter->withGroup($model)->getBouncedCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Marked as spam'],
                             'value()' => [fn (Group $model) => $subscriberCounter->withGroup($model)->getComplaintCount()],
+                            'emptyValue()' => ['0'],
                         ],
                         [
                             'label()' => ['Edit'],
