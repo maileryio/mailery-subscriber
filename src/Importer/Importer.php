@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Importer;
 
-use Ddeboer\DataImport\Reader;
+use Port\Reader;
 
 class Importer implements ImporterInterface
 {

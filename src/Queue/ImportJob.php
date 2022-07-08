@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Queue;
 
-use Ddeboer\DataImport\Reader\CsvReader;
+use Port\Csv\CsvReader;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;

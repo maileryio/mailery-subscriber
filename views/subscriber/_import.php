@@ -14,6 +14,7 @@ use Yiisoft\Form\Field;
 
 <?= Form::tag()
         ->csrf($csrf)
+        ->enctype('multipart/form-data')
         ->id('subscriber-import-form')
         ->post()
         ->open(); ?>
