@@ -1,8 +1,8 @@
 <?php
 
-use Yiisoft\Form\Widget\Form;
+use Yiisoft\Html\Tag\Form;
+use Yiisoft\Form\Field;
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\View\WebView $this */
 /** @var Mailery\Subscriber\Form\GroupForm $form */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
@@ -10,17 +10,17 @@ use Yiisoft\Form\Widget\Form;
 ?>
 <div class="row">
     <div class="col-12">
-        <?= Form::widget()
+        <?= Form::tag()
                 ->csrf($csrf)
                 ->id('group-form')
-                ->begin(); ?>
+                ->post()
+                ->open(); ?>
 
-        <?= $field->text($form, 'name')->autofocus(); ?>
+        <?= Field::text($form, 'name')->autofocus(); ?>
 
-        <?= $field->submitButton()
-                ->class('btn btn-primary float-right mt-2')
-                ->value('Save'); ?>
+        <?= Field::submitButton()
+                ->content('Save'); ?>
 
-        <?= Form::end(); ?>
+        <?= Form::tag()->close(); ?>
     </div>
 </div>

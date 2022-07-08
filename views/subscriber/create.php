@@ -4,7 +4,6 @@ use Mailery\Subscriber\Form\SubscriberForm;
 use Mailery\Subscriber\Form\ImportForm;
 use Yiisoft\Yii\Bootstrap5\Nav;
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Form\SubscriberForm|Mailery\Subscriber\Form\ImportForm $form */
@@ -68,11 +67,11 @@ $this->setTitle('Add subscribers');
                         <div class="row"><?php
                             if ($form instanceof SubscriberForm) {
                                 ?><div class="col-6">
-                                    <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+                                    <?= $this->render('_form', compact('csrf', 'form')) ?>
                                 </div><?php
                             } else if ($form instanceof ImportForm) {
                                 ?><div class="col-6">
-                                    <?= $this->render('_import', compact('csrf', 'field', 'form')) ?>
+                                    <?= $this->render('_import', compact('csrf', 'form')) ?>
                                 </div><?php
                             }
                         ?></div>

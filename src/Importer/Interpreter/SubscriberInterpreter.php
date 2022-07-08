@@ -12,11 +12,9 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Importer\Interpreter;
 
-use Cycle\ORM\ORMInterface;
-use Mailery\Brand\Entity\Brand;
+use Cycle\ORM\EntityManagerInterface;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
-use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Importer\InterpreterInterface;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Service\SubscriberCrudService;
@@ -39,12 +37,14 @@ class SubscriberInterpreter implements InterpreterInterface
     private Import $import;
 
     /**
-     * @param ORMInterface $orm
+     * @param EntityManagerInterface $entityManager
+     * @param SubscriberRepository $subscriberRepo
      * @param SubscriberCrudService $subscriberCrudService
      * @param ImportCrudService $importCrudService
      */
     public function __construct(
-        private ORMInterface $orm,
+        private EntityManagerInterface $entityManager,
+        private SubscriberRepository $subscriberRepo,
         private SubscriberCrudService $subscriberCrudService,
         private ImportCrudService $importCrudService
     ) {}
@@ -126,7 +126,7 @@ class SubscriberInterpreter implements InterpreterInterface
             ->setError($message)
             ->setValue((string) $value);
 
-        (new EntityWriter($this->orm))->write([$error]);
+        (new EntityWriter($this->entityManager))->write([$error]);
     }
 
     /**
@@ -136,11 +136,15 @@ class SubscriberInterpreter implements InterpreterInterface
      */
     private function flushSubscriberValueObject(SubscriberValueObject $valueObject, bool $hasErrors): void
     {
-        $repo = $this->getSubscriberRepository($this->import->getBrand());
         $subscriberCrudService = $this->subscriberCrudService->withBrand($this->import->getBrand());
 
         if (!$hasErrors) {
-            if (($subscriber = $repo->findByEmail($valueObject->getEmail())) === null) {
+            $subscriber = $this->subscriberRepo
+                ->withBrand($this->import->getBrand())
+                ->findByEmail($valueObject->getEmail())
+            ;
+
+            if ($subscriber === null) {
                 $subscriberCrudService->create($valueObject);
 
                 $this->importCrudService->update(
@@ -161,15 +165,5 @@ class SubscriberInterpreter implements InterpreterInterface
                 ImportValueObject::fromEntity($this->import)->incrSkippedCount()
             );
         }
-    }
-
-    /**
-     * @param Brand $brand
-     * @return SubscriberRepository
-     */
-    private function getSubscriberRepository(Brand $brand): SubscriberRepository
-    {
-        return $this->orm->getRepository(Subscriber::class)
-            ->withBrand($brand);
     }
 }

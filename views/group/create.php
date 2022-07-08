@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\Router\UrlGeneratorInterface $url */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -35,7 +34,7 @@ $this->setTitle('New group');
     <div class="col-12">
         <div class="card mb-3">
             <div class="card-body">
-                <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+                <?= $this->render('_form', compact('csrf', 'form')) ?>
             </div>
         </div>
     </div>

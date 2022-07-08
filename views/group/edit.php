@@ -3,7 +3,6 @@
 use Mailery\Icon\Icon;
 use Mailery\Web\Widget\FlashMessage;
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Subscriber\Entity\Group $group */
@@ -50,7 +49,7 @@ $this->setTitle('Edit Group #' . $group->getId());
                 </div>
 
                 <div class="mb-2"></div>
-                <?= $this->render('_form', compact('csrf', 'field', 'form')) ?>
+                <?= $this->render('_form', compact('csrf', 'form')) ?>
             </div>
         </div>
     </div>

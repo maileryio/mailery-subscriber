@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Service;
 
-use Cycle\ORM\ORMInterface;
+use Cycle\ORM\EntityManagerInterface;
 use Mailery\Storage\Entity\File;
 use Mailery\Storage\Service\StorageService;
 use Mailery\Storage\ValueObject\FileValueObject;
@@ -32,13 +32,13 @@ class ImportCrudService
     private Brand $brand;
 
     /**
-     * @param ORMInterface $orm
+     * @param EntityManagerInterface $entityManager
      * @param SubscriberImportBucket $bucket
      * @param FileInfo $fileInfo
      * @param StorageService $storageService
      */
     public function __construct(
-        private ORMInterface $orm,
+        private EntityManagerInterface $entityManager,
         private SubscriberImportBucket $bucket,
         private FileInfo $fileInfo,
         private StorageService $storageService
@@ -79,7 +79,7 @@ class ImportCrudService
             $import->getGroups()->add($group);
         }
 
-        (new EntityWriter($this->orm))->write([$import]);
+        (new EntityWriter($this->entityManager))->write([$import]);
 
         return $import;
     }
@@ -98,7 +98,7 @@ class ImportCrudService
             ->setStatus($valueObject->getStatus())
         ;
 
-        (new EntityWriter($this->orm))->write([$import]);
+        (new EntityWriter($this->entityManager))->write([$import]);
 
         return $import;
     }
@@ -109,7 +109,7 @@ class ImportCrudService
      */
     public function delete(Import $import): bool
     {
-        (new EntityWriter($this->orm))->delete([$import]);
+        (new EntityWriter($this->entityManager))->delete([$import]);
 
         return true;
     }

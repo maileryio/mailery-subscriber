@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Service;
 
-use Cycle\ORM\ORMInterface;
+use Cycle\ORM\EntityManagerInterface;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\ValueObject\GroupValueObject;
 use Mailery\Brand\Entity\Brand;
@@ -26,10 +26,10 @@ class GroupCrudService
     private Brand $brand;
 
     /**
-     * @param ORMInterface $orm
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        private ORMInterface $orm
+        private EntityManagerInterface $entityManager
     ) {}
 
     /**
@@ -55,7 +55,7 @@ class GroupCrudService
             ->setName($valueObject->getName())
         ;
 
-        (new EntityWriter($this->orm))->write([$group]);
+        (new EntityWriter($this->entityManager))->write([$group]);
 
         return $group;
     }
@@ -72,7 +72,7 @@ class GroupCrudService
             ->setName($valueObject->getName())
         ;
 
-        (new EntityWriter($this->orm))->write([$group]);
+        (new EntityWriter($this->entityManager))->write([$group]);
 
         return $group;
     }
@@ -83,7 +83,7 @@ class GroupCrudService
      */
     public function delete(Group $group): bool
     {
-        (new EntityWriter($this->orm))->delete([$group]);
+        (new EntityWriter($this->entityManager))->delete([$group]);
 
         return true;
     }

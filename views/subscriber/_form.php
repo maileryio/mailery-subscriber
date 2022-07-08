@@ -1,49 +1,49 @@
 <?php
 
 use Mailery\Widget\Select\Select;
-use Yiisoft\Form\Widget\Form;
+use Yiisoft\Html\Tag\Form;
+use Yiisoft\Form\Field;
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\View\WebView $this */
 /** @var Mailery\Subscriber\Form\SubscriberForm $form */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
 
 ?>
 
-<?= Form::widget()
+<?= Form::tag()
         ->csrf($csrf)
         ->id('subscriber-form')
-        ->begin(); ?>
+        ->post()
+        ->open(); ?>
 
-<?= $field->text($form, 'name')->autofocus(); ?>
+<?= Field::text($form, 'name')->autofocus(); ?>
 
-<?= $field->text($form, 'email'); ?>
+<?= Field::text($form, 'email'); ?>
 
-<?= $field->select(
+<?= Field::input(
+        Select::class,
         $form,
         'groups',
         [
-            'class' => Select::class,
-            'items()' => [$form->getGroupListOptions()],
+            'optionsData()' => [$form->getGroupListOptions()],
             'multiple()' => [true],
             'taggable()' => [true],
             'deselectFromDropdown()' => [true],
         ]
     ); ?>
 
-<?= $field->select(
+<?= Field::input(
+        Select::class,
         $form,
         'confirmed',
         [
-            'class' => Select::class,
-            'items()' => [$form->getBooleanListOptions()],
+            'optionsData()' => [$form->getBooleanListOptions()],
             'clearable()' => [false],
             'searchable()' => [false],
         ]
     ); ?>
 
-<?= $field->submitButton()
-        ->class('btn btn-primary float-right mt-2')
-        ->value('Save'); ?>
+<?= Field::submitButton()
+        ->content('Save'); ?>
 
-<?= Form::end(); ?>
+<?= Form::tag()->close(); ?>

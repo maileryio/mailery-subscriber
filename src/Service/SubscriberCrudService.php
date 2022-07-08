@@ -12,8 +12,7 @@ declare(strict_types=1);
 
 namespace Mailery\Subscriber\Service;
 
-use Cycle\ORM\ORMInterface;
-use Cycle\ORM\Transaction;
+use Cycle\ORM\EntityManagerInterface;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\ValueObject\SubscriberValueObject;
@@ -29,10 +28,10 @@ class SubscriberCrudService
     private Brand $brand;
 
     /**
-     * @param ORMInterface $orm
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        private ORMInterface $orm,
+        private EntityManagerInterface $entityManager
     ) {}
 
     /**
@@ -67,7 +66,7 @@ class SubscriberCrudService
             $subscriber->getGroups()->add($group);
         }
 
-        (new EntityWriter($this->orm))->write([$subscriber]);
+        (new EntityWriter($this->entityManager))->write([$subscriber]);
 
         return $subscriber;
     }
@@ -99,7 +98,7 @@ class SubscriberCrudService
             }
         }
 
-        (new EntityWriter($this->orm))->write([$subscriber]);
+        (new EntityWriter($this->entityManager))->write([$subscriber]);
 
         return $subscriber;
     }
@@ -111,8 +110,6 @@ class SubscriberCrudService
      */
     public function delete(Subscriber $subscriber, Group $group = null): bool
     {
-        $transaction = new Transaction($this->orm);
-
         foreach ($subscriber->getGroups() as $groupPivot) {
             if ($group === null || $group === $groupPivot) {
                 $subscriber->getGroups()->removeElement($groupPivot);
@@ -120,12 +117,12 @@ class SubscriberCrudService
         }
 
         if ($subscriber->getGroups()->count() > 0) {
-            $transaction->persist($subscriber);
+            $this->entityManager->persist($subscriber);
         } else {
-            $transaction->delete($subscriber);
+            $this->entityManager->delete($subscriber);
         }
 
-        $transaction->run();
+        $this->entityManager->run();
 
         return true;
     }

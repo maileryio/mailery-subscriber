@@ -2,22 +2,23 @@
 
 use Mailery\Widget\Select\Select;
 use Yiisoft\Html\Html;
-use Yiisoft\Form\Widget\Form;
+use Yiisoft\Html\Tag\Form;
 use Yiisoft\Form\Helper\HtmlForm;
+use Yiisoft\Form\Field;
 
-/** @var Yiisoft\Form\Widget\Field $field */
 /** @var Yiisoft\View\WebView $this */
 /** @var Mailery\Subscriber\Form\ImportForm $form */
 /** @var Yiisoft\Yii\View\Csrf $csrf */
 
 ?>
 
-<?= Form::widget()
+<?= Form::tag()
         ->csrf($csrf)
         ->id('subscriber-import-form')
-        ->begin(); ?>
+        ->post()
+        ->open(); ?>
 
-<?= $field->file($form, 'file')
+<?= Field::file($form, 'file')
         ->template(strtr(
             "{label}\n{input}\n{hint}\n{error}",
             [
@@ -34,20 +35,20 @@ use Yiisoft\Form\Helper\HtmlForm;
         ));
 ?>
 
-<?= $field->select(
+<?= Field::input(
+        Select::class,
         $form,
         'groups',
         [
-            'class' => Select::class,
-            'items()' => [$form->getGroupListOptions()],
+            'optionsData()' => [$form->getGroupListOptions()],
             'multiple()' => [true],
             'taggable()' => [true],
             'deselectFromDropdown()' => [true],
         ]
     ); ?>
 
-<?= $field->submitButton()
-        ->class('btn btn-primary float-right mt-2')
-        ->value('Save'); ?>
+<?= Field::submitButton()
+        ->buttonClass('btn btn-primary float-right mt-2')
+        ->content('Save'); ?>
 
-<?= Form::end(); ?>
+<?= Form::tag()->close(); ?>
