@@ -363,4 +363,15 @@ class Subscriber implements RoutableEntityInterface, LoggableEntityInterface
     {
         return ['id' => $this->getId()];
     }
+
+    /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->isConfirmed()
+            && !$this->isUnsubscribed()
+            && !$this->isBounced()
+            && !$this->isComplaint();
+    }
 }

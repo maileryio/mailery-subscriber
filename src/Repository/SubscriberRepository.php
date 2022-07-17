@@ -56,6 +56,23 @@ class SubscriberRepository extends Repository
     }
 
     /**
+     * @return self
+     */
+    public function asActive(): self
+    {
+        $repo = clone $this;
+        $repo->select
+            ->andWhere([
+                'confirmed' => true,
+                'unsubscribed' => false,
+                'bounced' => false,
+                'complaint' => false,
+            ]);
+
+        return $repo;
+    }
+
+    /**
      * @param bool $confirmed
      * @return self
      */

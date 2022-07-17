@@ -78,10 +78,7 @@ class SubscriberCounter
     public function getActiveCount(): int
     {
         return $this->repo
-            ->asConfirmed(true)
-            ->asUnsubscribed(false)
-            ->asBounced(false)
-            ->asComplaint(false)
+            ->asActive()
             ->select()
             ->count();
     }
