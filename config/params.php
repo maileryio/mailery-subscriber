@@ -14,12 +14,15 @@ use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Definitions\Reference;
 use Mailery\Subscriber\Model\SubscriberImportBucket;
 use Yiisoft\Definitions\DynamicReference;
+use Mailery\Messenger\Transport\BeanstalkdTransportFactory;
 use Mailery\Subscriber\Entity\Group;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Entity\ImportError;
 use Mailery\Subscriber\Entity\ImportGroup;
 use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Entity\SubscriberGroup;
+use Mailery\Subscriber\Messenger\Message\ImportSubscribers;
+use Mailery\Subscriber\Messenger\Handler\ImportSubscribersHandler;
 
 return [
     'yiisoft/yii-cycle' => [
@@ -40,6 +43,22 @@ return [
                     Subscriber::class,
                     SubscriberGroup::class,
                 ],
+            ],
+        ],
+    ],
+
+    'maileryio/mailery-messenger' => [
+        'handlers' => [
+            ImportSubscribers::class => [ImportSubscribersHandler::class],
+        ],
+        'senders' => [
+            ImportSubscribers::class => ['subscriber'],
+        ],
+        'recievers' => [
+            'subscriber' => [
+                'transport' => DynamicReference::to(new BeanstalkdTransportFactory([
+                    'tube_name' => 'subscriber',
+                ])),
             ],
         ],
     ],

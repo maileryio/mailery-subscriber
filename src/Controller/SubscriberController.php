@@ -14,7 +14,7 @@ namespace Mailery\Subscriber\Controller;
 
 use Mailery\Subscriber\Form\ImportForm;
 use Mailery\Subscriber\Form\SubscriberForm;
-use Mailery\Subscriber\Queue\ImportJob;
+use Mailery\Subscriber\Messenger\Message\ImportSubscribers;
 use Mailery\Subscriber\Repository\GroupRepository;
 use Mailery\Subscriber\Repository\SubscriberRepository;
 use Mailery\Subscriber\Service\SubscriberCrudService;
@@ -37,6 +37,7 @@ use Yiisoft\Session\Flash\FlashInterface;
 use Mailery\Subscriber\Service\ImportCrudService;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
 use Yiisoft\Router\CurrentRoute;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class SubscriberController
 {
@@ -194,10 +195,10 @@ class SubscriberController
      * @param Request $request
      * @param ValidatorInterface $validator
      * @param ImportForm $form
-     * @param ImportJob $job
+     * @param MessageBusInterface $bus
      * @return Response
      */
-    public function import(Request $request, ValidatorInterface $validator, ImportForm $form, ImportJob $job): Response
+    public function import(Request $request, ValidatorInterface $validator, ImportForm $form, MessageBusInterface $bus): Response
     {
         $body = $request->getParsedBody();
         $files = $request->getUploadedFiles();
@@ -211,7 +212,7 @@ class SubscriberController
             $valueObject = ImportValueObject::fromForm($form);
             $import = $this->importCrudService->create($valueObject);
 
-            $job->push($import);
+            $bus->dispatch(new ImportSubscribers($import->getId()));
 
             return $this->responseFactory
                 ->createResponse(Status::FOUND)

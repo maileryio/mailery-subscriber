@@ -1,27 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
-/**
- * Subscriber module for Mailery Platform
- * @link      https://github.com/maileryio/mailery-subscriber
- * @package   Mailery\Subscriber
- * @license   BSD-3-Clause
- * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
- */
-
-namespace Mailery\Subscriber\Queue;
+namespace Mailery\Subscriber\Messenger\Handler;
 
 use Port\Csv\CsvReader;
+use Psr\Log\LoggerInterface;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
 use Mailery\Subscriber\Importer\Interpreter\SubscriberInterpreter;
 use Mailery\Subscriber\Service\ImportCrudService;
 use Mailery\Subscriber\ValueObject\ImportValueObject;
+use Mailery\Subscriber\Repository\ImportRepository;
+use Mailery\Subscriber\Messenger\Message\ImportSubscribers;
 
-class ImportJob
+class ImportSubscribersHandler
 {
+
     /**
      * @var Import
      */
@@ -31,33 +25,34 @@ class ImportJob
      * @param FileInfo $fileInfo
      * @param SubscriberInterpreter $interpreter
      * @param ImportCrudService $importCrudService
+     * @param ImportRepository $importRepo
+     * @param LoggerInterface $logger
      */
     public function __construct(
         private FileInfo $fileInfo,
         private SubscriberInterpreter $interpreter,
-        private ImportCrudService $importCrudService
+        private ImportCrudService $importCrudService,
+        private ImportRepository $importRepo,
+        private LoggerInterface $logger
     ) {}
 
     /**
-     * @param Import $import
+     * @param ImportSubscribers $message
      */
-    public function push(Import $import)
+    public function __invoke(ImportSubscribers $message)
     {
-        $this->import = $import;
-        $this->execute();
-    }
+        $this->import = $this->importRepo->findByPK($message->getImportId());
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute()
-    {
+        if ($this->import === null) {
+            throw new \RuntimeException('Not found import entity [' . $message->getImportId() . ']');
+        }
+
         try {
-            $this->beforeExecute();
-            $this->doExecute();
-            $this->afterExecute();
+            $this->beforeRun();
+            $this->doRun();
+            $this->afterRun();
         } catch (\Exception $e) {
-            $this->thrownExecute();
+            $this->thrownRun();
 
             throw $e;
         }
@@ -66,7 +61,7 @@ class ImportJob
     /**
      * @return void
      */
-    private function beforeExecute(): void
+    private function beforeRun(): void
     {
         $this->importCrudService->update(
             $this->import,
@@ -77,7 +72,7 @@ class ImportJob
     /**
      * @return void
      */
-    private function afterExecute(): void
+    private function afterRun(): void
     {
         $this->importCrudService->update(
             $this->import,
@@ -88,7 +83,7 @@ class ImportJob
     /**
      * @return void
      */
-    private function thrownExecute(): void
+    private function thrownRun(): void
     {
         $this->importCrudService->update(
             $this->import,
@@ -99,7 +94,7 @@ class ImportJob
     /**
      * @return void
      */
-    private function doExecute(): void
+    private function doRun(): void
     {
         $stream = $this->fileInfo
             ->withFile($this->import->getFile())
@@ -111,4 +106,5 @@ class ImportJob
 
         (new Importer($reader))->import($interpreter);
     }
+
 }

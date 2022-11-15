@@ -4,18 +4,34 @@ namespace Mailery\Subscriber\Model;
 
 use Mailery\Storage\BucketInterface;
 use Yiisoft\Yii\Filesystem\FilesystemInterface;
-use Mailery\Brand\BrandLocator;
+use Mailery\Brand\Entity\Brand;
 
 class SubscriberImportBucket implements BucketInterface
 {
+
+    /**
+     * @var Brand
+     */
+    private Brand $brand;
+
     /**
      * @param FilesystemInterface $filesystem
-     * @param BrandLocator $brandLocator
      */
     public function __construct(
-        private FilesystemInterface $filesystem,
-        private BrandLocator $brandLocator
+        private FilesystemInterface $filesystem
     ) {}
+
+    /**
+     * @param Brand $brand
+     * @return self
+     */
+    public function withBrand(Brand $brand): self
+    {
+        $new = clone $this;
+        $new->brand = $brand;
+
+        return $new;
+    }
 
     /**
      * @return string
@@ -30,7 +46,7 @@ class SubscriberImportBucket implements BucketInterface
      */
     public function getPath(): string
     {
-        return sprintf('/%d/subscriber/import', $this->brandLocator->getBrand()->getId());
+        return sprintf('/%d/subscriber/import', $this->brand->getId());
     }
 
     /**
