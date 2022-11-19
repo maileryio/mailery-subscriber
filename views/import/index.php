@@ -8,6 +8,7 @@ use Mailery\Widget\Search\Widget\SearchWidget;
 use Yiisoft\Html\Html;
 use Yiisoft\Yii\DataView\GridView;
 use Mailery\Web\Widget\DateTimeFormat;
+use Mailery\Web\Vue\Directive;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
@@ -84,7 +85,7 @@ $this->setTitle('Import lists');
                             'label()' => ['File name'],
                             'value()' => [static function (Import $model) use ($url) {
                                 return Html::a(
-                                    $model->getFile()->getTitle(),
+                                    Directive::pre($model->getFile()->getTitle()),
                                     $url->generate('/storage/file/download', ['id' => $model->getFile()->getId()])
                                 );
                             }],

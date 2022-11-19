@@ -7,6 +7,7 @@ use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Widget\Search\Widget\SearchWidget;
 use Mailery\Subscriber\Controller\GroupController;
 use Yiisoft\Yii\Bootstrap5\Nav;
+use Mailery\Web\Vue\Directive;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
@@ -23,7 +24,7 @@ $this->setTitle($group->getName());
             <div class="card-body">
                 <div class="row">
                     <div class="col-md">
-                        <h4 class="mb-0"><?= $group->getName(); ?></h4>
+                        <h4 class="mb-0"><?= Directive::pre($group->getName()); ?></h4>
                         <p class="mt-1 mb-0 small">
                             Changed at <?= DateTimeFormat::widget()->dateTime($group->getUpdatedAt()) ?>
                         </p>

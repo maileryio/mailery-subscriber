@@ -7,6 +7,7 @@ use Mailery\Subscriber\Widget\ImportStatusBadge;
 use Mailery\Web\Widget\ByteUnitsFormat;
 use Mailery\Web\Widget\DateTimeFormat;
 use Yiisoft\Yii\DataView\GridView;
+use Mailery\Web\Vue\Directive;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -52,7 +53,7 @@ $this->setTitle($import->getFile()->getTitle());
                 <div class="row">
                     <div class="col-12">
                         <div>
-                            <p>File name: <b><?= $import->getFile()->getTitle(); ?></b></p>
+                            <p>File name: <b><?= Directive::pre($import->getFile()->getTitle()); ?></b></p>
                             <p>File size: <b><?= ByteUnitsFormat::widget()->bytes($fileInfo->getFileSize()) ?></b></p>
                             <p>Status: <?= ImportStatusBadge::widget()->import($import); ?></p>
                         </div>
@@ -131,15 +132,15 @@ $this->setTitle($import->getFile()->getTitle());
                             ->columns([
                                 [
                                     'label()' => ['Error message'],
-                                    'value()' => [fn (ImportError $model) => $model->getError()],
+                                    'value()' => [fn (ImportError $model) => Directive::pre($model->getError())],
                                 ],
                                 [
                                     'label()' => ['Field'],
-                                    'value()' => [fn (ImportError $model) => $model->getName()],
+                                    'value()' => [fn (ImportError $model) => Directive::pre($model->getName())],
                                 ],
                                 [
                                     'label()' => ['Value'],
-                                    'value()' => [fn (ImportError $model) => $model->getValue()],
+                                    'value()' => [fn (ImportError $model) => Directive::pre($model->getValue())],
                                 ],
                             ]);
                         ?>

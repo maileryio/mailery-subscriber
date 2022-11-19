@@ -7,6 +7,7 @@ use Mailery\Widget\Link\Link;
 use Mailery\Widget\Search\Widget\SearchWidget;
 use Yiisoft\Html\Html;
 use Yiisoft\Yii\DataView\GridView;
+use Mailery\Web\Vue\Directive;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Mailery\Widget\Search\Form\SearchForm $searchForm */
@@ -71,11 +72,11 @@ $this->setTitle('All subscribers');
                     ->columns([
                         [
                             'label()' => ['Email'],
-                            'value()' => [fn (Subscriber $model) => Html::a($model->getEmail(), $url->generate($model->getViewRouteName(), $model->getViewRouteParams()))],
+                            'value()' => [fn (Subscriber $model) => Html::a(Directive::pre($model->getEmail()), $url->generate($model->getViewRouteName(), $model->getViewRouteParams()))],
                         ],
                         [
                             'label()' => ['Name'],
-                            'value()' => [fn (Subscriber $model) => $model->getName()],
+                            'value()' => [fn (Subscriber $model) => Directive::pre($model->getName())],
                         ],
                         [
                             'label()' => ['Edit'],

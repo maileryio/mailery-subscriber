@@ -3,6 +3,7 @@
 use Mailery\Subscriber\Entity\Subscriber;
 use Yiisoft\Yii\Widgets\ContentDecorator;
 use Yiisoft\Yii\DataView\DetailView;
+use Mailery\Web\Vue\Directive;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -37,19 +38,19 @@ $this->setTitle($subscriber->getName());
             ->attributes([
                 [
                     'label' => 'Name',
-                    'value' => function (Subscriber $data, $index) {
-                        return $data->getName();
+                    'value' => function (Subscriber $data) {
+                        return Directive::pre($data->getName());
                     },
                 ],
                 [
                     'label' => 'Email',
-                    'value' => function (Subscriber $data, $index) {
-                        return $data->getEmail();
+                    'value' => function (Subscriber $data) {
+                        return Directive::pre($data->getEmail());
                     },
                 ],
                 [
                     'label' => 'Confirmed',
-                    'value' => function (Subscriber $data, $index) {
+                    'value' => function (Subscriber $data) {
                         return $data->getConfirmed();
                     },
                 ],
