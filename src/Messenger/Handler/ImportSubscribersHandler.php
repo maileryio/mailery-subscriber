@@ -3,7 +3,6 @@
 namespace Mailery\Subscriber\Messenger\Handler;
 
 use Port\Csv\CsvReader;
-use Psr\Log\LoggerInterface;
 use Mailery\Storage\Filesystem\FileInfo;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Importer\Importer;
@@ -26,14 +25,12 @@ class ImportSubscribersHandler
      * @param SubscriberInterpreter $interpreter
      * @param ImportCrudService $importCrudService
      * @param ImportRepository $importRepo
-     * @param LoggerInterface $logger
      */
     public function __construct(
         private FileInfo $fileInfo,
         private SubscriberInterpreter $interpreter,
         private ImportCrudService $importCrudService,
-        private ImportRepository $importRepo,
-        private LoggerInterface $logger
+        private ImportRepository $importRepo
     ) {}
 
     /**

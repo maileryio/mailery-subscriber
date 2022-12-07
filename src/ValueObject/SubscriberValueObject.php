@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Mailery\Subscriber\ValueObject;
 
 use Mailery\Subscriber\Entity\Group;
+use Mailery\Subscriber\Entity\Subscriber;
 use Mailery\Subscriber\Entity\Import;
 use Mailery\Subscriber\Form\SubscriberForm;
 use Yiisoft\Validator\DataSetInterface;
@@ -88,6 +89,48 @@ class SubscriberValueObject implements DataSetInterface
     }
 
     /**
+     * @param Subscriber $subscriber
+     * @return self
+     */
+    public static function fromEntity(Subscriber $subscriber): self
+    {
+        $new = new self();
+        $new->name = $subscriber->getName();
+        $new->email = $subscriber->getEmail();
+        $new->confirmed = $subscriber->getConfirmed();
+        $new->unsubscribed = $subscriber->getUnsubscribed();
+        $new->bounced = $subscriber->getBounced();
+        $new->complaint = $subscriber->getComplaint();
+        $new->groups = $subscriber->getGroups()->toArray();
+
+        return $new;
+    }
+
+    /**
+     * @param Group[] $groups
+     * @return self
+     */
+    public function withGroups(array $groups): self
+    {
+        $new = clone $this;
+        $new->groups = $groups;
+
+        return $new;
+    }
+
+    /**
+     * @param Import $import
+     * @return self
+     */
+    public function withImport(Import $import): self
+    {
+        $new = clone $this;
+        $new->import = $import;
+
+        return $new;
+    }
+
+    /**
      * @return string
      */
     public function getName(): string
@@ -152,25 +195,46 @@ class SubscriberValueObject implements DataSetInterface
     }
 
     /**
-     * @param Group[] $groups
      * @return self
      */
-    public function withGroups(array $groups): self
+    public function asConfirmed(): self
     {
         $new = clone $this;
-        $new->groups = $groups;
+        $new->confirmed = true;
 
         return $new;
     }
 
     /**
-     * @param Import $import
+     * @param bool $value
      * @return self
      */
-    public function withImport(Import $import): self
+    public function asUnsubscribed(bool $value = true): self
     {
         $new = clone $this;
-        $new->import = $import;
+        $new->unsubscribed = $value;
+
+        return $new;
+    }
+
+    /**
+     * @return self
+     */
+    public function asBounced(): self
+    {
+        $new = clone $this;
+        $new->bounced = true;
+
+        return $new;
+    }
+
+    /**
+     * @return self
+     */
+    public function asComplaint(): self
+    {
+        $new = clone $this;
+        $new->complaint = true;
 
         return $new;
     }
